@@ -14,6 +14,7 @@ export const ACTION_CONFIG: { action: GameAction; label: string; cost: string }[
   { action: "eat", label: "EAT RATION", cost: "0.5h | Energy +20" },
   { action: "drink", label: "DRINK WATER", cost: "0.5h | Hydration +25" },
   { action: "use_medicine", label: "USE MEDICINE", cost: "0.5h | O2 +15, Temp normalize" },
+  { action: "wait" as GameAction, label: "WAIT", cost: "1h | Endure the whiteout" },
 ];
 
 export function NavigationConsole() {

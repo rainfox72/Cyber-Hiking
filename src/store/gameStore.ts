@@ -41,6 +41,7 @@ interface GameStore {
   lastRiskPercent: number;
   lastEvents: CriticalEvent[];
   isShaking: boolean;
+  vitalsJitter: Record<string, number>;
 
   // RNG
   rng: RNG;
@@ -92,6 +93,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   lastRiskPercent: 0,
   lastEvents: [],
   isShaking: false,
+  vitalsJitter: {},
 
   // RNG with random seed
   rng: createRNG(Date.now()),
@@ -104,6 +106,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       lastRiskPercent: 0,
       lastEvents: [],
       isShaking: false,
+      vitalsJitter: {},
       rng: createRNG(Date.now()),
     });
   },
@@ -116,6 +119,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       lastRiskPercent: 0,
       lastEvents: [],
       isShaking: false,
+      vitalsJitter: {},
       rng: createRNG(Date.now()),
     });
   },
@@ -137,12 +141,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
       // Screen shake on critical events
       const hasEvents = result.events.length > 0;
 
+      // Fog of war: jitter vitals display when morale is low
+      const jitter: Record<string, number> = {};
+      if (result.newState.player.morale < 40) {
+        for (const vital of ["energy", "hydration", "bodyTemp", "o2Saturation", "morale"]) {
+          jitter[vital] = (Math.random() - 0.5) * 20; // ±10
+        }
+      }
+
       set({
         ...stateFromGameState(result.newState),
         isProcessing: false,
         lastRiskPercent: result.riskPercent,
         lastEvents: result.events,
         isShaking: hasEvents,
+        vitalsJitter: jitter,
       });
 
       // Clear shake after animation
