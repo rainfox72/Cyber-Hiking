@@ -44,6 +44,7 @@ export function TacticalMap() {
   const bodyTemp = useGameStore((s) => s.player.bodyTemp);
   const o2 = useGameStore((s) => s.player.o2Saturation);
   const morale = useGameStore((s) => s.player.morale);
+  const lastAction = useGameStore((s) => s.lastAction);
 
   const [zoomLevel, setZoomLevel] = useState(1);
 
@@ -196,6 +197,7 @@ export function TacticalMap() {
             x={toMapX(WAYPOINTS[currentIndex].distanceFromStart)}
             y={toMapY(WAYPOINTS[currentIndex].elevation) - 10}
             healthPercent={healthPercent}
+            lastAction={lastAction}
           />
         </svg>
       </div>
