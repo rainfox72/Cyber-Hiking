@@ -1,0 +1,206 @@
+:root {
+  /* Neon tactical palette */
+  --neon-green: #00ff41;
+  --neon-green-dim: #00aa2a;
+  --neon-green-glow: rgba(0, 255, 65, 0.3);
+  --amber: #ffb000;
+  --amber-dim: #aa7500;
+  --amber-glow: rgba(255, 176, 0, 0.3);
+  --danger: #ff2222;
+  --danger-dim: #aa1111;
+  --danger-glow: rgba(255, 34, 34, 0.3);
+  --cyan: #00aaff;
+  --magenta: #ff00ff;
+
+  /* Backgrounds */
+  --bg-dark: #0a0a0a;
+  --bg-panel: #0d0d0d;
+  --bg-panel-hover: #141414;
+  --bg-panel-border: #1a1a1a;
+  --bg-input: #080808;
+
+  /* Text */
+  --text-primary: #00ff41;
+  --text-secondary: #ffb000;
+  --text-dim: #335533;
+  --text-muted: #444444;
+
+  /* Typography */
+  --font-mono: 'Courier New', 'Consolas', 'Monaco', monospace;
+
+  /* Glows */
+  --glow-green: 0 0 10px var(--neon-green-glow);
+  --glow-amber: 0 0 10px var(--amber-glow);
+  --glow-danger: 0 0 10px var(--danger-glow);
+
+  /* Sizes */
+  --panel-padding: 12px;
+  --panel-gap: 2px;
+  --border-radius: 2px;
+
+  font-family: var(--font-mono);
+  line-height: 1.4;
+  font-weight: 400;
+  font-size: 13px;
+
+  color: var(--text-primary);
+  background-color: var(--bg-dark);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--bg-dark);
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-dim);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-green-dim);
+}
+
+/* Panel base class */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--bg-panel-border);
+  border-radius: var(--border-radius);
+  padding: var(--panel-padding);
+  box-shadow: inset 0 0 30px rgba(0, 255, 65, 0.01);
+}
+
+.panel-header {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--bg-panel-border);
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+/* Pulsing danger animation */
+@keyframes pulse-danger {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Screen shake animation */
+@keyframes screen-shake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-3px, 2px); }
+  20% { transform: translate(3px, -2px); }
+  30% { transform: translate(-2px, -3px); }
+  40% { transform: translate(2px, 3px); }
+  50% { transform: translate(-3px, -1px); }
+  60% { transform: translate(3px, 1px); }
+  70% { transform: translate(-1px, 3px); }
+  80% { transform: translate(1px, -3px); }
+  90% { transform: translate(-2px, 2px); }
+}
+
+.shaking {
+  animation: screen-shake 0.5s ease-in-out;
+}
+
+/* Blinking cursor */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Glow pulse for active elements */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 5px var(--neon-green-glow); }
+  50% { box-shadow: 0 0 15px var(--neon-green-glow), 0 0 30px rgba(0, 255, 65, 0.1); }
+}
+
+/* Static noise flicker for defeat screen */
+@keyframes static-flicker {
+  0% { opacity: 0.4; }
+  25% { opacity: 0.6; }
+  50% { opacity: 0.35; }
+  75% { opacity: 0.55; }
+  100% { opacity: 0.45; }
+}
+
+/* Green glow pulse behind victory title */
+@keyframes victory-glow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.15);
+  }
+}
+
+/* Title screen boot line fade-in */
+@keyframes line-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Title block fade-in */
+@keyframes title-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Prompt pulse for "PRESS ENTER" */
+@keyframes prompt-pulse {
+  0%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 10px var(--amber-glow);
+  }
+  50% {
+    opacity: 0.6;
+    text-shadow: 0 0 4px var(--amber-glow);
+  }
+}

@@ -1,0 +1,552 @@
+/* Game Shell - 3-panel CSS Grid layout */
+.game-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr 220px;
+  grid-template-rows: auto 1fr;
+  gap: var(--panel-gap);
+  height: 100vh;
+  width: 100vw;
+  padding: var(--panel-gap);
+  background: var(--bg-dark);
+}
+
+.game-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--neon-green-dim);
+  background: linear-gradient(180deg, #0d0d0d 0%, #0a0a0a 100%);
+}
+
+.game-header__title {
+  font-size: 14px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--neon-green);
+  text-shadow: var(--glow-green);
+}
+
+.game-header__subtitle {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.game-header__status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+}
+
+.game-header__turn {
+  color: var(--amber);
+}
+
+.game-header__ollama-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.game-header__ollama-dot--connected {
+  background: var(--neon-green);
+  box-shadow: var(--glow-green);
+}
+
+.game-header__ollama-dot--disconnected {
+  background: var(--danger);
+  box-shadow: var(--glow-danger);
+}
+
+/* Panel areas */
+.panel-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-gap);
+  overflow-y: auto;
+}
+
+.panel-center {
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-gap);
+  overflow: hidden;
+}
+
+.panel-right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-gap);
+  overflow-y: auto;
+}
+
+/* Vital bar */
+.vital-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.vital-bar__label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.vital-bar__label-name {
+  color: var(--text-dim);
+}
+
+.vital-bar__label-value {
+  color: var(--text-primary);
+}
+
+.vital-bar__track {
+  height: 4px;
+  background: var(--bg-input);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.vital-bar__fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 0.5s ease, background-color 0.5s ease;
+}
+
+.vital-bar--critical .vital-bar__fill {
+  animation: pulse-danger 1s infinite;
+}
+
+/* Action button */
+.action-button {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 4px;
+  background: var(--bg-input);
+  border: 1px solid var(--bg-panel-border);
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.action-button:hover:not(:disabled) {
+  border-color: var(--neon-green-dim);
+  box-shadow: var(--glow-green);
+  background: var(--bg-panel-hover);
+}
+
+.action-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.action-button:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.action-button__cost {
+  font-size: 9px;
+  color: var(--text-dim);
+  display: block;
+  margin-top: 2px;
+}
+
+/* Log window */
+.log-window {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--panel-padding);
+  background: var(--bg-panel);
+  border: 1px solid var(--bg-panel-border);
+  border-radius: var(--border-radius);
+}
+
+.log-entry {
+  margin-bottom: 8px;
+  line-height: 1.5;
+  font-size: 12px;
+}
+
+.log-entry__timestamp {
+  color: var(--text-dim);
+  font-size: 10px;
+  margin-right: 6px;
+}
+
+.log-entry--narrative {
+  color: var(--text-primary);
+}
+
+.log-entry--event {
+  color: var(--danger);
+}
+
+.log-entry--system {
+  color: var(--text-muted);
+}
+
+.log-entry--action {
+  color: var(--amber);
+}
+
+/* Inventory panel */
+.inventory-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.inventory-item {
+  padding: 4px 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--bg-panel-border);
+  border-radius: var(--border-radius);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.inventory-item__label {
+  color: var(--text-dim);
+  display: block;
+}
+
+.inventory-item__value {
+  color: var(--amber);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Risk meter */
+.risk-meter {
+  text-align: center;
+  padding: 8px;
+}
+
+.risk-meter__value {
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.risk-meter__label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.risk-meter--low .risk-meter__value {
+  color: var(--neon-green);
+  text-shadow: var(--glow-green);
+}
+
+.risk-meter--medium .risk-meter__value {
+  color: var(--amber);
+  text-shadow: var(--glow-amber);
+}
+
+.risk-meter--high .risk-meter__value {
+  color: var(--danger);
+  text-shadow: var(--glow-danger);
+}
+
+/* Weather display */
+.weather-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  font-size: 11px;
+}
+
+.weather-display__icon {
+  font-size: 18px;
+}
+
+.weather-display__info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.weather-display__condition {
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 10px;
+}
+
+.weather-display__detail {
+  color: var(--text-dim);
+  font-size: 9px;
+}
+
+/* Elevation profile */
+.elevation-profile {
+  background: var(--bg-panel);
+  border: 1px solid var(--bg-panel-border);
+  border-radius: var(--border-radius);
+  padding: 8px;
+  height: 140px;
+}
+
+.elevation-profile svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Day/night indicator */
+.day-night {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.day-night__icon {
+  font-size: 14px;
+}
+
+.day-night__time {
+  color: var(--amber);
+  letter-spacing: 1px;
+}
+
+.day-night__period {
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+/* Game screens */
+.screen-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-dark);
+  z-index: 100;
+}
+
+.screen-overlay__title {
+  font-size: 28px;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  color: var(--neon-green);
+  text-shadow: var(--glow-green);
+  margin-bottom: 16px;
+  z-index: 2;
+}
+
+.screen-overlay__subtitle {
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  margin-bottom: 32px;
+  z-index: 2;
+}
+
+.screen-overlay__prompt {
+  font-size: 12px;
+  color: var(--amber);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Defeat screen enhancements */
+.screen-overlay--defeat {
+  overflow: hidden;
+}
+
+.screen-overlay--defeat .screen-overlay__title {
+  color: var(--danger);
+  text-shadow: var(--glow-danger);
+  font-size: 32px;
+  letter-spacing: 10px;
+}
+
+.screen-overlay__static-noise {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  opacity: 0.5;
+  animation: static-flicker 0.15s infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.screen-overlay__transmission {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--danger-dim);
+  margin-bottom: 12px;
+  z-index: 2;
+  animation: pulse-danger 2s infinite;
+}
+
+/* Victory screen enhancements */
+.screen-overlay--victory .screen-overlay__title {
+  color: var(--neon-green);
+  text-shadow: 0 0 20px var(--neon-green-glow), 0 0 40px var(--neon-green-glow);
+  font-size: 32px;
+  letter-spacing: 10px;
+}
+
+.screen-overlay__glow-pulse {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--neon-green-glow) 0%, transparent 70%);
+  animation: victory-glow 3s ease-in-out infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.screen-overlay__roof-subtitle {
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: var(--neon-green-dim);
+  margin-bottom: 8px;
+  z-index: 2;
+}
+
+.screen-overlay__flavor-text {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  margin-bottom: 32px;
+  text-align: center;
+  max-width: 400px;
+  line-height: 1.6;
+  z-index: 2;
+}
+
+/* Shared stat display for defeat/victory */
+.screen-overlay__stats {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 28px;
+  z-index: 2;
+}
+
+.screen-overlay__stat-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.screen-overlay__stat-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.screen-overlay__stat-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--danger);
+  letter-spacing: 2px;
+  text-shadow: var(--glow-danger);
+}
+
+.screen-overlay__stat-value--victory {
+  color: var(--neon-green);
+  text-shadow: var(--glow-green);
+}
+
+/* ── Title Screen ───────────────────────────── */
+
+.title-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #050505;
+  z-index: 100;
+}
+
+.title-screen__terminal {
+  max-width: 600px;
+  width: 100%;
+  padding: 40px;
+}
+
+.title-screen__boot-line {
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--neon-green-dim);
+  line-height: 1.8;
+  font-family: var(--font-mono);
+  animation: line-fade-in 0.2s ease-out;
+}
+
+.title-screen__boot-line--complete {
+  color: var(--neon-green);
+  text-shadow: var(--glow-green);
+  font-weight: bold;
+}
+
+.title-screen__title-block {
+  margin-top: 32px;
+  text-align: center;
+  animation: title-fade-in 0.8s ease-out;
+}
+
+.title-screen__mountain {
+  font-size: 10px;
+  line-height: 1.3;
+  color: var(--neon-green-dim);
+  margin-bottom: 24px;
+  text-align: center;
+  font-family: var(--font-mono);
+  opacity: 0.6;
+}
+
+.title-screen__title {
+  font-size: 28px;
+  letter-spacing: 10px;
+  text-transform: uppercase;
+  color: var(--neon-green);
+  text-shadow: 0 0 20px var(--neon-green-glow), 0 0 40px var(--neon-green-glow), 0 0 60px rgba(0, 255, 65, 0.15);
+  margin-bottom: 8px;
+}
+
+.title-screen__subtitle {
+  font-size: 14px;
+  letter-spacing: 6px;
+  color: var(--neon-green-dim);
+  margin-bottom: 40px;
+}
+
+.title-screen__prompt {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--amber);
+  text-shadow: var(--glow-amber);
+  animation: prompt-pulse 2s ease-in-out infinite;
+}
