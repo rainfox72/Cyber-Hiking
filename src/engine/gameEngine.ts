@@ -20,8 +20,8 @@ import { applyVitalChanges, checkDefeatCondition } from "./vitalCalculator.ts";
 import { rollWeather } from "./weatherSystem.ts";
 import { selectEvent } from "../data/events.ts";
 import type { RNG } from "../utils/random.ts";
-import { updateExposure, getExposureTempMultiplier, getExposureEnergyMultiplier } from "./exposureSystem.ts";
-import { getEncumbranceTimePenalty, getEncumbranceEnergyPenalty } from "./encumbrance.ts";
+import { updateExposure } from "./exposureSystem.ts";
+import { getEncumbranceTimePenalty } from "./encumbrance.ts";
 
 /** Summit waypoint index (Baxian Platform). */
 const SUMMIT_INDEX = 12;
@@ -364,6 +364,7 @@ export function processAction(
     newState.weather,
     currentWaypoint.elevation,
     rng,
+    newState.time.day,
   );
 
   // 5. Calculate movement

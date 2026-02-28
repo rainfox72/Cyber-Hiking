@@ -104,6 +104,7 @@ export function rollWeather(
   current: WeatherState,
   altitude: number,
   rng: RNG,
+  day: number = 1,
 ): WeatherState {
   // Get base transition probabilities for current weather
   let probabilities = { ...WEATHER_TRANSITIONS[current.current] };
@@ -111,6 +112,21 @@ export function rollWeather(
   // Apply altitude shift if above threshold
   if (altitude > HIGH_ALTITUDE_THRESHOLD) {
     probabilities = applyAltitudeShift(probabilities);
+  }
+
+  // Day 4+ weather escalation
+  if (day >= 4) {
+    for (const condition of HIGH_ALTITUDE_REDUCED) {
+      probabilities[condition] = Math.max(0, probabilities[condition] - 0.075);
+    }
+    for (const condition of HIGH_ALTITUDE_FAVORED) {
+      probabilities[condition] += 0.05;
+    }
+    // Renormalize
+    const escalationTotal = Object.values(probabilities).reduce((s, p) => s + p, 0);
+    for (const key of Object.keys(probabilities) as WeatherCondition[]) {
+      probabilities[key] /= escalationTotal;
+    }
   }
 
   // Roll weighted random to select new condition
