@@ -19,6 +19,8 @@ class SoundManager {
   private rainGain: GainNode | null = null;
   private humNode: OscillatorNode | null = null;
   private humGain: GainNode | null = null;
+  private musicElement: HTMLAudioElement | null = null;
+  private musicFadeTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     this.muted = localStorage.getItem("ao-tai-muted") === "true";
@@ -256,6 +258,56 @@ class SoundManager {
     }
   }
 
+  // ── Background Music ──
+
+  private static readonly MUSIC_VOLUME = 0.3;
+  private static readonly MUSIC_FADE_MS = 3000;
+  private static readonly MUSIC_FADE_STEPS = 60;
+
+  startMusic(): void {
+    if (this.musicElement) return; // already playing
+
+    const audio = new Audio("/music/Witch Parade Assassin.mp3");
+    audio.loop = true;
+    audio.volume = 0;
+    this.musicElement = audio;
+
+    audio.play().then(() => {
+      // 3-second fade-in from 0 to MUSIC_VOLUME
+      const targetVol = this.muted ? 0 : SoundManager.MUSIC_VOLUME;
+      const stepMs = SoundManager.MUSIC_FADE_MS / SoundManager.MUSIC_FADE_STEPS;
+      const volStep = targetVol / SoundManager.MUSIC_FADE_STEPS;
+      let currentStep = 0;
+
+      this.musicFadeTimer = setInterval(() => {
+        currentStep++;
+        if (currentStep >= SoundManager.MUSIC_FADE_STEPS) {
+          audio.volume = targetVol;
+          if (this.musicFadeTimer) {
+            clearInterval(this.musicFadeTimer);
+            this.musicFadeTimer = null;
+          }
+        } else {
+          audio.volume = volStep * currentStep;
+        }
+      }, stepMs);
+    }).catch(() => {
+      // Autoplay blocked — browser requires user gesture first; ignore gracefully
+      this.musicElement = null;
+    });
+  }
+
+  stopMusic(): void {
+    if (this.musicFadeTimer) {
+      clearInterval(this.musicFadeTimer);
+      this.musicFadeTimer = null;
+    }
+    if (this.musicElement) {
+      this.musicElement.pause();
+      this.musicElement = null;
+    }
+  }
+
   // ── Controls ──
 
   setMuted(muted: boolean): void {
@@ -266,6 +318,9 @@ class SoundManager {
         muted ? 0 : this.volume,
         (this.ctx?.currentTime ?? 0) + 0.1,
       );
+    }
+    if (this.musicElement) {
+      this.musicElement.volume = muted ? 0 : SoundManager.MUSIC_VOLUME;
     }
   }
 

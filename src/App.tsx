@@ -37,6 +37,12 @@ function SoundAmbience() {
     soundManager.updateAltitudeHum(altitude);
   }, [currentIndex, weather]);
 
+  // Background music: start on mount, stop on unmount
+  useEffect(() => {
+    soundManager.startMusic();
+    return () => soundManager.stopMusic();
+  }, []);
+
   return null;
 }
 
