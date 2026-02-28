@@ -4,15 +4,21 @@ A turn-based survival simulation of the dangerous Ao Tai Line (鳌太线) — an
 
 ## Status
 
-**All Phases Complete** — Fully playable with AI narration, visual effects, and game screens.
+**v2.0 — High-Fidelity Tactical Survival Simulator**
 
 ## Features
 
 - **Turn-based survival** — Manage energy, hydration, body temperature, O2 saturation, and morale
 - **Real Ao Tai route** — 13 waypoints based on the actual trail (officially banned since 2018)
+- **Tactical topo map** — Isometric contour lines with 1-3x zoom and diamond waypoint markers
+- **Hardcore survival** — Sub-20% survival rate target with exposure, encumbrance, camp fatigue, and morale collapse
+- **25 critical events** — Hypothermia, altitude sickness, whiteout, pulmonary edema, frostbite, gear failure, trail collapse, and more
+- **Weather escalation** — Markov chain weather system with Day 4+ shift toward snow, blizzard, and wind
 - **Dynamic weather** — Markov chain weather system: clear, fog, rain, snow, blizzard, wind
 - **Risk engine** — Risk % calculated from altitude, weather, vitals, terrain, time of day
-- **Critical events** — Hypothermia, altitude sickness, injuries, equipment failure (with screen shake)
+- **Dynamic vignette overlay** — Tunnel vision effect as vitals drop, with blue/red tinting
+- **Procedural audio** — Web Audio API sound synthesis for footsteps, weather, UI, and ambient loops
+- **Fog-of-war vitals** — Vitals display jitters when morale drops below 40%
 - **AI narration** — Ollama (llama3.1:8b) generates atmospheric descriptions; offline fallback included
 - **Tactical GPS aesthetic** — Dark mode, neon green/amber accents, scanlines, weather particles, typewriter text
 - **Boot-up title screen** — Simulated terminal boot sequence with ASCII mountain art
@@ -76,6 +82,7 @@ Total: ~80km, 5-6 days, crossing multiple peaks above 3,400m.
 | Eat Ration | Energy +20, consumes 1 food | 0.5h |
 | Drink Water | Hydration +25, consumes 0.5L | 0.5h |
 | Use Medicine | O2 +15, temp normalize, consumes 1 dose | 0.5h |
+| Wait | Endure whiteout conditions | 1h |
 
 ## Project Structure
 
@@ -84,9 +91,11 @@ src/
   engine/           # Pure TS game logic (types, gameEngine, risk, weather, vitals, dayNight)
   data/             # Waypoint data, events, weather transitions
   store/            # Zustand store (gameStore.ts)
-  services/         # Ollama client + fallback narrator
+  services/         # Ollama client, fallback narrator, SoundManager
   components/
-    effects/        # Scanlines, ParticleCanvas
+    effects/        # Scanlines, ParticleCanvas, Vignette
+    game/           # StatusDashboard, NavigationConsole, LogWindow, etc.
+    map/            # TacticalMap, HumanMarker
     screens/        # TitleScreen
   hooks/            # useTypewriter
   utils/            # Seeded PRNG (random.ts)

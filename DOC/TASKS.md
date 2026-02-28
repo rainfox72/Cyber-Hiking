@@ -70,3 +70,45 @@
 - [x] Structured stat displays on both game-over screens
 - [x] start.bat Windows launcher
 - [x] Final documentation update
+
+## Phase 7: Component Extraction — COMPLETE
+
+- [x] Extract VitalBar, StatusDashboard, InventoryPanel to separate files
+- [x] Extract RiskMeter, WeatherDisplay, DayNightIndicator
+- [x] Extract LogEntry, LogWindow, ActionButton, NavigationConsole
+- [x] Extract Header, LocationInfo, GameOverlay, OllamaPoller
+- [x] App.tsx reduced to thin shell (~80 lines)
+
+## Phase 8: Hardcore Survival Mechanics — COMPLETE
+
+- [x] Extended types: StatusEffect, exposure, campFatigueCount, wait action
+- [x] Exposure system: hidden stat, ridge/summit accumulation, 2x/3x multipliers
+- [x] Encumbrance system: weight thresholds at 15kg/20kg, time + energy penalties
+- [x] 10 new hardcore events (25 total): gear tumble, whiteout, pulmonary edema, frostbite, trail collapse, lost trail, pack strap breaks, altitude insomnia, knee injury, memorial cairn
+- [x] Integrated hardcore mechanics into game engine pipeline
+  - Nightfall trap (forced bivouac crossing 19:00)
+  - Camp fatigue (diminishing returns: 100%/60%/30%)
+  - Persistent status effects (whiteout lock, edema drain, knee injury)
+  - Resource decay at midnight (water evaporation, food spoilage)
+  - No-retreat past waypoint 10 (point of no return)
+  - Gear degradation cascade (low gear → bodyTemp/hydration penalties)
+  - Food poisoning (15% chance on eat)
+  - Morale collapse (recovery halved below 20%)
+- [x] Day 4+ weather escalation (shift toward snow/blizzard/wind)
+- [x] Zustand store: vitals jitter state, wait action support
+- [x] Fog-of-war vitals jitter when morale < 40%
+
+## Phase 9: Tactical Map + Atmosphere — COMPLETE
+
+- [x] HumanMarker SVG component with bob animation and health-based color
+- [x] TacticalMap with isometric contour rings, zoom (1-3x), diamond waypoint markers
+- [x] CSS 3D perspective transform (rotateX 45° rotateZ -10°)
+- [x] Replaced flat ElevationProfile with TacticalMap
+- [x] Vignette overlay (tunnel vision as vitals drop, blue/red tinting)
+- [x] SoundManager with Web Audio API procedural synthesis
+  - UI sounds: click, alert, injury, boot sequence
+  - Game sounds: footstep by terrain, campfire, eat/drink, thunder
+  - Ambient loops: wind (altitude-scaled), altitude hum (>3200m)
+- [x] Sound integration: action buttons, game events, title screen, ambient
+- [x] Mute/unmute toggle with localStorage persistence
+- [x] Wait action button in NavigationConsole
