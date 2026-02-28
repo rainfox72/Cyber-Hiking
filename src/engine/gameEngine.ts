@@ -34,6 +34,7 @@ const BASE_TIME_COSTS: Record<GameAction, number> = {
   eat: 0.5,
   drink: 0.5,
   use_medicine: 0.5,
+  wait: 1,
 };
 
 /** Terrain-specific time cost for push_forward. */
@@ -62,6 +63,10 @@ export function createInitialState(): GameState {
       water: 6,
       gear: 100,
       medicine: 3,
+      exposure: 0,
+      statusEffects: [],
+      campFatigueCount: 0,
+      lastCampWaypoint: -1,
       currentWaypointIndex: 0,
       distanceTraveled: 0,
       isAlive: true,
@@ -126,6 +131,11 @@ export function validateAction(
     case "rest":
       return true;
 
+    case "wait":
+      return state.player.statusEffects.some(
+        (e) => e.modifiers?.disableActions,
+      );
+
     default:
       return false;
   }
@@ -159,6 +169,7 @@ function createLogEntry(
     eat: "Eat",
     drink: "Drink",
     use_medicine: "Use Medicine",
+    wait: "Wait",
   };
 
   return {
@@ -212,6 +223,9 @@ function generateNarrative(
     case "use_medicine":
       return `Took medicine to ease the altitude sickness. ${state.player.medicine - 1} doses left.`;
 
+    case "wait":
+      return "You hunker down and wait for the whiteout to pass. Visibility: zero.";
+
     default:
       return `Took action.`;
   }
@@ -253,7 +267,10 @@ function applyEventEffects(
  */
 function cloneState(state: GameState): GameState {
   return {
-    player: { ...state.player },
+    player: {
+      ...state.player,
+      statusEffects: state.player.statusEffects.map((e) => ({ ...e })),
+    },
     weather: { ...state.weather },
     time: { ...state.time },
     turnNumber: state.turnNumber,

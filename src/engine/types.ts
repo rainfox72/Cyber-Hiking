@@ -37,7 +37,8 @@ export type GameAction =
   | "rest"
   | "eat"
   | "drink"
-  | "use_medicine";
+  | "use_medicine"
+  | "wait";
 
 export type GamePhase = "title" | "playing" | "victory" | "defeat";
 
@@ -67,6 +68,10 @@ export interface PlayerState {
   medicine: number;
   currentWaypointIndex: number;
   distanceTraveled: number;
+  exposure: number;
+  statusEffects: StatusEffect[];
+  campFatigueCount: number;
+  lastCampWaypoint: number;
   isAlive: boolean;
   hasReachedSummit: boolean;
 }
@@ -91,6 +96,16 @@ export interface CriticalEvent {
   description: string;
   effects: Partial<PlayerState>;
   severity: "minor" | "major" | "critical";
+}
+
+export interface StatusEffect {
+  id: string;
+  turnsRemaining: number;
+  onTurnStart?: Partial<PlayerState>;
+  modifiers?: {
+    pushForwardEnergyCost?: number;
+    disableActions?: boolean;
+  };
 }
 
 export interface LogEntry {
