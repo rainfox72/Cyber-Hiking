@@ -20,6 +20,8 @@ import { applyVitalChanges, checkDefeatCondition } from "./vitalCalculator.ts";
 import { rollWeather } from "./weatherSystem.ts";
 import { selectEvent } from "../data/events.ts";
 import type { RNG } from "../utils/random.ts";
+import { updateExposure, getExposureTempMultiplier, getExposureEnergyMultiplier } from "./exposureSystem.ts";
+import { getEncumbranceTimePenalty, getEncumbranceEnergyPenalty } from "./encumbrance.ts";
 
 /** Summit waypoint index (Baxian Platform). */
 const SUMMIT_INDEX = 12;
@@ -103,14 +105,21 @@ export function validateAction(
   if (state.gamePhase !== "playing") return false;
   if (!state.player.isAlive) return false;
 
+  // Whiteout: only wait is allowed
+  const hasWhiteout = state.player.statusEffects.some(
+    (e) => e.modifiers?.disableActions,
+  );
+  if (hasWhiteout && action !== "wait") return false;
+
   switch (action) {
     case "push_forward":
       // Cannot push beyond the last waypoint
       return state.player.currentWaypointIndex < waypoints.length - 1;
 
     case "descend":
-      // Cannot descend below the first waypoint
-      return state.player.currentWaypointIndex > 0;
+      // Cannot descend below first waypoint or past point-of-no-return (waypoint 10+)
+      return state.player.currentWaypointIndex > 0 &&
+        state.player.currentWaypointIndex <= 10;
 
     case "set_camp": {
       // Must be at a campable waypoint
@@ -324,12 +333,31 @@ export function processAction(
   let timeCost: number;
   if (action === "push_forward") {
     timeCost = PUSH_FORWARD_TIME[currentWaypoint.terrain];
+    timeCost += getEncumbranceTimePenalty(newState.player);
   } else {
     timeCost = BASE_TIME_COSTS[action];
   }
 
   // 3. Advance clock
   newState.time = advanceClock(newState.time, timeCost);
+
+  // 3b. Nightfall trap — if push_forward crosses into night (19:00)
+  const crossedIntoNight =
+    action === "push_forward" &&
+    previousState.time.hour < 19 &&
+    newState.time.hour >= 19;
+  if (crossedIntoNight) {
+    newState.player.bodyTemp -= 20;
+    newState.player.morale -= 15;
+    newState.player.energy -= 10;
+    const bivouacEntry: LogEntry = {
+      turnNumber: newState.turnNumber,
+      text: "[FORCED BIVOUAC] Nightfall caught you between waypoints. You spend a miserable night exposed on the mountain.",
+      type: "event",
+      timestamp: formatTimestamp(newState.time.day, newState.time.hour),
+    };
+    newState.log.push(bivouacEntry);
+  }
 
   // 4. Roll weather transition
   newState.weather = rollWeather(
@@ -365,8 +393,51 @@ export function processAction(
     newState.mapRevealed = true;
   }
 
+  // 5b. Camp fatigue tracking
+  if (action === "set_camp" || action === "rest") {
+    if (newState.player.lastCampWaypoint === newState.player.currentWaypointIndex) {
+      newState.player.campFatigueCount += 1;
+    } else {
+      newState.player.campFatigueCount = 1;
+      newState.player.lastCampWaypoint = newState.player.currentWaypointIndex;
+    }
+  } else if (action === "push_forward" || action === "descend") {
+    newState.player.campFatigueCount = 0;
+  }
+
   // 6. Apply vital changes
   newState.player = applyVitalChanges(newState, action, waypoints);
+
+  // 6b. Update exposure
+  const wpForExposure = waypoints[newState.player.currentWaypointIndex];
+  newState.player.exposure = updateExposure(
+    newState, action, wpForExposure.terrain, wpForExposure.shelterAvailable,
+  );
+
+  // 6c. Apply persistent status effects
+  newState.player.statusEffects = newState.player.statusEffects
+    .map((effect) => {
+      // Apply per-turn effects
+      if (effect.onTurnStart) {
+        for (const [key, value] of Object.entries(effect.onTurnStart)) {
+          const k = key as keyof typeof newState.player;
+          if (typeof newState.player[k] === "number" && typeof value === "number") {
+            (newState.player[k] as number) += value;
+          }
+        }
+      }
+      return { ...effect, turnsRemaining: effect.turnsRemaining - 1 };
+    })
+    .filter((effect) => effect.turnsRemaining > 0);
+
+  // 6d. Resource decay at midnight
+  const crossedMidnight = previousState.time.day < newState.time.day;
+  if (crossedMidnight) {
+    newState.player.water = Math.max(0, newState.player.water - 0.2);
+    if (rng.chance(0.3)) {
+      newState.player.food = Math.max(0, newState.player.food - 1);
+    }
+  }
 
   // 7. Calculate risk %
   const riskPercent = calculateRisk(newState, waypoints);
@@ -385,6 +456,37 @@ export function processAction(
     );
     events.push(event);
     newState.player = applyEventEffects(newState.player, event);
+
+    // Apply status effects from special events
+    if (event.id === "whiteout_event") {
+      newState.player.statusEffects.push({
+        id: "whiteout",
+        turnsRemaining: 1,
+        modifiers: { disableActions: true },
+      });
+    } else if (event.id === "pulmonary_edema") {
+      newState.player.statusEffects.push({
+        id: "pulmonary_edema",
+        turnsRemaining: 3,
+        onTurnStart: { energy: -10 },
+      });
+    } else if (event.id === "knee_injury") {
+      newState.player.statusEffects.push({
+        id: "knee_injury",
+        turnsRemaining: 3,
+        modifiers: { pushForwardEnergyCost: 15 },
+      });
+    } else if (event.id === "trail_collapse") {
+      // Forced descend
+      if (newState.player.currentWaypointIndex > 0) {
+        newState.player.currentWaypointIndex -= 1;
+      }
+    } else if (event.id === "gear_tumble") {
+      // Randomly lose food or water
+      if (rng.chance(0.5)) {
+        newState.player.water = Math.max(0, newState.player.water - 1);
+      }
+    }
 
     // Add event to log
     const eventEntry: LogEntry = {

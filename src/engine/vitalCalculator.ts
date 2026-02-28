@@ -12,6 +12,8 @@ import type {
   Waypoint,
 } from "./types.ts";
 import { getTemperatureModifier } from "./dayNightCycle.ts";
+import { getExposureTempMultiplier, getExposureEnergyMultiplier } from "./exposureSystem.ts";
+import { getEncumbranceEnergyPenalty } from "./encumbrance.ts";
 
 /** Elevation threshold below which O2 saturation is unaffected. */
 const O2_ALTITUDE_FLOOR = 2500;
@@ -87,24 +89,44 @@ export function applyVitalChanges(
   switch (action) {
     case "push_forward": {
       const terrainCost = TERRAIN_ENERGY_COST[waypoint.terrain];
-      player.energy -= terrainCost;
+      const exposureEnergyMult = getExposureEnergyMultiplier(player.exposure);
+      const encumbrancePenalty = getEncumbranceEnergyPenalty(player);
+      const kneeInjuryPenalty = state.player.statusEffects
+        .filter((e) => e.modifiers?.pushForwardEnergyCost)
+        .reduce((sum, e) => sum + (e.modifiers!.pushForwardEnergyCost ?? 0), 0);
+
+      player.energy -= (terrainCost + encumbrancePenalty + kneeInjuryPenalty) * exposureEnergyMult;
       player.hydration -= 10;
       player.gear -= 3;
-      // Body temp shifts toward environmental conditions
-      player.bodyTemp += bodyTempDelta * 0.4;
-      // O2 drifts toward altitude baseline
+
+      // Gear degradation cascade
+      if (player.gear < 30) player.bodyTemp -= 5;
+      if (player.gear < 10) player.hydration -= 5;
+
+      // Body temp with exposure multiplier
+      const exposureTempMult = getExposureTempMultiplier(player.exposure);
+      player.bodyTemp += bodyTempDelta * 0.4 * exposureTempMult;
+
       player.o2Saturation += (o2Baseline - player.o2Saturation) * 0.3;
       break;
     }
 
     case "set_camp": {
-      player.energy += 30;
+      // Camp fatigue: diminishing returns
+      const fatigueMultiplier =
+        state.player.campFatigueCount <= 1 ? 1.0 :
+        state.player.campFatigueCount === 2 ? 0.6 : 0.3;
+
+      // Morale collapse halves recovery
+      const moraleCollapseMult = player.morale < 20 ? 0.5 : 1.0;
+      const recoveryMult = fatigueMultiplier * moraleCollapseMult;
+
+      player.energy += 30 * recoveryMult;
       if (waypoint.shelterAvailable) {
-        player.bodyTemp += 15;
+        player.bodyTemp += 15 * recoveryMult;
       } else {
-        player.bodyTemp += 5;
+        player.bodyTemp += 5 * recoveryMult;
       }
-      // Camping normalizes body temp toward 50
       player.bodyTemp += (50 - player.bodyTemp) * 0.1;
       break;
     }
@@ -128,16 +150,23 @@ export function applyVitalChanges(
     }
 
     case "rest": {
-      player.energy += 15;
+      const moraleCollapseMult = player.morale < 20 ? 0.5 : 1.0;
+      player.energy += 15 * moraleCollapseMult;
       player.bodyTemp += 5;
-      // Rest normalizes body temp slightly
       player.bodyTemp += (50 - player.bodyTemp) * 0.05;
       break;
     }
 
     case "eat": {
       if (player.food > 0) {
-        player.energy += 20;
+        // 15% food poisoning chance
+        // Use a simple deterministic check based on turn number
+        const poisoned = (state.turnNumber * 7 + player.food * 13) % 100 < 15;
+        if (poisoned) {
+          player.energy -= 10;
+        } else {
+          player.energy += 20;
+        }
         player.food -= 1;
       }
       break;
@@ -160,6 +189,12 @@ export function applyVitalChanges(
         player.bodyTemp += shift;
         player.medicine -= 1;
       }
+      break;
+    }
+
+    case "wait": {
+      player.energy -= 3;
+      player.hydration -= 2;
       break;
     }
   }
