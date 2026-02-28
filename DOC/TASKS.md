@@ -112,3 +112,24 @@
 - [x] Sound integration: action buttons, game events, title screen, ambient
 - [x] Mute/unmute toggle with localStorage persistence
 - [x] Wait action button in NavigationConsole
+
+## Phase 10: Oregon Trail Meets Death Stranding — COMPLETE
+
+- [x] Background music (HTML5 Audio, loop, fade-in, mute toggle)
+- [x] Starting supplies reduced (food 8→6, water 6→4L)
+- [x] Camp recovery halved (energy +30→+15, fatigue 100/60/30→100/35/10)
+- [x] Rest recovery halved (energy +15→+8)
+- [x] Resource-dependent camp recovery (no food: ×0.3, no water: ×0.2)
+- [x] Passive hydration drain on all actions (-2 per hour)
+- [x] Passive energy drain at altitude (-1 per hour above 3000m)
+- [x] Eat/drink boosted and made essential (+25/+30, morale bonuses)
+- [x] Starvation cascade (food=0: energy -5, morale -3 per action)
+- [x] Dehydration cascade (water=0: energy -8, bodyTemp -3, O2 -3 per action)
+- [x] Morale isolation drain (-1 per action, Death Stranding loneliness)
+- [x] Low morale movement penalty (+25% energy cost when morale < 40%)
+- [x] Altitude O2 continuous drain (-2/-4/-6 per push above 3000/3400/3600m)
+- [x] Weather force multiplier (blizzard/wind/snow extra drains)
+- [x] lastAction tracking in store for hiker pose
+- [x] NavigationConsole updated action descriptions
+- [x] InventoryPanel resource warnings ([STARVING]/[DEHYDRATED] indicators)
+- [x] Animated HumanMarker with 9 SVG poses (idle, walk, camp, eat, drink, rest, map, medicine, wait)
