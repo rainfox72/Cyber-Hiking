@@ -61,8 +61,8 @@ export function createInitialState(): GameState {
       bodyTemp: 50,
       o2Saturation: 100,
       morale: 100,
-      food: 8,
-      water: 6,
+      food: 6,
+      water: 4,
       gear: 100,
       medicine: 3,
       exposure: 0,
@@ -408,6 +408,44 @@ export function processAction(
 
   // 6. Apply vital changes
   newState.player = applyVitalChanges(newState, action, waypoints);
+
+  // 6a. Altitude passive drains
+  const currentElevation = waypoints[newState.player.currentWaypointIndex].elevation;
+
+  // Altitude O2 continuous drain on push_forward
+  if (action === "push_forward") {
+    if (currentElevation > 3600) {
+      newState.player.o2Saturation -= 6;
+    } else if (currentElevation > 3400) {
+      newState.player.o2Saturation -= 4;
+    } else if (currentElevation > 3000) {
+      newState.player.o2Saturation -= 2;
+    }
+  }
+
+  // Passive energy drain at altitude: -1 per hour above 3000m
+  if (currentElevation > 3000) {
+    const actionTimeCost = action === "push_forward"
+      ? PUSH_FORWARD_TIME[currentWaypoint.terrain]
+      : BASE_TIME_COSTS[action];
+    newState.player.energy -= actionTimeCost * 1;
+  }
+
+  // Weather force multiplier: harsh weather amplifies vital drains
+  if (newState.weather.current === "blizzard" || newState.weather.current === "wind") {
+    newState.player.energy -= 3;
+    newState.player.bodyTemp -= 3;
+    newState.player.hydration -= 2;
+  } else if (newState.weather.current === "snow") {
+    newState.player.energy -= 2;
+    newState.player.bodyTemp -= 2;
+  }
+
+  // Clamp after altitude/weather drains
+  newState.player.energy = Math.max(0, newState.player.energy);
+  newState.player.o2Saturation = Math.max(0, newState.player.o2Saturation);
+  newState.player.bodyTemp = Math.max(0, newState.player.bodyTemp);
+  newState.player.hydration = Math.max(0, newState.player.hydration);
 
   // 6b. Update exposure
   const wpForExposure = waypoints[newState.player.currentWaypointIndex];

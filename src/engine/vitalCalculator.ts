@@ -96,7 +96,7 @@ export function applyVitalChanges(
         .reduce((sum, e) => sum + (e.modifiers!.pushForwardEnergyCost ?? 0), 0);
 
       player.energy -= (terrainCost + encumbrancePenalty + kneeInjuryPenalty) * exposureEnergyMult;
-      player.hydration -= 10;
+      player.hydration -= 15;  // Increased base + altitude dehydration
       player.gear -= 3;
 
       // Gear degradation cascade
@@ -112,22 +112,32 @@ export function applyVitalChanges(
     }
 
     case "set_camp": {
-      // Camp fatigue: diminishing returns
+      // Camp fatigue: harsher diminishing returns (100%/35%/10%)
       const fatigueMultiplier =
         state.player.campFatigueCount <= 1 ? 1.0 :
-        state.player.campFatigueCount === 2 ? 0.6 : 0.3;
+        state.player.campFatigueCount === 2 ? 0.35 : 0.1;
 
       // Morale collapse halves recovery
       const moraleCollapseMult = player.morale < 20 ? 0.5 : 1.0;
-      const recoveryMult = fatigueMultiplier * moraleCollapseMult;
 
-      player.energy += 30 * recoveryMult;
+      // Resource-dependent recovery
+      let resourceMult = 1.0;
+      if (player.food <= 0 && player.water <= 0) resourceMult = 0.1;
+      else if (player.water <= 0) resourceMult = 0.2;
+      else if (player.food <= 0) resourceMult = 0.3;
+
+      const recoveryMult = fatigueMultiplier * moraleCollapseMult * resourceMult;
+
+      player.energy += 15 * recoveryMult;  // Was 30
       if (waypoint.shelterAvailable) {
-        player.bodyTemp += 15 * recoveryMult;
+        player.bodyTemp += 8 * recoveryMult;  // Was 15
       } else {
-        player.bodyTemp += 5 * recoveryMult;
+        player.bodyTemp += 3 * recoveryMult;  // Was 5
       }
       player.bodyTemp += (50 - player.bodyTemp) * 0.1;
+
+      // Camping still costs hydration (4h x 2/h)
+      player.hydration -= 8;
       break;
     }
 
@@ -151,22 +161,32 @@ export function applyVitalChanges(
 
     case "rest": {
       const moraleCollapseMult = player.morale < 20 ? 0.5 : 1.0;
-      player.energy += 15 * moraleCollapseMult;
-      player.bodyTemp += 5;
+
+      // Resource-dependent recovery
+      let resourceMult = 1.0;
+      if (player.food <= 0 && player.water <= 0) resourceMult = 0.1;
+      else if (player.water <= 0) resourceMult = 0.3;
+      else if (player.food <= 0) resourceMult = 0.5;
+
+      player.energy += 8 * moraleCollapseMult * resourceMult;  // Was 15
+      player.bodyTemp += 3;  // Was 5
       player.bodyTemp += (50 - player.bodyTemp) * 0.05;
+
+      // Resting still costs hydration (2h x 2/h)
+      player.hydration -= 4;
       break;
     }
 
     case "eat": {
       if (player.food > 0) {
-        // 15% food poisoning chance
-        // Use a simple deterministic check based on turn number
-        const poisoned = (state.turnNumber * 7 + player.food * 13) % 100 < 15;
+        // 10% food poisoning chance (was 15%)
+        const poisoned = (state.turnNumber * 7 + player.food * 13) % 100 < 10;
         if (poisoned) {
           player.energy -= 10;
         } else {
-          player.energy += 20;
+          player.energy += 25;  // Was 20
         }
+        player.morale += 5;  // NEW: eating boosts spirits
         player.food -= 1;
       }
       break;
@@ -174,7 +194,8 @@ export function applyVitalChanges(
 
     case "drink": {
       if (player.water > 0) {
-        player.hydration += 25;
+        player.hydration += 30;  // Was 25
+        player.morale += 3;  // NEW: drinking boosts spirits
         player.water -= 0.5;
       }
       break;
@@ -199,17 +220,47 @@ export function applyVitalChanges(
     }
   }
 
-  // Morale adjustments based on conditions
+  // Passive hydration drain on remaining actions (-2 per hour)
+  if (action === "check_map" || action === "eat" || action === "use_medicine") {
+    player.hydration -= 1;  // 0.5h x 2/h = 1
+  }
+
+  // Starvation cascade: when food is depleted
+  if (player.food <= 0) {
+    player.energy -= 5;
+    player.morale -= 3;
+  }
+
+  // Dehydration cascade: when water is depleted
+  if (player.water <= 0) {
+    player.energy -= 8;
+    player.bodyTemp -= 3;
+    player.o2Saturation -= 3;
+  }
+
+  // Morale: isolation drain (Death Stranding loneliness)
+  player.morale -= 1;
+
+  // Morale: low vitals penalty
   const lowVitals = (["energy", "hydration", "bodyTemp", "o2Saturation"] as const)
     .filter((v) => player[v] < 30);
   if (lowVitals.length > 0) {
     player.morale -= 2 * lowVitals.length;
   }
 
+  // Morale: weather effects
   if (state.weather.current === "blizzard") {
     player.morale -= 5;
+  } else if (state.weather.current === "wind") {
+    player.morale -= 3;
   } else if (state.weather.current === "clear") {
     player.morale += 3;
+  }
+
+  // Low morale movement penalty: +25% energy cost on push_forward
+  if (action === "push_forward" && player.morale < 40) {
+    const terrainCost = TERRAIN_ENERGY_COST[waypoint.terrain];
+    player.energy -= terrainCost * 0.25;
   }
 
   // Clamp all vitals to 0-100
