@@ -221,7 +221,7 @@ export function applyVitalChanges(
   }
 
   // Passive hydration drain on remaining actions (-2 per hour)
-  if (action === "check_map" || action === "eat" || action === "use_medicine") {
+  if (action === "check_map" || action === "eat" || action === "drink" || action === "use_medicine") {
     player.hydration -= 1;  // 0.5h x 2/h = 1
   }
 

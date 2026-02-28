@@ -116,17 +116,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   initGame: () => {
-    const fresh = createInitialState();
-    set({
-      ...stateFromGameState(fresh),
-      isProcessing: false,
-      lastRiskPercent: 0,
-      lastEvents: [],
-      isShaking: false,
-      vitalsJitter: {},
-      lastAction: null,
-      rng: createRNG(Date.now()),
-    });
+    get().startGame();
   },
 
   performAction: (action: GameAction) => {

@@ -13,7 +13,7 @@ class SoundManager {
   private volume: number;
 
   // Active ambient nodes
-  private windNode: OscillatorNode | null = null;
+  private windNode: AudioNode | null = null;
   private windGain: GainNode | null = null;
   private rainNode: AudioBufferSourceNode | null = null;
   private rainGain: GainNode | null = null;
@@ -231,7 +231,7 @@ class SoundManager {
 
       source.connect(filter).connect(this.windGain).connect(this.getMaster());
       source.start();
-      this.windNode = source as unknown as OscillatorNode;
+      this.windNode = source;
     }
 
     if (this.windGain) {
