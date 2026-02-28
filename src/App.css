@@ -297,18 +297,68 @@
   font-size: 9px;
 }
 
-/* Elevation profile */
-.elevation-profile {
+/* Tactical Topo Map */
+.tactical-map {
+  position: relative;
   background: var(--bg-panel);
   border: 1px solid var(--bg-panel-border);
   border-radius: var(--border-radius);
-  padding: 8px;
-  height: 140px;
+  overflow: hidden;
+  height: 200px;
 }
 
-.elevation-profile svg {
+.tactical-map__perspective {
   width: 100%;
   height: 100%;
+  transform: perspective(800px) rotateX(45deg) rotateZ(-10deg);
+  transform-origin: center center;
+  transition: transform 0.5s ease;
+}
+
+.tactical-map__svg {
+  width: 100%;
+  height: 100%;
+}
+
+.tactical-map__zoom-controls {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 10;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  font-size: 9px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+
+.tactical-map__zoom-controls button {
+  background: var(--bg-input);
+  border: 1px solid var(--bg-panel-border);
+  color: var(--neon-green);
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tactical-map__zoom-controls button:hover {
+  background: var(--neon-green);
+  color: var(--bg-dark);
+}
+
+/* Human Marker Bob Animation */
+.human-marker {
+  animation: marker-bob 1.5s ease-in-out infinite;
+}
+
+@keyframes marker-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
 /* Day/night indicator */
