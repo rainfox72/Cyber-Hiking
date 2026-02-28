@@ -1,5 +1,6 @@
 /**
  * StatusDashboard component — displays all player vital bars (energy, hydration, etc.).
+ * Applies fog-of-war vitals jitter when morale is low (<40%).
  */
 
 import { useGameStore } from "../../store/gameStore.ts";
@@ -11,13 +12,25 @@ export function StatusDashboard() {
   const bodyTemp = useGameStore((s) => s.player.bodyTemp);
   const o2 = useGameStore((s) => s.player.o2Saturation);
   const morale = useGameStore((s) => s.player.morale);
+  const vitalsJitter = useGameStore((s) => s.vitalsJitter);
+
+  // Fog of war: jitter displayed values when morale is low
+  const jitter = (value: number, key: string) =>
+    Math.round(Math.min(100, Math.max(0, value + (vitalsJitter[key] ?? 0))));
+
+  const displayEnergy = jitter(energy, "energy");
+  const displayHydration = jitter(hydration, "hydration");
+  const displayBodyTemp = jitter(bodyTemp, "bodyTemp");
+  const displayO2 = jitter(o2, "o2Saturation");
+  const displayMorale = jitter(morale, "morale");
+
   return (
     <>
-      <VitalBar label="Energy" value={energy} />
-      <VitalBar label="Hydration" value={hydration} color="var(--cyan)" />
-      <VitalBar label="Body Temp" value={bodyTemp} color={bodyTemp < 30 ? "var(--danger)" : bodyTemp > 70 ? "var(--danger)" : "var(--amber)"} />
-      <VitalBar label="O2 Sat" value={o2} color="var(--amber)" />
-      <VitalBar label="Morale" value={morale} color="var(--magenta)" />
+      <VitalBar label="Energy" value={displayEnergy} />
+      <VitalBar label="Hydration" value={displayHydration} color="var(--cyan)" />
+      <VitalBar label="Body Temp" value={displayBodyTemp} color={displayBodyTemp < 30 ? "var(--danger)" : displayBodyTemp > 70 ? "var(--danger)" : "var(--amber)"} />
+      <VitalBar label="O2 Sat" value={displayO2} color="var(--amber)" />
+      <VitalBar label="Morale" value={displayMorale} color="var(--magenta)" />
     </>
   );
 }
