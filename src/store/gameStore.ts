@@ -23,6 +23,7 @@ import { WAYPOINTS } from "../data/waypoints.ts";
 import { createRNG, type RNG } from "../utils/random.ts";
 import { generateNarrative } from "../services/ollamaService.ts";
 import { generateFallbackNarrative } from "../services/fallbackNarrator.ts";
+import { soundManager } from "../services/soundManager.ts";
 
 interface GameStore {
   // Game state
@@ -140,6 +141,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
       // Screen shake on critical events
       const hasEvents = result.events.length > 0;
+
+      // Sound triggers
+      if (hasEvents) {
+        const hasCritical = result.events.some((e) => e.severity === "critical" || e.severity === "major");
+        if (hasCritical) soundManager.injury();
+        else soundManager.alert();
+      }
+
+      // Play terrain footstep on movement
+      if (action === "push_forward" || action === "descend") {
+        const wpTerrain = WAYPOINTS[result.newState.player.currentWaypointIndex].terrain;
+        soundManager.footstep(wpTerrain as "forest" | "meadow" | "stone_sea" | "ridge" | "summit" | "scree" | "stream_valley");
+      } else if (action === "set_camp") {
+        soundManager.campfire();
+      } else if (action === "eat" || action === "drink") {
+        soundManager.eatDrink();
+      }
 
       // Fog of war: jitter vitals display when morale is low
       const jitter: Record<string, number> = {};

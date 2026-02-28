@@ -4,9 +4,11 @@
  */
 
 import "./App.css";
+import { useState, useEffect } from "react";
 import { useGameStore } from "./store/gameStore.ts";
 import { Scanlines } from "./components/effects/Scanlines.tsx";
 import { ParticleCanvas } from "./components/effects/ParticleCanvas.tsx";
+import { Vignette } from "./components/effects/Vignette.tsx";
 import TitleScreen from "./components/screens/TitleScreen.tsx";
 import { StatusDashboard } from "./components/game/StatusDashboard.tsx";
 import { InventoryPanel } from "./components/game/InventoryPanel.tsx";
@@ -20,6 +22,37 @@ import { Header } from "./components/game/Header.tsx";
 import { GameOverlay } from "./components/game/GameOverlay.tsx";
 import { OllamaPoller } from "./components/game/OllamaPoller.tsx";
 import { TacticalMap } from "./components/map/TacticalMap.tsx";
+import { soundManager } from "./services/soundManager.ts";
+import { WAYPOINTS } from "./data/waypoints.ts";
+
+// ── Ambient sound controller ─────────────────
+
+function SoundAmbience() {
+  const currentIndex = useGameStore((s) => s.player.currentWaypointIndex);
+  const weather = useGameStore((s) => s.weather);
+
+  useEffect(() => {
+    const altitude = WAYPOINTS[currentIndex].elevation;
+    soundManager.updateWind(altitude, weather.intensity, weather.current);
+    soundManager.updateAltitudeHum(altitude);
+  }, [currentIndex, weather]);
+
+  return null;
+}
+
+function SoundControls() {
+  const [muted, setMutedState] = useState(soundManager.isMuted());
+  const toggle = () => {
+    const next = !muted;
+    soundManager.setMuted(next);
+    setMutedState(next);
+  };
+  return (
+    <button className="sound-toggle" onClick={toggle} title={muted ? "Unmute" : "Mute"}>
+      {muted ? "M" : "S"}
+    </button>
+  );
+}
 
 // ── Main App ─────────────────────────────────
 
@@ -42,8 +75,11 @@ function App() {
       <Scanlines />
       <ParticleCanvas />
       <OllamaPoller />
+      <SoundAmbience />
+      <Vignette />
       <div className={`game-shell ${isShaking ? "shaking" : ""}`}>
         <Header />
+        <SoundControls />
         <div className="panel-left">
           <div className="panel">
             <div className="panel-header">VITALS</div>

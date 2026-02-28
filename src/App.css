@@ -600,3 +600,33 @@
   text-shadow: var(--glow-amber);
   animation: prompt-pulse 2s ease-in-out infinite;
 }
+
+/* ── Vignette overlay ──────────────────────── */
+.vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9990;
+  transition: background 2s ease;
+}
+
+/* ── Sound toggle button ───────────────────── */
+.sound-toggle {
+  position: fixed;
+  top: 4px;
+  right: 4px;
+  z-index: 9999;
+  background: var(--bg-input);
+  border: 1px solid var(--bg-panel-border);
+  color: var(--neon-green);
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+}
+
+.sound-toggle:hover {
+  background: var(--neon-green);
+  color: var(--bg-dark);
+}

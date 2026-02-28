@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useGameStore } from "../../store/gameStore.ts";
+import { soundManager } from "../../services/soundManager.ts";
 
 const BOOT_LINES = [
   "INITIALIZING AO TAI TACTICAL SYSTEM...",
@@ -44,6 +45,9 @@ function TitleScreen() {
 
   // Sequentially reveal boot lines
   useEffect(() => {
+    if (visibleLines === 0) {
+      soundManager.boot();
+    }
     if (visibleLines >= BOOT_LINES.length) {
       // Small delay after last line before showing title block
       const timer = setTimeout(() => setBootComplete(true), 600);
