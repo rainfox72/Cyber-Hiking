@@ -43,6 +43,7 @@ interface GameStore {
   lastEvents: CriticalEvent[];
   isShaking: boolean;
   vitalsJitter: Record<string, number>;
+  lastAction: GameAction | null;
 
   // RNG
   rng: RNG;
@@ -95,6 +96,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   lastEvents: [],
   isShaking: false,
   vitalsJitter: {},
+  lastAction: null,
 
   // RNG with random seed
   rng: createRNG(Date.now()),
@@ -108,6 +110,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       lastEvents: [],
       isShaking: false,
       vitalsJitter: {},
+      lastAction: null,
       rng: createRNG(Date.now()),
     });
   },
@@ -121,6 +124,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       lastEvents: [],
       isShaking: false,
       vitalsJitter: {},
+      lastAction: null,
       rng: createRNG(Date.now()),
     });
   },
@@ -174,6 +178,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         lastEvents: result.events,
         isShaking: hasEvents,
         vitalsJitter: jitter,
+        lastAction: action,
       });
 
       // Clear shake after animation

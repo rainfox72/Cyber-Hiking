@@ -10,15 +10,23 @@ export function InventoryPanel() {
   const water = useGameStore((s) => s.player.water);
   const gear = useGameStore((s) => s.player.gear);
   const medicine = useGameStore((s) => s.player.medicine);
+
+  const foodColor = food <= 0 ? "var(--danger)" : food <= 2 ? "var(--amber)" : undefined;
+  const waterColor = water <= 0 ? "var(--danger)" : water <= 1 ? "var(--amber)" : undefined;
+
   return (
     <div className="inventory-grid">
       <div className="inventory-item">
         <span className="inventory-item__label">Food</span>
-        <span className="inventory-item__value">{food}</span>
+        <span className="inventory-item__value" style={foodColor ? { color: foodColor } : undefined}>
+          {food}{food <= 0 ? " [STARVING]" : ""}
+        </span>
       </div>
       <div className="inventory-item">
         <span className="inventory-item__label">Water</span>
-        <span className="inventory-item__value">{water.toFixed(1)}L</span>
+        <span className="inventory-item__value" style={waterColor ? { color: waterColor } : undefined}>
+          {water.toFixed(1)}L{water <= 0 ? " [DEHYDRATED]" : ""}
+        </span>
       </div>
       <div className="inventory-item">
         <span className="inventory-item__label">Gear</span>
