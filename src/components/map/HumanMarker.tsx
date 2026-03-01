@@ -1,6 +1,6 @@
 /**
- * Animated SVG hiking figure marker for the TacticalMap.
- * Shows different poses based on the last action taken.
+ * Cyberpunk SVG hiking figure marker for the TacticalMap.
+ * Geometric silhouette with glitch scanline effects.
  * Color shifts with health status (green/amber/red).
  */
 
@@ -36,16 +36,55 @@ function actionToPose(action: GameAction | null): HikerPose {
   }
 }
 
+/** Horizontal scanlines overlaid on the figure for CRT/hologram effect */
+function GlitchOverlay({ healthPercent }: { healthPercent: number }) {
+  const baseOpacity = healthPercent > 30 ? 0.15 : healthPercent > 10 ? 0.35 : 0.55;
+  return (
+    <g className="glitch-scanlines" style={{ pointerEvents: "none" }}>
+      <rect x="-5" y="-12" width="10" height="0.6" fill="currentColor" opacity={baseOpacity}>
+        <animate attributeName="opacity" values={`${baseOpacity};0.05;${baseOpacity}`} dur="0.8s" repeatCount="indefinite" />
+      </rect>
+      <rect x="-5" y="-6" width="10" height="0.6" fill="currentColor" opacity={baseOpacity * 0.7}>
+        <animate attributeName="opacity" values={`${baseOpacity * 0.7};0.03;${baseOpacity * 0.7}`} dur="1.2s" repeatCount="indefinite" />
+      </rect>
+      <rect x="-5" y="1" width="10" height="0.6" fill="currentColor" opacity={baseOpacity * 0.5}>
+        <animate attributeName="opacity" values={`${baseOpacity * 0.5};0.02;${baseOpacity * 0.5}`} dur="0.6s" repeatCount="indefinite" />
+      </rect>
+    </g>
+  );
+}
+
+/** Diamond-shaped scan field replacing the circular glow ring */
+function ScanField({ color }: { color: string }) {
+  return (
+    <g className="scan-field">
+      <polygon
+        points="0,-14 10,-3 0,8 -10,-3"
+        fill="none"
+        stroke={color}
+        strokeWidth="0.4"
+        strokeDasharray="3,2"
+        opacity="0.3"
+      >
+        <animate attributeName="stroke-dashoffset" values="0;10" dur="2s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.3;0.12;0.3" dur="2.5s" repeatCount="indefinite" />
+      </polygon>
+    </g>
+  );
+}
+
+/* ── Geometric Pose Components ────────────────────────── */
+
 function IdlePose({ color }: { color: string }) {
   return (
     <g>
-      <circle cx="0" cy="-14" r="3" fill={color} />
-      <line x1="0" y1="-11" x2="0" y2="-2" stroke={color} strokeWidth="2" />
-      <line x1="0" y1="-8" x2="-4" y2="-4" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="-8" x2="4" y2="-4" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="-2" x2="-2" y2="5" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="-2" x2="2" y2="5" stroke={color} strokeWidth="1.5" />
-      <rect x="1" y="-11" width="4" height="6" rx="0.5" fill="none" stroke={color} strokeWidth="1" />
+      <polygon points="-2,-15 2,-15 2.5,-12 -2.5,-12" fill={color} />
+      <polygon points="-2.5,-12 2.5,-12 3.5,-3 -3.5,-3" fill={color} opacity="0.9" />
+      <rect x="2.5" y="-11" width="2.5" height="7" fill={color} opacity="0.6" />
+      <polygon points="-3.5,-3 -1,-3 -2,5 -4,5" fill={color} opacity="0.85" />
+      <polygon points="1,-3 3.5,-3 4,5 2,5" fill={color} opacity="0.85" />
+      <line x1="-2.5" y1="-10" x2="-5" y2="-4" stroke={color} strokeWidth="1.5" />
+      <line x1="2.5" y1="-10" x2="5" y2="-4" stroke={color} strokeWidth="1.5" />
     </g>
   );
 }
@@ -54,14 +93,14 @@ function WalkingPose({ color }: { color: string }) {
   return (
     <g className="hiker-walking">
       <g transform="scale(-1, 1)">
-        <circle cx="0" cy="-14" r="3" fill={color} />
-        <line x1="0" y1="-11" x2="1" y2="-2" stroke={color} strokeWidth="2" />
-        <line x1="0" y1="-8" x2="-5" y2="-5" stroke={color} strokeWidth="1.5" />
-        <line x1="0" y1="-8" x2="3" y2="-3" stroke={color} strokeWidth="1.5" />
-        <line x1="-5" y1="-5" x2="-6" y2="5" stroke={color} strokeWidth="1" />
-        <line x1="1" y1="-2" x2="-3" y2="5" stroke={color} strokeWidth="1.5" />
-        <line x1="1" y1="-2" x2="4" y2="5" stroke={color} strokeWidth="1.5" />
-        <rect x="2" y="-11" width="4" height="7" rx="0.5" fill="none" stroke={color} strokeWidth="1" />
+        <polygon points="-2,-15 2,-15 2.5,-12 -2.5,-12" fill={color} />
+        <polygon points="-2,-12 3,-12 4,-3 -2.5,-3" fill={color} opacity="0.9" />
+        <rect x="-4.5" y="-11" width="2.5" height="7" fill={color} opacity="0.6" />
+        <polygon points="1,-3 3.5,-3 5,5 3,5" fill={color} opacity="0.85" />
+        <polygon points="-2.5,-3 0,-3 -3,5 -5,5" fill={color} opacity="0.85" />
+        <line x1="-2" y1="-10" x2="-6" y2="-3" stroke={color} strokeWidth="1.5" />
+        <line x1="-6" y1="-3" x2="-5" y2="6" stroke={color} strokeWidth="0.8" opacity="0.6" />
+        <line x1="3" y1="-10" x2="5" y2="-5" stroke={color} strokeWidth="1.5" />
       </g>
     </g>
   );
@@ -70,18 +109,17 @@ function WalkingPose({ color }: { color: string }) {
 function CampingPose({ color }: { color: string }) {
   return (
     <g>
-      <circle cx="0" cy="-8" r="3" fill={color} />
-      <line x1="0" y1="-5" x2="0" y2="0" stroke={color} strokeWidth="2" />
-      <line x1="0" y1="-3" x2="-4" y2="-1" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="-3" x2="4" y2="-1" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="0" x2="-3" y2="3" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="0" x2="3" y2="3" stroke={color} strokeWidth="1.5" />
-      <rect x="5" y="-2" width="3" height="5" rx="0.5" fill="none" stroke={color} strokeWidth="1" />
-      <circle cx="-1" cy="4" r="1" fill="var(--amber)" opacity="0.8">
-        <animate attributeName="opacity" values="0.8;0.4;0.8" dur="0.6s" repeatCount="indefinite" />
+      <polygon points="-2,-9 2,-9 2.5,-6.5 -2.5,-6.5" fill={color} />
+      <polygon points="-2.5,-6.5 2.5,-6.5 3,0 -3,0" fill={color} opacity="0.9" />
+      <polygon points="-3,0 3,0 4,3 -4,3" fill={color} opacity="0.85" />
+      <rect x="4" y="-3" width="2.5" height="5" fill={color} opacity="0.5" />
+      <line x1="-2.5" y1="-5" x2="-4" y2="-2" stroke={color} strokeWidth="1.5" />
+      <line x1="2.5" y1="-5" x2="4" y2="-2" stroke={color} strokeWidth="1.5" />
+      <circle cx="0" cy="4.5" r="1.2" fill="var(--amber)" opacity="0.7">
+        <animate attributeName="opacity" values="0.7;0.3;0.7" dur="0.6s" repeatCount="indefinite" />
       </circle>
-      <circle cx="1" cy="3.5" r="0.8" fill="var(--danger)" opacity="0.6">
-        <animate attributeName="opacity" values="0.6;0.3;0.6" dur="0.8s" repeatCount="indefinite" />
+      <circle cx="0.5" cy="4" r="0.8" fill="var(--danger)" opacity="0.5">
+        <animate attributeName="opacity" values="0.5;0.2;0.5" dur="0.8s" repeatCount="indefinite" />
       </circle>
     </g>
   );
@@ -90,13 +128,12 @@ function CampingPose({ color }: { color: string }) {
 function EatingPose({ color }: { color: string }) {
   return (
     <g>
-      <circle cx="0" cy="-8" r="3" fill={color} />
-      <line x1="0" y1="-5" x2="0" y2="0" stroke={color} strokeWidth="2" />
-      <line x1="0" y1="-3" x2="-2" y2="-6" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="-3" x2="4" y2="-1" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="0" x2="-3" y2="3" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="0" x2="3" y2="3" stroke={color} strokeWidth="1.5" />
-      <rect x="5" y="-2" width="3" height="5" rx="0.5" fill="none" stroke={color} strokeWidth="1" />
+      <polygon points="-2,-9 2,-9 2.5,-6.5 -2.5,-6.5" fill={color} />
+      <polygon points="-2.5,-6.5 2.5,-6.5 3,0 -3,0" fill={color} opacity="0.9" />
+      <polygon points="-3,0 3,0 4,3 -4,3" fill={color} opacity="0.85" />
+      <line x1="2.5" y1="-5" x2="1" y2="-8" stroke={color} strokeWidth="1.5" />
+      <line x1="-2.5" y1="-5" x2="-4" y2="-1" stroke={color} strokeWidth="1.5" />
+      <rect x="4" y="-3" width="2.5" height="5" fill={color} opacity="0.5" />
     </g>
   );
 }
@@ -104,14 +141,14 @@ function EatingPose({ color }: { color: string }) {
 function DrinkingPose({ color }: { color: string }) {
   return (
     <g>
-      <circle cx="0" cy="-14" r="3" fill={color} />
-      <line x1="0" y1="-11" x2="0" y2="-2" stroke={color} strokeWidth="2" />
-      <line x1="0" y1="-8" x2="-3" y2="-12" stroke={color} strokeWidth="1.5" />
-      <rect x="-4" y="-14" width="2" height="3" rx="0.5" fill="var(--cyan)" stroke={color} strokeWidth="0.5" />
-      <line x1="0" y1="-8" x2="4" y2="-4" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="-2" x2="-2" y2="5" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="-2" x2="2" y2="5" stroke={color} strokeWidth="1.5" />
-      <rect x="1" y="-11" width="4" height="6" rx="0.5" fill="none" stroke={color} strokeWidth="1" />
+      <polygon points="-2,-15 2,-15 3,-12 -1.5,-12" fill={color} />
+      <polygon points="-2.5,-12 2.5,-12 3.5,-3 -3.5,-3" fill={color} opacity="0.9" />
+      <rect x="2.5" y="-11" width="2.5" height="7" fill={color} opacity="0.6" />
+      <line x1="-2.5" y1="-10" x2="-3.5" y2="-14" stroke={color} strokeWidth="1.5" />
+      <rect x="-5" y="-15.5" width="2" height="2.5" rx="0.5" fill="var(--cyan)" opacity="0.7" />
+      <line x1="2.5" y1="-10" x2="5" y2="-5" stroke={color} strokeWidth="1.5" />
+      <polygon points="-3.5,-3 -1,-3 -1.5,5 -4,5" fill={color} opacity="0.85" />
+      <polygon points="1,-3 3.5,-3 4,5 1.5,5" fill={color} opacity="0.85" />
     </g>
   );
 }
@@ -119,13 +156,12 @@ function DrinkingPose({ color }: { color: string }) {
 function RestingPose({ color }: { color: string }) {
   return (
     <g className="hiker-resting">
-      <circle cx="-1" cy="-8" r="3" fill={color} />
-      <line x1="0" y1="-5" x2="0" y2="0" stroke={color} strokeWidth="2" />
-      <line x1="0" y1="-3" x2="-4" y2="0" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="-3" x2="4" y2="0" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="0" x2="-3" y2="4" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="0" x2="3" y2="4" stroke={color} strokeWidth="1.5" />
-      <rect x="3" y="-4" width="4" height="6" rx="0.5" fill="none" stroke={color} strokeWidth="1" />
+      <polygon points="-2.5,-9 1.5,-9 2,-6.5 -3,-6.5" fill={color} />
+      <polygon points="-3,-6.5 2,-6.5 2.5,0 -3.5,0" fill={color} opacity="0.9" />
+      <polygon points="-3.5,0 2.5,0 5,3 -2,3" fill={color} opacity="0.85" />
+      <line x1="-3" y1="-5" x2="-5" y2="-1" stroke={color} strokeWidth="1.5" />
+      <line x1="2" y1="-5" x2="4" y2="-1" stroke={color} strokeWidth="1.5" />
+      <rect x="-6" y="-7" width="3" height="6" rx="0.5" fill={color} opacity="0.45" />
     </g>
   );
 }
@@ -133,14 +169,17 @@ function RestingPose({ color }: { color: string }) {
 function MappingPose({ color }: { color: string }) {
   return (
     <g>
-      <circle cx="0" cy="-13" r="3" fill={color} />
-      <line x1="0" y1="-10" x2="0" y2="-2" stroke={color} strokeWidth="2" />
-      <line x1="0" y1="-7" x2="-5" y2="-7" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="-7" x2="5" y2="-7" stroke={color} strokeWidth="1.5" />
-      <rect x="-5" y="-9" width="10" height="4" rx="0.5" fill="none" stroke="var(--amber)" strokeWidth="0.8" opacity="0.7" />
-      <line x1="0" y1="-2" x2="-2" y2="5" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="-2" x2="2" y2="5" stroke={color} strokeWidth="1.5" />
-      <rect x="1" y="-10" width="4" height="6" rx="0.5" fill="none" stroke={color} strokeWidth="1" />
+      <polygon points="-2,-14 2,-14 2.5,-11 -2.5,-11" fill={color} />
+      <polygon points="-2.5,-11 2.5,-11 3.5,-3 -3.5,-3" fill={color} opacity="0.9" />
+      <line x1="-2.5" y1="-9" x2="-6" y2="-9" stroke={color} strokeWidth="1.5" />
+      <line x1="2.5" y1="-9" x2="6" y2="-9" stroke={color} strokeWidth="1.5" />
+      <rect x="-6" y="-10.5" width="12" height="4" rx="0.3" fill="none"
+        stroke="var(--amber)" strokeWidth="0.7" opacity="0.7" />
+      <line x1="-3" y1="-10.5" x2="-3" y2="-6.5" stroke="var(--amber)" strokeWidth="0.3" opacity="0.4" />
+      <line x1="3" y1="-10.5" x2="3" y2="-6.5" stroke="var(--amber)" strokeWidth="0.3" opacity="0.4" />
+      <polygon points="-3.5,-3 -1,-3 -1.5,5 -4,5" fill={color} opacity="0.85" />
+      <polygon points="1,-3 3.5,-3 4,5 1.5,5" fill={color} opacity="0.85" />
+      <rect x="3" y="-10" width="2.5" height="6" fill={color} opacity="0.5" />
     </g>
   );
 }
@@ -148,16 +187,14 @@ function MappingPose({ color }: { color: string }) {
 function MedicinePose({ color }: { color: string }) {
   return (
     <g>
-      <circle cx="0" cy="-8" r="3" fill={color} />
-      <line x1="0" y1="-5" x2="0" y2="0" stroke={color} strokeWidth="2" />
-      <line x1="0" y1="-3" x2="-4" y2="-5" stroke={color} strokeWidth="1.5" />
-      <line x1="-5" y1="-5" x2="-3" y2="-5" stroke="var(--danger)" strokeWidth="1" />
-      <line x1="-4" y1="-6" x2="-4" y2="-4" stroke="var(--danger)" strokeWidth="1" />
-      <line x1="0" y1="-3" x2="4" y2="-1" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="0" x2="-3" y2="3" stroke={color} strokeWidth="1.5" />
-      <line x1="-3" y1="3" x2="-1" y2="5" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="0" x2="3" y2="5" stroke={color} strokeWidth="1.5" />
-      <rect x="4" y="-3" width="3" height="5" rx="0.5" fill="none" stroke={color} strokeWidth="1" />
+      <polygon points="-2,-9 2,-9 2.5,-6.5 -2.5,-6.5" fill={color} />
+      <polygon points="-2.5,-6.5 2.5,-6.5 3,0 -3,0" fill={color} opacity="0.9" />
+      <polygon points="-3,0 3,0 2,4 -2,4" fill={color} opacity="0.85" />
+      <line x1="-2.5" y1="-5" x2="-5" y2="-6" stroke={color} strokeWidth="1.5" />
+      <line x1="-6" y1="-6" x2="-4" y2="-6" stroke="var(--danger)" strokeWidth="1" />
+      <line x1="-5" y1="-7" x2="-5" y2="-5" stroke="var(--danger)" strokeWidth="1" />
+      <line x1="2.5" y1="-5" x2="4" y2="-2" stroke={color} strokeWidth="1.5" />
+      <rect x="4" y="-5" width="2.5" height="5" fill={color} opacity="0.5" />
     </g>
   );
 }
@@ -169,9 +206,10 @@ export function HumanMarker({ healthPercent, lastAction, isLost }: HumanMarkerPr
     "var(--danger)";
 
   const pose = actionToPose(lastAction);
+  const jitterClass = healthPercent <= 10 ? " hiker-jitter" : "";
 
   return (
-    <g className="human-marker">
+    <g className={`human-marker${jitterClass}`} style={{ color }}>
 
       {pose === "idle" && <IdlePose color={color} />}
       {pose === "walking" && <WalkingPose color={color} />}
@@ -182,11 +220,11 @@ export function HumanMarker({ healthPercent, lastAction, isLost }: HumanMarkerPr
       {pose === "mapping" && <MappingPose color={color} />}
       {pose === "medicine" && <MedicinePose color={color} />}
 
-      {/* Pulsing glow */}
-      <circle cx="0" cy="-3" r="8" fill="none" stroke={color} strokeWidth="0.5" opacity="0.3">
-        <animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.3;0.1;0.3" dur="2s" repeatCount="indefinite" />
-      </circle>
+      {/* Glitch scanlines */}
+      <GlitchOverlay healthPercent={healthPercent} />
+
+      {/* Diamond scan field */}
+      <ScanField color={color} />
 
       {/* Lost label */}
       {isLost && (
