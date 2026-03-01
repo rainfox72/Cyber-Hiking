@@ -133,9 +133,9 @@ export function applyVitalChanges(
 
       player.energy += 15 * hoursMult * recoveryMult;
       if (waypoint.shelterAvailable) {
-        player.bodyTemp += 8 * hoursMult * recoveryMult;
+        player.bodyTemp += 12 * hoursMult * recoveryMult;
       } else {
-        player.bodyTemp += 3 * hoursMult * recoveryMult;
+        player.bodyTemp += 5 * hoursMult * recoveryMult;
       }
       player.bodyTemp += (50 - player.bodyTemp) * 0.1;
 

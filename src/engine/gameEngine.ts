@@ -59,7 +59,7 @@ export function createInitialState(): GameState {
     player: {
       energy: 100,
       hydration: 100,
-      bodyTemp: 50,
+      bodyTemp: 70,
       o2Saturation: 100,
       morale: 100,
       food: 6,
