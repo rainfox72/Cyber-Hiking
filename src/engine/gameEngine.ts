@@ -377,6 +377,7 @@ export function processAction(
         waypoints[newState.player.currentWaypointIndex].distanceFromStart;
       newState.player.currentWaypointIndex = nextIndex;
       newState.player.distanceTraveled += distanceCovered;
+      newState.player.checkedMapThisSegment = false;
     }
   } else if (action === "descend") {
     const prevIndex = newState.player.currentWaypointIndex - 1;
@@ -390,6 +391,12 @@ export function processAction(
     }
   } else if (action === "check_map") {
     newState.mapRevealed = true;
+    newState.player.checkedMapThisSegment = true;
+
+    // If lost: boost find-way-back chance by +25%, capped at 95%
+    if (newState.player.isLost) {
+      newState.player.findWayBackChance = Math.min(95, newState.player.findWayBackChance + 25);
+    }
   }
 
   // 5b. Camp fatigue tracking
