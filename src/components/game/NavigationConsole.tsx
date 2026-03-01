@@ -13,7 +13,7 @@ export const ACTION_CONFIG: { action: GameAction; label: string; cost: string }[
   { action: "rest", label: "REST", cost: "2h | Recovery / wait out weather" },
   { action: "eat", label: "EAT RATION", cost: "0.5h | Energy +25, Morale +5" },
   { action: "drink", label: "DRINK WATER", cost: "0.5h | Hydration +30, Morale +3" },
-  { action: "use_medicine", label: "USE MEDICINE", cost: "0.5h | O2 +15, Temp normalize" },
+  { action: "use_medicine", label: "USE MEDICINE", cost: "0.5h | Heal O2/Temp or treat fall injury" },
 ];
 
 export function NavigationConsole() {

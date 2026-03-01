@@ -23,6 +23,7 @@ import type { RNG } from "../utils/random.ts";
 import { updateExposure } from "./exposureSystem.ts";
 import { getEncumbranceTimePenalty } from "./encumbrance.ts";
 import { rollGettingLost, rollFindWayBack, applyGettingLost, applyFoundWayBack } from "./navigationSystem.ts";
+import { rollFall, isFallFatal, applyFallDamage } from "./fallSystem.ts";
 
 /** Summit waypoint index (Baxian Platform). */
 const SUMMIT_INDEX = 12;
@@ -449,6 +450,35 @@ export function processAction(
         timestamp: formatTimestamp(newState.time.day, newState.time.hour),
       };
       newState.log.push(stillLostEntry);
+    }
+  }
+
+  // 5e: Fall check on push_forward
+  if (action === "push_forward") {
+    const fallWaypoint = waypoints[newState.player.currentWaypointIndex];
+    if (rollFall(newState, fallWaypoint, rng)) {
+      if (isFallFatal(newState.player)) {
+        // Instant death
+        newState.player.isAlive = false;
+        newState.gamePhase = "defeat";
+        newState.defeatCause = "A fatal fall — the mountain claimed you.";
+        const fatalEntry: LogEntry = {
+          turnNumber: newState.turnNumber,
+          text: "[FATAL FALL] You lose your footing and plummet into the ravine. The mountain doesn't care.",
+          type: "event",
+          timestamp: formatTimestamp(newState.time.day, newState.time.hour),
+        };
+        newState.log.push(fatalEntry);
+      } else {
+        newState.player = applyFallDamage(newState.player, rng);
+        const fallEntry: LogEntry = {
+          turnNumber: newState.turnNumber,
+          text: "[FALL] You slip and tumble down the slope. Pain shoots through your body. Everything hurts.",
+          type: "event",
+          timestamp: formatTimestamp(newState.time.day, newState.time.hour),
+        };
+        newState.log.push(fallEntry);
+      }
     }
   }
 

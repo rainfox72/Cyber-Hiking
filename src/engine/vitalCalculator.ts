@@ -206,11 +206,23 @@ export function applyVitalChanges(
 
     case "use_medicine": {
       if (player.medicine > 0) {
-        player.o2Saturation += 15;
-        // Body temp normalizes toward 50 by 10 points
-        const tempDiff = 50 - player.bodyTemp;
-        const shift = Math.sign(tempDiff) * Math.min(Math.abs(tempDiff), 10);
-        player.bodyTemp += shift;
+        // Check for fall injury — medicine prioritizes fall recovery
+        const hasFallInjury = player.statusEffects.some(e => e.id === "fall_injury");
+        if (hasFallInjury) {
+          // Fall recovery: +25% all vitals, clear injury
+          player.energy = Math.min(100, player.energy + 25);
+          player.hydration = Math.min(100, player.hydration + 25);
+          player.bodyTemp = Math.min(100, player.bodyTemp + 25);
+          player.o2Saturation = Math.min(100, player.o2Saturation + 25);
+          player.morale = Math.min(100, player.morale + 25);
+          player.statusEffects = player.statusEffects.filter(e => e.id !== "fall_injury");
+        } else {
+          // Normal medicine: O2 + temp normalize
+          player.o2Saturation += 15;
+          const tempDiff = 50 - player.bodyTemp;
+          const shift = Math.sign(tempDiff) * Math.min(Math.abs(tempDiff), 10);
+          player.bodyTemp += shift;
+        }
         player.medicine -= 1;
       }
       break;
