@@ -153,6 +153,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
         soundManager.eatDrink();
       }
 
+      // Lost/fall sound triggers
+      const wasLost = currentState.player.isLost;
+      const nowLost = result.newState.player.isLost;
+
+      // Just got lost
+      if (!wasLost && nowLost) {
+        soundManager.alert();
+      }
+
+      // Found way back
+      if (wasLost && !nowLost) {
+        soundManager.alert();
+      }
+
+      // Just fell (new fall_injury that wasn't there before)
+      const hadFallInjury = currentState.player.statusEffects.some(e => e.id === "fall_injury");
+      const hasFallInjury = result.newState.player.statusEffects.some(e => e.id === "fall_injury");
+      if (!hadFallInjury && hasFallInjury) {
+        soundManager.injury();
+      }
+
       // Fog of war: jitter vitals display when morale is low
       const jitter: Record<string, number> = {};
       if (result.newState.player.morale < 40) {
