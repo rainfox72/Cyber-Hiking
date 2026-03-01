@@ -9,8 +9,6 @@ import type { GameAction } from "../../engine/types.ts";
 type HikerPose = "idle" | "walking" | "camping" | "eating" | "drinking" | "resting" | "mapping" | "medicine" | "waiting";
 
 interface HumanMarkerProps {
-  x: number;
-  y: number;
   healthPercent: number;
   lastAction: GameAction | null;
 }
@@ -178,7 +176,7 @@ function WaitingPose({ color }: { color: string }) {
   );
 }
 
-export function HumanMarker({ x, y, healthPercent, lastAction }: HumanMarkerProps) {
+export function HumanMarker({ healthPercent, lastAction }: HumanMarkerProps) {
   const color =
     healthPercent > 60 ? "var(--neon-green)" :
     healthPercent > 30 ? "var(--amber)" :
@@ -187,11 +185,8 @@ export function HumanMarker({ x, y, healthPercent, lastAction }: HumanMarkerProp
   const pose = actionToPose(lastAction);
 
   return (
-    <g
-      className="human-marker"
-      transform={`translate(${x}, ${y})`}
-      style={{ transition: "transform 1.2s ease-in-out" }}
-    >
+    <g className="human-marker">
+
       {pose === "idle" && <IdlePose color={color} />}
       {pose === "walking" && <WalkingPose color={color} />}
       {pose === "camping" && <CampingPose color={color} />}

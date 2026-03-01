@@ -351,14 +351,14 @@
   color: var(--bg-dark);
 }
 
-/* Human Marker Bob Animation */
+/* Human Marker Bob Animation — uses SVG-local translateY, no conflicting position transforms */
 .human-marker {
   animation: marker-bob 1.5s ease-in-out infinite;
 }
 
 @keyframes marker-bob {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+  50% { transform: translateY(-1.5px); }
 }
 
 /* Day/night indicator */

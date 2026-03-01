@@ -192,13 +192,13 @@ export function TacticalMap() {
             );
           })}
 
-          {/* Human marker */}
-          <HumanMarker
-            x={toMapX(WAYPOINTS[currentIndex].distanceFromStart)}
-            y={toMapY(WAYPOINTS[currentIndex].elevation) - 10}
-            healthPercent={healthPercent}
-            lastAction={lastAction}
-          />
+          {/* Human marker — positioned and scaled here so CSS animation on inner <g> doesn't override SVG positioning */}
+          <g transform={`translate(${toMapX(WAYPOINTS[currentIndex].distanceFromStart)}, ${toMapY(WAYPOINTS[currentIndex].elevation) - 18}) scale(2.5)`}>
+            <HumanMarker
+              healthPercent={healthPercent}
+              lastAction={lastAction}
+            />
+          </g>
         </svg>
       </div>
     </div>
