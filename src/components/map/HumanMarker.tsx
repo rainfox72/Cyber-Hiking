@@ -6,7 +6,7 @@
 
 import type { GameAction } from "../../engine/types.ts";
 
-type HikerPose = "idle" | "walking" | "camping" | "eating" | "drinking" | "resting" | "mapping" | "medicine" | "waiting";
+type HikerPose = "idle" | "walking" | "camping" | "eating" | "drinking" | "resting" | "mapping" | "medicine";
 
 interface HumanMarkerProps {
   healthPercent: number;
@@ -30,8 +30,6 @@ function actionToPose(action: GameAction | null): HikerPose {
       return "mapping";
     case "use_medicine":
       return "medicine";
-    case "wait":
-      return "waiting";
     default:
       return "idle";
   }
@@ -161,21 +159,6 @@ function MedicinePose({ color }: { color: string }) {
   );
 }
 
-function WaitingPose({ color }: { color: string }) {
-  return (
-    <g className="hiker-waiting">
-      <circle cx="0" cy="-10" r="3" fill={color} />
-      <line x1="0" y1="-7" x2="1" y2="-1" stroke={color} strokeWidth="2" />
-      <line x1="1" y1="-4" x2="-2" y2="-3" stroke={color} strokeWidth="1.5" />
-      <line x1="1" y1="-4" x2="4" y2="-3" stroke={color} strokeWidth="1.5" />
-      <path d="M -3 -11 A 4 3 0 0 1 3 -11" fill="none" stroke={color} strokeWidth="1" />
-      <line x1="1" y1="-1" x2="-2" y2="4" stroke={color} strokeWidth="1.5" />
-      <line x1="1" y1="-1" x2="3" y2="4" stroke={color} strokeWidth="1.5" />
-      <rect x="2" y="-7" width="4" height="5" rx="0.5" fill="none" stroke={color} strokeWidth="1" />
-    </g>
-  );
-}
-
 export function HumanMarker({ healthPercent, lastAction }: HumanMarkerProps) {
   const color =
     healthPercent > 60 ? "var(--neon-green)" :
@@ -195,7 +178,6 @@ export function HumanMarker({ healthPercent, lastAction }: HumanMarkerProps) {
       {pose === "resting" && <RestingPose color={color} />}
       {pose === "mapping" && <MappingPose color={color} />}
       {pose === "medicine" && <MedicinePose color={color} />}
-      {pose === "waiting" && <WaitingPose color={color} />}
 
       {/* Pulsing glow */}
       <circle cx="0" cy="-3" r="8" fill="none" stroke={color} strokeWidth="0.5" opacity="0.3">

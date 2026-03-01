@@ -37,8 +37,7 @@ export type GameAction =
   | "rest"
   | "eat"
   | "drink"
-  | "use_medicine"
-  | "wait";
+  | "use_medicine";
 
 export type GamePhase = "title" | "playing" | "victory" | "defeat";
 
@@ -74,6 +73,11 @@ export interface PlayerState {
   lastCampWaypoint: number;
   isAlive: boolean;
   hasReachedSummit: boolean;
+  isLost: boolean;
+  lostTurns: number;
+  lostFromWaypointIndex: number;
+  checkedMapThisSegment: boolean;
+  findWayBackChance: number;
 }
 
 export interface WeatherState {

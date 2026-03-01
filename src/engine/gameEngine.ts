@@ -36,7 +36,6 @@ const BASE_TIME_COSTS: Record<GameAction, number> = {
   eat: 0.5,
   drink: 0.5,
   use_medicine: 0.5,
-  wait: 1,
 };
 
 /** Terrain-specific time cost for push_forward. */
@@ -73,6 +72,11 @@ export function createInitialState(): GameState {
       distanceTraveled: 0,
       isAlive: true,
       hasReachedSummit: false,
+      isLost: false,
+      lostTurns: 0,
+      lostFromWaypointIndex: 0,
+      checkedMapThisSegment: false,
+      findWayBackChance: 15,
     },
     weather: {
       current: "clear",
@@ -105,11 +109,11 @@ export function validateAction(
   if (state.gamePhase !== "playing") return false;
   if (!state.player.isAlive) return false;
 
-  // Whiteout: only wait is allowed
+  // Whiteout: only rest is allowed
   const hasWhiteout = state.player.statusEffects.some(
     (e) => e.modifiers?.disableActions,
   );
-  if (hasWhiteout && action !== "wait") return false;
+  if (hasWhiteout && action !== "rest") return false;
 
   switch (action) {
     case "push_forward":
@@ -139,11 +143,6 @@ export function validateAction(
     case "check_map":
     case "rest":
       return true;
-
-    case "wait":
-      return state.player.statusEffects.some(
-        (e) => e.modifiers?.disableActions,
-      );
 
     default:
       return false;
@@ -178,7 +177,6 @@ function createLogEntry(
     eat: "Eat",
     drink: "Drink",
     use_medicine: "Use Medicine",
-    wait: "Wait",
   };
 
   return {
@@ -231,9 +229,6 @@ function generateNarrative(
 
     case "use_medicine":
       return `Took medicine to ease the altitude sickness. ${state.player.medicine - 1} doses left.`;
-
-    case "wait":
-      return "You hunker down and wait for the whiteout to pass. Visibility: zero.";
 
     default:
       return `Took action.`;

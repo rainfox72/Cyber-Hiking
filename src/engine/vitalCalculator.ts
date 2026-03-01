@@ -213,11 +213,6 @@ export function applyVitalChanges(
       break;
     }
 
-    case "wait": {
-      player.energy -= 3;
-      player.hydration -= 2;
-      break;
-    }
   }
 
   // Passive hydration drain on remaining actions (-2 per hour)
