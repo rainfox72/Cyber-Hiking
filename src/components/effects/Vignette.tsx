@@ -18,9 +18,9 @@ export function Vignette() {
 
     let r: number;
     if (worstVital > 60) r = 0;        // no vignette
-    else if (worstVital > 30) r = 70;   // subtle
-    else if (worstVital > 10) r = 40;   // heavy
-    else r = 20;                         // near blackout
+    else if (worstVital > 30) r = 80;   // subtle
+    else if (worstVital > 10) r = 60;   // noticeable but readable
+    else r = 40;                         // heavy but functional
 
     // Color tint based on which vital is worst
     let tint = "rgba(0,0,0,0)";
@@ -38,7 +38,7 @@ export function Vignette() {
     <div
       className="vignette"
       style={{
-        background: `radial-gradient(ellipse ${radius}% ${radius}% at 50% 35%, transparent 0%, ${tintColor} 40%, rgba(0,0,0,0.85) 100%)`,
+        background: `radial-gradient(ellipse ${radius}% ${radius}% at 50% 35%, transparent 0%, ${tintColor} 40%, rgba(0,0,0,0.6) 100%)`,
       }}
     />
   );
