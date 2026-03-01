@@ -205,6 +205,57 @@
   color: var(--amber);
 }
 
+.log-entry--ai {
+  color: var(--cyan);
+}
+
+/* Auto-play styles */
+.auto-play-button {
+  width: 100%;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  background: transparent;
+  border: 1px solid var(--text-muted);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auto-play-button:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.auto-play-button--active {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(0, 170, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 170, 255, 0.2);
+}
+
+.auto-play-thinking {
+  text-align: center;
+  color: var(--cyan);
+  font-size: 10px;
+  padding: 4px;
+  margin-bottom: 4px;
+  animation: ai-pulse 1.5s ease-in-out infinite;
+  border-bottom: 1px solid rgba(0, 170, 255, 0.3);
+}
+
+@keyframes ai-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.nav-actions--dimmed .action-button {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
 /* Inventory panel */
 .inventory-grid {
   display: grid;

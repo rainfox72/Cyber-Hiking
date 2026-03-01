@@ -41,7 +41,7 @@ export type GameAction =
 
 export type GamePhase = "title" | "playing" | "dying" | "victory" | "defeat";
 
-export type LogEntryType = "narrative" | "event" | "system" | "action";
+export type LogEntryType = "narrative" | "event" | "system" | "action" | "ai";
 
 export interface Waypoint {
   id: string;
