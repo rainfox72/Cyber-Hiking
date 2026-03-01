@@ -1,5 +1,6 @@
 /**
  * NavigationConsole component — panel containing all available player action buttons.
+ * Includes AUTO toggle for AI auto-play mode.
  */
 
 import { ActionButton } from "./ActionButton.tsx";
@@ -20,10 +21,22 @@ export const ACTION_CONFIG: { action: GameAction; label: string; cost: string }[
 export function NavigationConsole() {
   const isLost = useGameStore((s) => s.player.isLost);
   const hasFallInjury = useGameStore((s) => s.player.statusEffects.some(e => e.id === "fall_injury"));
+  const autoPlayEnabled = useGameStore((s) => s.autoPlayEnabled);
+  const isAIThinking = useGameStore((s) => s.isAIThinking);
+  const toggleAutoPlay = useGameStore((s) => s.toggleAutoPlay);
 
   return (
     <div className="panel">
       <div className="panel-header">NAVIGATION CONSOLE</div>
+      <button
+        className={`auto-play-button${autoPlayEnabled ? " auto-play-button--active" : ""}`}
+        onClick={toggleAutoPlay}
+      >
+        {autoPlayEnabled ? "■ STOP AUTO" : "▶ AUTO"}
+      </button>
+      {isAIThinking && (
+        <div className="auto-play-thinking">AI THINKING...</div>
+      )}
       {isLost && (
         <div style={{
           color: "var(--danger)",
@@ -49,9 +62,11 @@ export function NavigationConsole() {
           🩹 FALL INJURY — USE MEDICINE TO TREAT
         </div>
       )}
-      {ACTION_CONFIG.map((cfg) => (
-        <ActionButton key={cfg.action} {...cfg} />
-      ))}
+      <div className={autoPlayEnabled ? "nav-actions--dimmed" : ""}>
+        {ACTION_CONFIG.map((cfg) => (
+          <ActionButton key={cfg.action} {...cfg} />
+        ))}
+      </div>
     </div>
   );
 }
