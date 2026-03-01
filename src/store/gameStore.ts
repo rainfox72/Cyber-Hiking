@@ -24,6 +24,7 @@ import { createRNG, type RNG } from "../utils/random.ts";
 import { generateNarrative } from "../services/ollamaService.ts";
 import { generateFallbackNarrative } from "../services/fallbackNarrator.ts";
 import { soundManager } from "../services/soundManager.ts";
+import { generateDecision, heuristicDecision } from "../services/ollamaDecision.ts";
 
 interface GameStore {
   // Game state
@@ -47,6 +48,10 @@ interface GameStore {
   vitalsJitter: Record<string, number>;
   lastAction: GameAction | null;
 
+  // Auto-play
+  autoPlayEnabled: boolean;
+  isAIThinking: boolean;
+
   // RNG
   rng: RNG;
 
@@ -56,6 +61,8 @@ interface GameStore {
   performAction: (action: GameAction) => void;
   isActionValid: (action: GameAction) => boolean;
   setOllamaConnected: (connected: boolean) => void;
+  toggleAutoPlay: () => void;
+  stopAutoPlay: () => void;
 }
 
 function stateFromGameState(gs: GameState): Partial<GameStore> {
@@ -103,6 +110,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   isShaking: false,
   vitalsJitter: {},
   lastAction: null,
+  autoPlayEnabled: false,
+  isAIThinking: false,
 
   // RNG with random seed
   rng: createRNG(Date.now()),
@@ -117,6 +126,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       isShaking: false,
       vitalsJitter: {},
       lastAction: null,
+      autoPlayEnabled: false,
+      isAIThinking: false,
       rng: createRNG(Date.now()),
     });
   },
@@ -210,6 +221,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }, 2000);
       }
 
+      // Stop auto-play on game end
+      if (result.newState.gamePhase !== "playing") {
+        set({ autoPlayEnabled: false, isAIThinking: false });
+      }
+
       // Async: request Ollama narration (non-blocking)
       generateNarrative(result).then((aiText) => {
         const narrativeText = aiText ?? generateFallbackNarrative(result, store.rng);
@@ -236,5 +252,71 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   setOllamaConnected: (connected: boolean) => {
     set({ ollamaConnected: connected });
+  },
+
+  toggleAutoPlay: () => {
+    const store = get();
+    if (store.autoPlayEnabled) {
+      set({ autoPlayEnabled: false, isAIThinking: false });
+      return;
+    }
+
+    set({ autoPlayEnabled: true });
+
+    const runLoop = async () => {
+      await new Promise((r) => setTimeout(r, 2000));
+
+      while (true) {
+        const current = get();
+        if (!current.autoPlayEnabled || current.gamePhase !== "playing" || current.isProcessing) {
+          set({ isAIThinking: false });
+          break;
+        }
+
+        const currentState = gameStateFromStore(current);
+        const allActions: GameAction[] = [
+          "push_forward", "set_camp", "descend", "check_map",
+          "rest", "eat", "drink", "use_medicine",
+        ];
+        const validActions = allActions.filter((a) =>
+          validateAction(currentState, a, WAYPOINTS),
+        );
+
+        if (validActions.length === 0) break;
+
+        set({ isAIThinking: true });
+
+        let decision = current.ollamaConnected
+          ? await generateDecision(currentState, validActions)
+          : null;
+
+        if (!decision) {
+          decision = heuristicDecision(currentState, validActions);
+        }
+
+        if (!get().autoPlayEnabled) {
+          set({ isAIThinking: false });
+          break;
+        }
+
+        const aiEntry: LogEntry = {
+          turnNumber: currentState.turnNumber + 1,
+          text: `[AI] ${decision.reasoning}`,
+          type: "ai",
+          timestamp: `Day ${currentState.time.day}, ${String(Math.floor(currentState.time.hour)).padStart(2, "0")}:00`,
+        };
+        set((s) => ({ log: [...s.log, aiEntry], isAIThinking: false }));
+
+        get().performAction(decision.action);
+
+        await new Promise((r) => setTimeout(r, 3500));
+      }
+    };
+
+    runLoop();
+  },
+
+  stopAutoPlay: () => {
+    set({ autoPlayEnabled: false, isAIThinking: false });
   },
 }));
