@@ -80,6 +80,7 @@ export function applyVitalChanges(
   state: GameState,
   action: GameAction,
   waypoints: Waypoint[],
+  timeCost?: number,
 ): PlayerState {
   const player = { ...state.player };
   const waypoint = waypoints[player.currentWaypointIndex];
@@ -112,6 +113,8 @@ export function applyVitalChanges(
     }
 
     case "set_camp": {
+      const hoursMult = (timeCost ?? 4) / 4;
+
       // Camp fatigue: harsher diminishing returns (100%/35%/10%)
       const fatigueMultiplier =
         state.player.campFatigueCount <= 1 ? 1.0 :
@@ -128,16 +131,16 @@ export function applyVitalChanges(
 
       const recoveryMult = fatigueMultiplier * moraleCollapseMult * resourceMult;
 
-      player.energy += 15 * recoveryMult;  // Was 30
+      player.energy += 15 * hoursMult * recoveryMult;
       if (waypoint.shelterAvailable) {
-        player.bodyTemp += 8 * recoveryMult;  // Was 15
+        player.bodyTemp += 8 * hoursMult * recoveryMult;
       } else {
-        player.bodyTemp += 3 * recoveryMult;  // Was 5
+        player.bodyTemp += 3 * hoursMult * recoveryMult;
       }
       player.bodyTemp += (50 - player.bodyTemp) * 0.1;
 
-      // Camping still costs hydration (4h x 2/h)
-      player.hydration -= 8;
+      // Camping hydration drain scales with hours (2/h)
+      player.hydration -= 2 * (timeCost ?? 4);
       break;
     }
 

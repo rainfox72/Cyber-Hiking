@@ -53,6 +53,14 @@ export function advanceClock(time: GameTime, hours: number): GameTime {
   };
 }
 
+/** Returns hours until 06:00 (dawn). If already 06:00-16:59, returns 0. */
+export function hoursUntilDawn(currentHour: number): number {
+  const h = ((currentHour % 24) + 24) % 24;
+  if (h >= 6 && h < 17) return 0; // daytime, no sleep-until-dawn
+  if (h >= 17) return 24 - h + 6;  // evening: hours until next 06:00
+  return 6 - h;                     // early morning: hours until 06:00
+}
+
 /**
  * Returns the ambient temperature modifier for a given time of day.
  * Negative values indicate colder temperatures relative to midday baseline.

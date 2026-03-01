@@ -14,7 +14,7 @@ import type {
   TurnResult,
   Waypoint,
 } from "./types.ts";
-import { advanceClock, getTimeOfDay } from "./dayNightCycle.ts";
+import { advanceClock, getTimeOfDay, hoursUntilDawn } from "./dayNightCycle.ts";
 import { calculateRisk } from "./riskCalculator.ts";
 import { applyVitalChanges, checkDefeatCondition } from "./vitalCalculator.ts";
 import { rollWeather } from "./weatherSystem.ts";
@@ -329,6 +329,9 @@ export function processAction(
   if (action === "push_forward") {
     timeCost = PUSH_FORWARD_TIME[currentWaypoint.terrain];
     timeCost += getEncumbranceTimePenalty(newState.player);
+  } else if (action === "set_camp") {
+    const dawnHours = hoursUntilDawn(newState.time.hour);
+    timeCost = dawnHours > 0 ? Math.max(4, dawnHours) : 4;
   } else {
     timeCost = BASE_TIME_COSTS[action];
   }
@@ -402,7 +405,7 @@ export function processAction(
   }
 
   // 6. Apply vital changes
-  newState.player = applyVitalChanges(newState, action, waypoints);
+  newState.player = applyVitalChanges(newState, action, waypoints, timeCost);
 
   // 6a. Altitude passive drains
   const currentElevation = waypoints[newState.player.currentWaypointIndex].elevation;
