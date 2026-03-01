@@ -289,25 +289,45 @@ export function applyVitalChanges(
   return player;
 }
 
+export interface DefeatResult {
+  dyingCause: string;
+  defeatCause: string;
+}
+
 /**
  * Checks whether the player has met a defeat condition.
- * Returns a descriptive defeat cause string, or null if the player is still alive.
+ * Returns a structured result with both short (dying overlay) and long (defeat screen) cause strings.
  */
-export function checkDefeatCondition(player: PlayerState): string | null {
+export function checkDefeatCondition(player: PlayerState): DefeatResult | null {
   if (player.energy <= 0) {
-    return "Total exhaustion — your body can no longer move.";
+    return {
+      dyingCause: "EXHAUSTION \u2014 BODY SHUTDOWN",
+      defeatCause: "Total exhaustion \u2014 your body can no longer move.",
+    };
   }
   if (player.hydration <= 0) {
-    return "Severe dehydration — your organs begin to shut down.";
+    return {
+      dyingCause: "DEHYDRATION \u2014 ORGAN FAILURE",
+      defeatCause: "Severe dehydration \u2014 your organs begin to shut down.",
+    };
   }
   if (player.bodyTemp <= 0) {
-    return "Fatal hypothermia — the cold has claimed you.";
+    return {
+      dyingCause: "HYPOTHERMIA \u2014 FROZEN",
+      defeatCause: "Fatal hypothermia \u2014 the cold has claimed you.",
+    };
   }
   if (player.o2Saturation <= 0) {
-    return "Oxygen deprivation — the altitude has overwhelmed your body.";
+    return {
+      dyingCause: "ALTITUDE SICKNESS \u2014 OXYGEN FAILURE",
+      defeatCause: "Oxygen deprivation \u2014 the altitude has overwhelmed your body.",
+    };
   }
   if (player.morale <= 0) {
-    return "Complete despair — you can no longer find the will to continue.";
+    return {
+      dyingCause: "DESPAIR \u2014 WILL BROKEN",
+      defeatCause: "Complete despair \u2014 you can no longer find the will to continue.",
+    };
   }
   return null;
 }

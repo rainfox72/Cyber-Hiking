@@ -39,7 +39,7 @@ export type GameAction =
   | "drink"
   | "use_medicine";
 
-export type GamePhase = "title" | "playing" | "victory" | "defeat";
+export type GamePhase = "title" | "playing" | "dying" | "victory" | "defeat";
 
 export type LogEntryType = "narrative" | "event" | "system" | "action";
 
@@ -138,5 +138,6 @@ export interface GameState {
   log: LogEntry[];
   gamePhase: GamePhase;
   defeatCause: string | null;
+  dyingCause: string | null;
   mapRevealed: boolean;
 }
