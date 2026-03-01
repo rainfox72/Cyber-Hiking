@@ -139,8 +139,8 @@ export function applyVitalChanges(
       }
       player.bodyTemp += (50 - player.bodyTemp) * 0.1;
 
-      // Camping hydration drain scales with hours (2/h)
-      player.hydration -= 2 * (timeCost ?? 4);
+      // Camping hydration drain scales with hours (1/h)
+      player.hydration -= 1 * (timeCost ?? 4);
       break;
     }
 
@@ -175,8 +175,8 @@ export function applyVitalChanges(
       player.bodyTemp += 5;
       player.bodyTemp += (50 - player.bodyTemp) * 0.05;
 
-      // Resting still costs hydration (2h x 2/h)
-      player.hydration -= 4;
+      // Resting hydration drain (2h x 1/h)
+      player.hydration -= 2;
       break;
     }
 
@@ -249,7 +249,7 @@ export function applyVitalChanges(
   }
 
   // Morale: isolation drain (Death Stranding loneliness)
-  player.morale -= 1;
+  player.morale -= 0.5;
 
   // Morale: low vitals penalty
   const lowVitals = (["energy", "hydration", "bodyTemp", "o2Saturation"] as const)

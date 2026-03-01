@@ -63,7 +63,7 @@ export function createInitialState(): GameState {
       o2Saturation: 100,
       morale: 100,
       food: 6,
-      water: 4,
+      water: 5,
       gear: 100,
       medicine: 3,
       exposure: 0,
