@@ -4,16 +4,16 @@ A turn-based survival simulation of the dangerous Ao Tai Line (鳌太线) — an
 
 ## Status
 
-**v2.2 — The Mountain Doesn't Care**
+**v2.3 — Visibility Patch**
 
 ## Features
 
 - **Turn-based survival** — Manage energy, hydration, body temperature, O2 saturation, and morale
 - **Real Ao Tai route** — 13 waypoints based on the actual trail (officially banned since 2018)
 - **Tactical topo map** — Isometric contour lines with 1-3x zoom and diamond waypoint markers
-- **Animated hiker figure** — 8 SVG poses (walk, camp, eat, drink, rest, map, medicine, idle)
+- **Cyberpunk hiker figure** — 8 geometric SVG poses with glitch scanlines and diamond scan field
 - **Hardcore survival** — ~30% win rate for skilled players with mandatory food/water management
-- **Getting lost system** — Navigation accuracy with 10% base chance per push, modified by terrain, weather, night, and map-checking
+- **Getting lost system** — Navigation accuracy with 6% base chance per push, modified by terrain, weather, night, and map-checking
 - **Fall/drop system** — Terrain-based falls with 50% vital damage; fatal at avg health <=25%
 - **Smart camp duration** — 4h during day, automatically sleeps until dawn at night
 - **Starvation/dehydration cascade** — Running out of food or water triggers rapid vital decay
@@ -24,7 +24,8 @@ A turn-based survival simulation of the dangerous Ao Tai Line (鳌太线) — an
 - **Weather escalation** — Markov chain weather system with Day 4+ shift toward snow, blizzard, and wind
 - **Weather force multiplier** — Blizzard/wind/snow amplify all vital drain rates
 - **Risk engine** — Risk % calculated from altitude, weather, vitals, terrain, time of day
-- **Dynamic vignette overlay** — Tunnel vision effect as vitals drop, with blue/red tinting
+- **Dynamic vignette overlay** — Tunnel vision effect as vitals drop, with blue/red tinting (readable even at critical health)
+- **"Dying breath" death display** — 2-second death cause overlay before SIGNAL LOST screen
 - **Background music** — Looping MP3 with fade-in, plus procedural Web Audio API sounds
 - **Procedural audio** — Web Audio API sound synthesis for footsteps, weather, UI, and ambient loops
 - **Fog-of-war vitals** — Vitals display jitters when morale drops below 40%

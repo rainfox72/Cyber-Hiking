@@ -152,3 +152,18 @@
 - [x] Lost state action restrictions (no camp/descend when lost)
 - [x] Updated navigation console descriptions and lost/injury banners
 - [x] Sound triggers for lost/fall events
+
+## Phase 12: "Visibility Patch" (v2.3) — COMPLETE
+
+- [x] Vignette readability fix — raised radius thresholds (80/60/40%), reduced max opacity to 0.6
+- [x] "Dying breath" overlay — 2s red flash showing death cause before SIGNAL LOST screen
+- [x] Dying phase type extension (GamePhase "dying", dyingCause field, DefeatResult interface)
+- [x] Death cause strings: EXHAUSTION, DEHYDRATION, HYPOTHERMIA, ALTITUDE SICKNESS, DESPAIR, FATAL FALL
+- [x] Getting-lost probability reduced (6% base, 10% no-map penalty, -4% map bonus)
+- [x] Bold "LOST" label on map replacing small "?"
+- [x] Stronger red tint when lost (0.15 opacity, was 0.08)
+- [x] Dashed red search radius ring around lost hiker
+- [x] Cyberpunk hiker redesign — geometric polygon silhouettes replacing stick figures
+- [x] Glitch scanline overlay on hiker (CRT/hologram effect, intensifies at low health)
+- [x] Diamond-shaped scan field replacing circular glow ring
+- [x] Signal corruption jitter animation at critically low health (<=10%)
