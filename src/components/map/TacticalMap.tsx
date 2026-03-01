@@ -45,6 +45,7 @@ export function TacticalMap() {
   const o2 = useGameStore((s) => s.player.o2Saturation);
   const morale = useGameStore((s) => s.player.morale);
   const lastAction = useGameStore((s) => s.lastAction);
+  const isLost = useGameStore((s) => s.player.isLost);
 
   const [zoomLevel, setZoomLevel] = useState(1);
 
@@ -52,6 +53,12 @@ export function TacticalMap() {
     () => (energy + hydration + bodyTemp + o2 + morale) / 5,
     [energy, hydration, bodyTemp, o2, morale],
   );
+
+  // When lost, offset the hiker marker off-trail
+  const hikerX = toMapX(WAYPOINTS[currentIndex].distanceFromStart);
+  const hikerY = toMapY(WAYPOINTS[currentIndex].elevation) - 18;
+  const lostOffsetX = isLost ? 25 : 0;
+  const lostOffsetY = isLost ? -20 : 0;
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
@@ -138,14 +145,16 @@ export function TacticalMap() {
             ));
           })}
 
-          {/* Future trail (dashed) */}
-          <polyline
-            points={trailPoints}
-            fill="none"
-            stroke="var(--text-dim)"
-            strokeWidth="1"
-            strokeDasharray="3,3"
-          />
+          {/* Future trail (dashed) — hidden when lost */}
+          {!isLost && (
+            <polyline
+              points={trailPoints}
+              fill="none"
+              stroke="var(--text-dim)"
+              strokeWidth="1"
+              strokeDasharray="3,3"
+            />
+          )}
 
           {/* Traversed trail (glowing) */}
           {currentIndex > 0 && (
@@ -192,11 +201,18 @@ export function TacticalMap() {
             );
           })}
 
+          {/* Lost overlay tint */}
+          {isLost && (
+            <rect x={vbX} y={vbY} width={vbW} height={vbH}
+              fill="rgba(120,0,0,0.08)" />
+          )}
+
           {/* Human marker — positioned and scaled here so CSS animation on inner <g> doesn't override SVG positioning */}
-          <g transform={`translate(${toMapX(WAYPOINTS[currentIndex].distanceFromStart)}, ${toMapY(WAYPOINTS[currentIndex].elevation) - 18}) scale(2.5)`}>
+          <g transform={`translate(${hikerX + lostOffsetX}, ${hikerY + lostOffsetY}) scale(2.5)`}>
             <HumanMarker
               healthPercent={healthPercent}
               lastAction={lastAction}
+              isLost={isLost}
             />
           </g>
         </svg>

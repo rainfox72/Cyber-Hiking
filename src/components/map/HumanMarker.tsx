@@ -11,6 +11,7 @@ type HikerPose = "idle" | "walking" | "camping" | "eating" | "drinking" | "resti
 interface HumanMarkerProps {
   healthPercent: number;
   lastAction: GameAction | null;
+  isLost?: boolean;
 }
 
 function actionToPose(action: GameAction | null): HikerPose {
@@ -161,7 +162,7 @@ function MedicinePose({ color }: { color: string }) {
   );
 }
 
-export function HumanMarker({ healthPercent, lastAction }: HumanMarkerProps) {
+export function HumanMarker({ healthPercent, lastAction, isLost }: HumanMarkerProps) {
   const color =
     healthPercent > 60 ? "var(--neon-green)" :
     healthPercent > 30 ? "var(--amber)" :
@@ -186,6 +187,14 @@ export function HumanMarker({ healthPercent, lastAction }: HumanMarkerProps) {
         <animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite" />
         <animate attributeName="opacity" values="0.3;0.1;0.3" dur="2s" repeatCount="indefinite" />
       </circle>
+
+      {/* Lost marker */}
+      {isLost && (
+        <g className="lost-marker">
+          <text x="0" y="-22" textAnchor="middle" fill="var(--danger)"
+            fontSize="8" fontFamily="monospace" fontWeight="bold">?</text>
+        </g>
+      )}
     </g>
   );
 }

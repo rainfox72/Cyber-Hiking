@@ -651,3 +651,13 @@
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(1px); }
 }
+
+/* Lost state marker */
+.lost-marker {
+  animation: lost-pulse 1s ease-in-out infinite;
+}
+
+@keyframes lost-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
