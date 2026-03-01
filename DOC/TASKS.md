@@ -133,3 +133,22 @@
 - [x] NavigationConsole updated action descriptions
 - [x] InventoryPanel resource warnings ([STARVING]/[DEHYDRATED] indicators)
 - [x] Animated HumanMarker with 9 SVG poses (idle, walk, camp, eat, drink, rest, map, medicine, wait)
+
+## Phase 11: "The Mountain Doesn't Care" (v2.2) — COMPLETE
+
+- [x] Expand tactical map area (flex-based height)
+- [x] Fix vignette effect — shift clear zone to cover log area
+- [x] Flip hiker walking direction to face right
+- [x] Shorten Ollama narration to 1-2 sentences
+- [x] Remove WAIT action (REST absorbs its role)
+- [x] Smart camp duration (4h day / until-dawn night)
+- [x] CHECK MAP overhaul — navigation accuracy mechanic
+- [x] Getting lost system (10% base, terrain/weather/night modifiers)
+- [x] Find-way-back mechanic (15% base, +25% per map check)
+- [x] Fall/drop system (terrain-based, weather/night amplified)
+- [x] Fall damage (50% vital reduction, fatal at avg ≤25%)
+- [x] Fall recovery via medicine (+25% all vitals)
+- [x] Lost map visualization (off-trail marker, pulsing ?, red tint)
+- [x] Lost state action restrictions (no camp/descend when lost)
+- [x] Updated navigation console descriptions and lost/injury banners
+- [x] Sound triggers for lost/fall events

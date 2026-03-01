@@ -4,15 +4,18 @@ A turn-based survival simulation of the dangerous Ao Tai Line (鳌太线) — an
 
 ## Status
 
-**v2.1 — Oregon Trail Meets Death Stranding**
+**v2.2 — The Mountain Doesn't Care**
 
 ## Features
 
 - **Turn-based survival** — Manage energy, hydration, body temperature, O2 saturation, and morale
 - **Real Ao Tai route** — 13 waypoints based on the actual trail (officially banned since 2018)
 - **Tactical topo map** — Isometric contour lines with 1-3x zoom and diamond waypoint markers
-- **Animated hiker figure** — 9 SVG poses (walk, camp, eat, drink, rest, map, medicine, wait, idle)
-- **Hardcore survival** — Sub-15% survival rate with mandatory food/water management
+- **Animated hiker figure** — 8 SVG poses (walk, camp, eat, drink, rest, map, medicine, idle)
+- **Hardcore survival** — ~30% win rate for skilled players with mandatory food/water management
+- **Getting lost system** — Navigation accuracy with 10% base chance per push, modified by terrain, weather, night, and map-checking
+- **Fall/drop system** — Terrain-based falls with 50% vital damage; fatal at avg health <=25%
+- **Smart camp duration** — 4h during day, automatically sleeps until dawn at night
 - **Starvation/dehydration cascade** — Running out of food or water triggers rapid vital decay
 - **Resource-dependent recovery** — Camping without food/water gives drastically reduced recovery
 - **Passive altitude drains** — Energy and O2 drain continuously above 3000m
@@ -80,21 +83,20 @@ Total: ~80km, 5-6 days, crossing multiple peaks above 3,400m.
 
 | Action | Effect | Time Cost |
 |--------|--------|-----------|
-| Push Forward | Advance to next waypoint (drains all vitals) | 3-5h |
-| Set Camp | Rest and recover vitals (needs food/water) | 4h |
+| Push Forward | Advance to next waypoint (or wander if lost) | 3-5h |
+| Set Camp | Major recovery (sleep until dawn at night) | 4h-13h |
 | Descend | Retreat to previous waypoint | 2h |
-| Check Map | Reveal risk info for next segment | 1h |
-| Rest | Minor energy recovery | 2h |
+| Check Map | Navigation aid — reduces getting lost chance | 1h |
+| Rest | Minor recovery / wait out weather | 2h |
 | Eat Ration | Energy +25, Morale +5, consumes 1 food | 0.5h |
 | Drink Water | Hydration +30, Morale +3, consumes 0.5L | 0.5h |
-| Use Medicine | O2 +15, temp normalize, consumes 1 dose | 0.5h |
-| Wait | Endure whiteout conditions | 1h |
+| Use Medicine | O2 +15, temp normalize, or treat fall injury | 0.5h |
 
 ## Project Structure
 
 ```
 src/
-  engine/           # Pure TS game logic (types, gameEngine, risk, weather, vitals, dayNight)
+  engine/           # Pure TS game logic (types, gameEngine, risk, weather, vitals, dayNight, navigation, fall)
   data/             # Waypoint data, events, weather transitions
   store/            # Zustand store (gameStore.ts)
   services/         # Ollama client, fallback narrator, SoundManager
