@@ -118,7 +118,7 @@ export function applyVitalChanges(
       // Camp fatigue: harsher diminishing returns (100%/35%/10%)
       const fatigueMultiplier =
         state.player.campFatigueCount <= 1 ? 1.0 :
-        state.player.campFatigueCount === 2 ? 0.35 : 0.1;
+        state.player.campFatigueCount === 2 ? 0.50 : 0.1;
 
       // Morale collapse halves recovery
       const moraleCollapseMult = player.morale < 20 ? 0.5 : 1.0;
@@ -172,7 +172,7 @@ export function applyVitalChanges(
       else if (player.food <= 0) resourceMult = 0.5;
 
       player.energy += 8 * moraleCollapseMult * resourceMult;  // Was 15
-      player.bodyTemp += 3;  // Was 5
+      player.bodyTemp += 5;
       player.bodyTemp += (50 - player.bodyTemp) * 0.05;
 
       // Resting still costs hydration (2h x 2/h)

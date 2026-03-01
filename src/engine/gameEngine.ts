@@ -506,7 +506,7 @@ export function processAction(
 
   // Passive energy drain at altitude: -1 per hour above 3000m
   if (currentElevation > 3000) {
-    newState.player.energy -= timeCost * 1;
+    newState.player.energy -= timeCost * 0.5;
   }
 
   // Weather force multiplier: harsh weather amplifies vital drains
