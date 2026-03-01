@@ -34,6 +34,7 @@ interface GameStore {
   log: LogEntry[];
   gamePhase: GamePhase;
   defeatCause: string | null;
+  dyingCause: string | null;
   mapRevealed: boolean;
 
   // UI state
@@ -65,6 +66,7 @@ function stateFromGameState(gs: GameState): Partial<GameStore> {
     log: gs.log,
     gamePhase: gs.gamePhase,
     defeatCause: gs.defeatCause,
+    dyingCause: gs.dyingCause,
     mapRevealed: gs.mapRevealed,
   };
 }
@@ -78,6 +80,7 @@ function gameStateFromStore(store: GameStore): GameState {
     log: store.log,
     gamePhase: store.gamePhase,
     defeatCause: store.defeatCause,
+    dyingCause: store.dyingCause,
     mapRevealed: store.mapRevealed,
   };
 }
@@ -195,6 +198,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
       // Clear shake after animation
       if (hasEvents) {
         setTimeout(() => set({ isShaking: false }), 600);
+      }
+
+      // Auto-transition dying → defeat after 2 seconds
+      if (result.newState.gamePhase === "dying") {
+        setTimeout(() => {
+          set({ gamePhase: "defeat" });
+        }, 2000);
       }
 
       // Async: request Ollama narration (non-blocking)

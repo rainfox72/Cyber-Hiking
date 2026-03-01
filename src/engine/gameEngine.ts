@@ -96,6 +96,7 @@ export function createInitialState(): GameState {
     log: [],
     gamePhase: "playing",
     defeatCause: null,
+    dyingCause: null,
     mapRevealed: false,
   };
 }
@@ -285,6 +286,7 @@ function cloneState(state: GameState): GameState {
     log: [...state.log],
     gamePhase: state.gamePhase,
     defeatCause: state.defeatCause,
+    dyingCause: state.dyingCause,
     mapRevealed: state.mapRevealed,
   };
 }
@@ -460,8 +462,9 @@ export function processAction(
       if (isFallFatal(newState.player)) {
         // Instant death
         newState.player.isAlive = false;
-        newState.gamePhase = "defeat";
-        newState.defeatCause = "A fatal fall — the mountain claimed you.";
+        newState.gamePhase = "dying";
+        newState.dyingCause = "FATAL FALL \u2014 THE MOUNTAIN CLAIMS YOU";
+        newState.defeatCause = "A fatal fall \u2014 the mountain claimed you.";
         const fatalEntry: LogEntry = {
           turnNumber: newState.turnNumber,
           text: "[FATAL FALL] You lose your footing and plummet into the ravine. The mountain doesn't care.",
@@ -625,16 +628,17 @@ export function processAction(
   }
 
   // 10. Check defeat condition
-  if (newState.gamePhase !== "victory") {
-    const defeatCause = checkDefeatCondition(newState.player);
-    if (defeatCause) {
+  if (newState.gamePhase !== "victory" && newState.gamePhase !== "dying") {
+    const defeatResult = checkDefeatCondition(newState.player);
+    if (defeatResult) {
       newState.player.isAlive = false;
-      newState.gamePhase = "defeat";
-      newState.defeatCause = defeatCause;
+      newState.gamePhase = "dying";
+      newState.dyingCause = defeatResult.dyingCause;
+      newState.defeatCause = defeatResult.defeatCause;
 
       const defeatEntry: LogEntry = {
         turnNumber: newState.turnNumber,
-        text: `[DEFEAT] ${defeatCause}`,
+        text: `[DEFEAT] ${defeatResult.defeatCause}`,
         type: "system",
         timestamp: formatTimestamp(newState.time.day, newState.time.hour),
       };
