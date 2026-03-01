@@ -52,14 +52,16 @@ function IdlePose({ color }: { color: string }) {
 function WalkingPose({ color }: { color: string }) {
   return (
     <g className="hiker-walking">
-      <circle cx="0" cy="-14" r="3" fill={color} />
-      <line x1="0" y1="-11" x2="1" y2="-2" stroke={color} strokeWidth="2" />
-      <line x1="0" y1="-8" x2="-5" y2="-5" stroke={color} strokeWidth="1.5" />
-      <line x1="0" y1="-8" x2="3" y2="-3" stroke={color} strokeWidth="1.5" />
-      <line x1="-5" y1="-5" x2="-6" y2="5" stroke={color} strokeWidth="1" />
-      <line x1="1" y1="-2" x2="-3" y2="5" stroke={color} strokeWidth="1.5" />
-      <line x1="1" y1="-2" x2="4" y2="5" stroke={color} strokeWidth="1.5" />
-      <rect x="2" y="-11" width="4" height="7" rx="0.5" fill="none" stroke={color} strokeWidth="1" />
+      <g transform="scale(-1, 1)">
+        <circle cx="0" cy="-14" r="3" fill={color} />
+        <line x1="0" y1="-11" x2="1" y2="-2" stroke={color} strokeWidth="2" />
+        <line x1="0" y1="-8" x2="-5" y2="-5" stroke={color} strokeWidth="1.5" />
+        <line x1="0" y1="-8" x2="3" y2="-3" stroke={color} strokeWidth="1.5" />
+        <line x1="-5" y1="-5" x2="-6" y2="5" stroke={color} strokeWidth="1" />
+        <line x1="1" y1="-2" x2="-3" y2="5" stroke={color} strokeWidth="1.5" />
+        <line x1="1" y1="-2" x2="4" y2="5" stroke={color} strokeWidth="1.5" />
+        <rect x="2" y="-11" width="4" height="7" rx="0.5" fill="none" stroke={color} strokeWidth="1" />
+      </g>
     </g>
   );
 }

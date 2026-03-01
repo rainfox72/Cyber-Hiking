@@ -168,7 +168,8 @@
 
 /* Log window */
 .log-window {
-  flex: 1;
+  flex: 3;
+  min-height: 100px;
   overflow-y: auto;
   padding: var(--panel-padding);
   background: var(--bg-panel);
@@ -304,7 +305,8 @@
   border: 1px solid var(--bg-panel-border);
   border-radius: var(--border-radius);
   overflow: hidden;
-  height: 200px;
+  flex: 2;
+  min-height: 150px;
 }
 
 .tactical-map__perspective {
@@ -640,10 +642,6 @@
   animation: hiker-breathe 3s ease-in-out infinite;
 }
 
-.hiker-waiting {
-  animation: hiker-wind-sway 2s ease-in-out infinite;
-}
-
 @keyframes hiker-walk-bob {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-2px); }
@@ -652,10 +650,4 @@
 @keyframes hiker-breathe {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(1px); }
-}
-
-@keyframes hiker-wind-sway {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-1px); }
-  75% { transform: translateX(1px); }
 }

@@ -22,7 +22,7 @@ function buildPrompt(result: TurnResult): string {
     ? `\n- CRITICAL EVENT: ${result.events.map(e => e.name).join(", ")}`
     : "";
 
-  return `You are the narrator of a survival hiking simulation set on the Ao Tai Line (鳌太线) in China's Qinling Mountains. Write 2-3 atmospheric sentences describing what happens this turn.
+  return `You are the narrator of a survival hiking simulation on the Ao Tai Line (鳌太线). Write 1-2 terse sentences (under 40 words). Mountaineering journal style. No flowery prose.
 
 CURRENT SITUATION:
 - Location: ${wp.name} (${wp.nameCN}), elevation ${wp.elevation}m
@@ -34,7 +34,7 @@ CURRENT SITUATION:
 - Energy: ${Math.round(player.energy)}%, Hydration: ${Math.round(player.hydration)}%
 - O2 Saturation: ${Math.round(player.o2Saturation)}%, Body Temp: ${Math.round(player.bodyTemp)}%${eventText}
 
-STYLE: Terse, atmospheric, second-person ("You..."). Mix sensory details (wind, cold, visibility). Reference real Qinling features (stone seas, rhododendron, fog banks, alpine meadows). Do NOT use purple prose. Keep it gritty and factual like a mountaineering journal. 2-3 sentences max.`;
+STYLE: Second-person ("You..."). Terse, gritty. 1-2 sentences max. Under 40 words total.`;
 }
 
 /**
@@ -55,7 +55,7 @@ export async function generateNarrative(result: TurnResult): Promise<string | nu
         stream: false,
         options: {
           temperature: 0.8,
-          num_predict: 150,
+          num_predict: 80,
           top_p: 0.9,
         },
       }),

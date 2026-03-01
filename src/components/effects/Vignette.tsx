@@ -38,7 +38,7 @@ export function Vignette() {
     <div
       className="vignette"
       style={{
-        background: `radial-gradient(ellipse ${radius}% ${radius}% at center, transparent 0%, ${tintColor} 40%, rgba(0,0,0,0.85) 100%)`,
+        background: `radial-gradient(ellipse ${radius}% ${radius}% at 50% 35%, transparent 0%, ${tintColor} 40%, rgba(0,0,0,0.85) 100%)`,
       }}
     />
   );
