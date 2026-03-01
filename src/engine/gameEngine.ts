@@ -22,6 +22,7 @@ import { selectEvent } from "../data/events.ts";
 import type { RNG } from "../utils/random.ts";
 import { updateExposure } from "./exposureSystem.ts";
 import { getEncumbranceTimePenalty } from "./encumbrance.ts";
+import { rollGettingLost, rollFindWayBack, applyGettingLost, applyFoundWayBack } from "./navigationSystem.ts";
 
 /** Summit waypoint index (Baxian Platform). */
 const SUMMIT_INDEX = 12;
@@ -121,12 +122,14 @@ export function validateAction(
       return state.player.currentWaypointIndex < waypoints.length - 1;
 
     case "descend":
-      // Cannot descend below first waypoint or past point-of-no-return (waypoint 10+)
+      // Cannot descend below first waypoint, past point-of-no-return (waypoint 10+), or when lost
+      if (state.player.isLost) return false;
       return state.player.currentWaypointIndex > 0 &&
         state.player.currentWaypointIndex <= 10;
 
     case "set_camp": {
-      // Must be at a campable waypoint
+      // Must be at a campable waypoint and not lost
+      if (state.player.isLost) return false;
       const wp = waypoints[state.player.currentWaypointIndex];
       return wp.canCamp;
     }
@@ -368,7 +371,7 @@ export function processAction(
   // 5. Calculate movement
   let distanceCovered = 0;
 
-  if (action === "push_forward") {
+  if (action === "push_forward" && !newState.player.isLost) {
     const nextIndex = newState.player.currentWaypointIndex + 1;
     if (nextIndex < waypoints.length) {
       const nextWaypoint = waypoints[nextIndex];
@@ -409,6 +412,44 @@ export function processAction(
     }
   } else if (action === "push_forward" || action === "descend") {
     newState.player.campFatigueCount = 0;
+  }
+
+  // 5c: Navigation — lost check on push_forward (only if not already lost)
+  if (action === "push_forward" && !newState.player.isLost) {
+    if (rollGettingLost(newState, waypoints[newState.player.currentWaypointIndex], rng)) {
+      newState.player = applyGettingLost(newState.player);
+      const lostEntry: LogEntry = {
+        turnNumber: newState.turnNumber,
+        text: "[LOST] You've strayed from the trail. The familiar path has vanished.",
+        type: "event",
+        timestamp: formatTimestamp(newState.time.day, newState.time.hour),
+      };
+      newState.log.push(lostEntry);
+    }
+  }
+
+  // 5d: If lost + push_forward, try to find way back instead of moving
+  if (action === "push_forward" && previousState.player.isLost) {
+    newState.player.lostTurns += 1;
+    const foundAt = rollFindWayBack(newState, rng, waypoints.length);
+    if (foundAt >= 0) {
+      newState.player = applyFoundWayBack(newState.player, foundAt);
+      const foundEntry: LogEntry = {
+        turnNumber: newState.turnNumber,
+        text: `[FOUND TRAIL] You stumble back onto the path near ${waypoints[foundAt].name} (${waypoints[foundAt].nameCN}).`,
+        type: "event",
+        timestamp: formatTimestamp(newState.time.day, newState.time.hour),
+      };
+      newState.log.push(foundEntry);
+    } else {
+      const stillLostEntry: LogEntry = {
+        turnNumber: newState.turnNumber,
+        text: "[Still Lost] You wander through the wilderness, searching for the trail...",
+        type: "action",
+        timestamp: formatTimestamp(newState.time.day, newState.time.hour),
+      };
+      newState.log.push(stillLostEntry);
+    }
   }
 
   // 6. Apply vital changes
