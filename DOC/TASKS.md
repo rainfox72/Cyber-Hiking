@@ -167,3 +167,11 @@
 - [x] Glitch scanline overlay on hiker (CRT/hologram effect, intensifies at low health)
 - [x] Diamond-shaped scan field replacing circular glow ring
 - [x] Signal corruption jitter animation at critically low health (<=10%)
+
+## Phase 13: "Alternate Ending" (v2.4) — COMPLETE
+
+- [x] Ending 1: Escape — descend to Tangkou after 4+ turns triggers bittersweet victory
+- [x] Ending 2: Summit — existing Baxian Platform victory, now labeled "ENDING 2"
+- [x] `endingType` field added to GameState, store, and overlay
+- [x] Amber-toned escape victory screen (distinct from green summit screen)
+- [x] Escape win condition: waypoint 0 + descend action + turnNumber >= 4

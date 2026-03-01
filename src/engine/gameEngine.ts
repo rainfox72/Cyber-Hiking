@@ -97,6 +97,7 @@ export function createInitialState(): GameState {
     gamePhase: "playing",
     defeatCause: null,
     dyingCause: null,
+    endingType: null,
     mapRevealed: false,
   };
 }
@@ -287,6 +288,7 @@ function cloneState(state: GameState): GameState {
     gamePhase: state.gamePhase,
     defeatCause: state.defeatCause,
     dyingCause: state.dyingCause,
+    endingType: state.endingType,
     mapRevealed: state.mapRevealed,
   };
 }
@@ -613,10 +615,30 @@ export function processAction(
     newState.log.push(eventEntry);
   }
 
-  // 9. Check win condition
+  // 9. Check win conditions
+  // Ending 1: Escape — descend back to Tangkou after at least 4 turns
+  if (
+    action === "descend" &&
+    newState.player.currentWaypointIndex === 0 &&
+    newState.turnNumber >= 4
+  ) {
+    newState.gamePhase = "victory";
+    newState.endingType = "escape";
+
+    const escapeEntry: LogEntry = {
+      turnNumber: newState.turnNumber,
+      text: `[ESCAPE] You descend back to Tangkou (塘口). The trailhead appears through the trees — you made it out alive.`,
+      type: "system",
+      timestamp: formatTimestamp(newState.time.day, newState.time.hour),
+    };
+    newState.log.push(escapeEntry);
+  }
+
+  // Ending 2: Summit — reach Baxian Platform
   if (newState.player.currentWaypointIndex === SUMMIT_INDEX) {
     newState.player.hasReachedSummit = true;
     newState.gamePhase = "victory";
+    newState.endingType = "summit";
 
     const victoryEntry: LogEntry = {
       turnNumber: newState.turnNumber,

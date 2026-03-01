@@ -139,5 +139,6 @@ export interface GameState {
   gamePhase: GamePhase;
   defeatCause: string | null;
   dyingCause: string | null;
+  endingType: "escape" | "summit" | null;
   mapRevealed: boolean;
 }

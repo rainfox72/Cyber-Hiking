@@ -530,6 +530,31 @@
   text-shadow: var(--glow-green);
 }
 
+/* Escape ending (Ending 1) — amber/bittersweet tone */
+.screen-overlay--escape {
+  background: radial-gradient(ellipse at center, rgba(40, 25, 0, 0.95) 0%, rgba(5, 5, 5, 0.98) 70%);
+}
+
+.screen-overlay--escape .screen-overlay__title {
+  color: var(--amber);
+  text-shadow: 0 0 20px var(--amber-glow), 0 0 40px var(--amber-glow);
+  font-size: 32px;
+  letter-spacing: 10px;
+}
+
+.screen-overlay--escape .screen-overlay__roof-subtitle {
+  color: var(--amber-dim);
+}
+
+.screen-overlay__glow-pulse--amber {
+  background: radial-gradient(circle, var(--amber-glow) 0%, transparent 70%);
+}
+
+.screen-overlay__stat-value--escape {
+  color: var(--amber);
+  text-shadow: var(--glow-amber);
+}
+
 /* ── Title Screen ───────────────────────────── */
 
 .title-screen {

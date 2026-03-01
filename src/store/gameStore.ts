@@ -35,6 +35,7 @@ interface GameStore {
   gamePhase: GamePhase;
   defeatCause: string | null;
   dyingCause: string | null;
+  endingType: "escape" | "summit" | null;
   mapRevealed: boolean;
 
   // UI state
@@ -67,6 +68,7 @@ function stateFromGameState(gs: GameState): Partial<GameStore> {
     gamePhase: gs.gamePhase,
     defeatCause: gs.defeatCause,
     dyingCause: gs.dyingCause,
+    endingType: gs.endingType,
     mapRevealed: gs.mapRevealed,
   };
 }
@@ -81,6 +83,7 @@ function gameStateFromStore(store: GameStore): GameState {
     gamePhase: store.gamePhase,
     defeatCause: store.defeatCause,
     dyingCause: store.dyingCause,
+    endingType: store.endingType,
     mapRevealed: store.mapRevealed,
   };
 }
