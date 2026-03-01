@@ -97,7 +97,7 @@ export function applyVitalChanges(
         .reduce((sum, e) => sum + (e.modifiers!.pushForwardEnergyCost ?? 0), 0);
 
       player.energy -= (terrainCost + encumbrancePenalty + kneeInjuryPenalty) * exposureEnergyMult;
-      player.hydration -= 15;  // Increased base + altitude dehydration
+      player.hydration -= 10;
       player.gear -= 3;
 
       // Gear degradation cascade

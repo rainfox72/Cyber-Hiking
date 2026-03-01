@@ -511,8 +511,8 @@ export function processAction(
 
   // Weather force multiplier: harsh weather amplifies vital drains
   if (newState.weather.current === "blizzard" || newState.weather.current === "wind") {
-    newState.player.energy -= 3;
-    newState.player.bodyTemp -= 3;
+    newState.player.energy -= 2;
+    newState.player.bodyTemp -= 2;
     newState.player.hydration -= 2;
   } else if (newState.weather.current === "snow") {
     newState.player.energy -= 2;
