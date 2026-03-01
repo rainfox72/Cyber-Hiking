@@ -188,11 +188,12 @@ export function HumanMarker({ healthPercent, lastAction, isLost }: HumanMarkerPr
         <animate attributeName="opacity" values="0.3;0.1;0.3" dur="2s" repeatCount="indefinite" />
       </circle>
 
-      {/* Lost marker */}
+      {/* Lost label */}
       {isLost && (
         <g className="lost-marker">
-          <text x="0" y="-22" textAnchor="middle" fill="var(--danger)"
-            fontSize="8" fontFamily="monospace" fontWeight="bold">?</text>
+          <text x="0" y="12" textAnchor="middle" fill="var(--danger)"
+            fontSize="5" fontFamily="monospace" fontWeight="bold"
+            stroke="rgba(0,0,0,0.6)" strokeWidth="0.3">LOST</text>
         </g>
       )}
     </g>

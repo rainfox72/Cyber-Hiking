@@ -204,7 +204,22 @@ export function TacticalMap() {
           {/* Lost overlay tint */}
           {isLost && (
             <rect x={vbX} y={vbY} width={vbW} height={vbH}
-              fill="rgba(120,0,0,0.08)" />
+              fill="rgba(120,0,0,0.15)" />
+          )}
+
+          {/* Lost search radius ring */}
+          {isLost && (
+            <circle
+              cx={hikerX + lostOffsetX}
+              cy={hikerY + lostOffsetY - 3}
+              r="20"
+              fill="none"
+              stroke="var(--danger)"
+              strokeWidth="0.8"
+              strokeDasharray="4,3"
+              opacity="0.5"
+              className="lost-marker"
+            />
           )}
 
           {/* Human marker — positioned and scaled here so CSS animation on inner <g> doesn't override SVG positioning */}
