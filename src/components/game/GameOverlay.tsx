@@ -8,6 +8,7 @@ import { useGameStore } from "../../store/gameStore.ts";
 export function GameOverlay() {
   const gamePhase = useGameStore((s) => s.gamePhase);
   const defeatCause = useGameStore((s) => s.defeatCause);
+  const dyingCause = useGameStore((s) => s.dyingCause);
   const turnNumber = useGameStore((s) => s.turnNumber);
   const distanceTraveled = useGameStore((s) => s.player.distanceTraveled);
   const day = useGameStore((s) => s.time.day);
@@ -20,12 +21,24 @@ export function GameOverlay() {
       setShowContent(false);
       return;
     }
+    if (gamePhase === "dying") {
+      setShowContent(true);
+      return;
+    }
     const timer = setTimeout(() => setShowContent(true), 500);
     return () => clearTimeout(timer);
   }, [gamePhase]);
 
   if (gamePhase === "playing" || gamePhase === "title") return null;
   if (!showContent) return <div className="screen-overlay" style={{ background: "black" }} />;
+
+  if (gamePhase === "dying") {
+    return (
+      <div className="screen-overlay screen-overlay--dying">
+        <div className="screen-overlay__dying-cause">{dyingCause}</div>
+      </div>
+    );
+  }
 
   if (gamePhase === "defeat") {
     return (

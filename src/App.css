@@ -661,3 +661,34 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
+
+/* Dying breath overlay — 2s red flash before defeat screen */
+.screen-overlay--dying {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(80, 0, 0, 0.92);
+  animation: dying-flash 2s ease-out forwards;
+}
+
+.screen-overlay__dying-cause {
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--danger);
+  text-shadow: 0 0 30px var(--danger-glow), 0 0 60px rgba(255, 34, 34, 0.3);
+  text-align: center;
+  animation: dying-pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes dying-flash {
+  0% { background: rgba(120, 0, 0, 0.95); }
+  30% { background: rgba(80, 0, 0, 0.92); }
+  100% { background: rgba(0, 0, 0, 1); }
+}
+
+@keyframes dying-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
