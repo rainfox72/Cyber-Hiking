@@ -100,13 +100,13 @@ export function applyFallDamage(player: PlayerState, rng: RNG): PlayerState {
     }
   }
 
-  // Add fall_injury status effect
-  p.statusEffects.push({
-    id: "fall_injury",
-    turnsRemaining: 999,
-    onTurnStart: undefined,
-    modifiers: undefined,
-  });
+  // Add fall_injury status effect (only if not already injured)
+  if (!p.statusEffects.some(e => e.id === "fall_injury")) {
+    p.statusEffects.push({
+      id: "fall_injury",
+      turnsRemaining: 999,
+    });
+  }
 
   return p;
 }

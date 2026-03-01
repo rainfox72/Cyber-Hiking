@@ -501,10 +501,7 @@ export function processAction(
 
   // Passive energy drain at altitude: -1 per hour above 3000m
   if (currentElevation > 3000) {
-    const actionTimeCost = action === "push_forward"
-      ? PUSH_FORWARD_TIME[currentWaypoint.terrain]
-      : BASE_TIME_COSTS[action];
-    newState.player.energy -= actionTimeCost * 1;
+    newState.player.energy -= timeCost * 1;
   }
 
   // Weather force multiplier: harsh weather amplifies vital drains

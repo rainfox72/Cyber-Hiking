@@ -132,7 +132,7 @@
 - [x] lastAction tracking in store for hiker pose
 - [x] NavigationConsole updated action descriptions
 - [x] InventoryPanel resource warnings ([STARVING]/[DEHYDRATED] indicators)
-- [x] Animated HumanMarker with 9 SVG poses (idle, walk, camp, eat, drink, rest, map, medicine, wait)
+- [x] Animated HumanMarker with 8 SVG poses (idle, walk, camp, eat, drink, rest, map, medicine)
 
 ## Phase 11: "The Mountain Doesn't Care" (v2.2) — COMPLETE
 
