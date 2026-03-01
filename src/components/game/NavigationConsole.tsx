@@ -14,7 +14,7 @@ export const ACTION_CONFIG: { action: GameAction; label: string; cost: string }[
   { action: "check_map", label: "CHECK MAP", cost: "1h | Navigation (reduces getting lost)" },
   { action: "rest", label: "REST", cost: "2h | Minor recovery / wait out weather" },
   { action: "eat", label: "EAT RATION", cost: "0.5h | Energy +25, Morale +5" },
-  { action: "drink", label: "DRINK WATER", cost: "0.5h | Hydration +30, Morale +3" },
+  { action: "drink", label: "DRINK WATER", cost: "0.5h | Hydration +40, Morale +3" },
   { action: "use_medicine", label: "USE MEDICINE", cost: "0.5h | Heal O2/Temp or treat fall injury" },
 ];
 

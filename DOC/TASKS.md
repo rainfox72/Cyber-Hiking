@@ -189,3 +189,16 @@
 - [x] AI Auto-Play: Store loop with 3.5s delay, auto-stop on game end
 - [x] AI Log entries: [AI] prefix with cyan styling
 - [x] AUTO button: Toggle in Navigation Console, dimmed manual buttons during auto-play
+
+## Phase 15: Ollama AI Playtest Balance (v2.5.1) — COMPLETE
+
+- [x] Ollama playtest bot (scripts/playtest-ollama.ts) — 20 games with AI decisions
+- [x] Round 1: Dehydration 65% → identified rest/camp hydration drain too aggressive
+  - Rest hydration drain: -4 → -2, Camp drain rate: -2/h → -1/h
+  - Starting water: 4L → 5L, Morale isolation drain: -1 → -0.5
+- [x] Round 2: Dehydration still 45% → rest is a hydration trap
+  - Rest hydration: -2 drain → +3 recovery (resting = sipping water)
+  - Rest energy recovery: +8 → +12, Drink hydration: +30 → +40
+- [x] Round 3 results: Dehydration 65% → 5%, avg turns 14.6 → 23.4 (+60%)
+  - Death causes balanced: Exhaustion 60%, Despair 35%, Dehydration 5%
+  - Games reaching WP7 (水窝子), longest game 59 turns

@@ -4,7 +4,7 @@ A turn-based survival simulation of the dangerous Ao Tai Line (鳌太线) — an
 
 ## Status
 
-**v2.5 — Balance + AI Auto-Play**
+**v2.5.1 — Ollama AI Playtest Balance**
 
 ## Features
 
