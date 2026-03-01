@@ -171,12 +171,12 @@ export function applyVitalChanges(
       else if (player.water <= 0) resourceMult = 0.3;
       else if (player.food <= 0) resourceMult = 0.5;
 
-      player.energy += 8 * moraleCollapseMult * resourceMult;  // Was 15
+      player.energy += 12 * moraleCollapseMult * resourceMult;
       player.bodyTemp += 5;
       player.bodyTemp += (50 - player.bodyTemp) * 0.05;
 
-      // Resting hydration drain (2h x 1/h)
-      player.hydration -= 2;
+      // Resting restores a small amount of hydration (sipping water)
+      player.hydration += 3;
       break;
     }
 
@@ -197,7 +197,7 @@ export function applyVitalChanges(
 
     case "drink": {
       if (player.water > 0) {
-        player.hydration += 30;  // Was 25
+        player.hydration += 40;
         player.morale += 3;  // NEW: drinking boosts spirits
         player.water -= 0.5;
       }
