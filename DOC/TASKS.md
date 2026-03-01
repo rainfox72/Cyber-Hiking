@@ -175,3 +175,17 @@
 - [x] `endingType` field added to GameState, store, and overlay
 - [x] Amber-toned escape victory screen (distinct from green summit screen)
 - [x] Escape win condition: waypoint 0 + descend action + turnNumber >= 4
+
+## Phase 14: "Balance + AI Auto-Play" (v2.5) — COMPLETE
+
+- [x] Balance: Starting body temp 50 → 70
+- [x] Balance: Camp body temp recovery (shelter 8→12, no-shelter 3→5)
+- [x] Balance: Rest body temp recovery 3 → 5
+- [x] Balance: Passive altitude energy drain halved (-1→-0.5/hour)
+- [x] Balance: Weather force multiplier reduced (energy/temp -3→-2)
+- [x] Balance: Camp fatigue 2nd camp 35% → 50% recovery
+- [x] Balance: Hydration drain on push_forward -15 → -10
+- [x] AI Decision Service: Ollama-powered action selection + heuristic fallback
+- [x] AI Auto-Play: Store loop with 3.5s delay, auto-stop on game end
+- [x] AI Log entries: [AI] prefix with cyan styling
+- [x] AUTO button: Toggle in Navigation Console, dimmed manual buttons during auto-play

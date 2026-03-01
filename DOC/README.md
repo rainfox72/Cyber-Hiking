@@ -4,7 +4,7 @@ A turn-based survival simulation of the dangerous Ao Tai Line (鳌太线) — an
 
 ## Status
 
-**v2.4 — Alternate Ending**
+**v2.5 — Balance + AI Auto-Play**
 
 ## Features
 
@@ -12,6 +12,8 @@ A turn-based survival simulation of the dangerous Ao Tai Line (鳌太线) — an
 - **Real Ao Tai route** — 13 waypoints based on the actual trail (officially banned since 2018)
 - **Tactical topo map** — Isometric contour lines with 1-3x zoom and diamond waypoint markers
 - **Cyberpunk hiker figure** — 8 geometric SVG poses with glitch scanlines and diamond scan field
+- **AI Auto-Play** — Watch Ollama hike the Ao Tai Line, with heuristic fallback when offline
+- **Balance tuning** — Survivable difficulty calibrated from automated playtest data
 - **Two endings** — Ending 1: Escape (descend back to Tangkou alive), Ending 2: Summit (reach Baxian Platform)
 - **Hardcore survival** — ~30% win rate for skilled players with mandatory food/water management
 - **Getting lost system** — Navigation accuracy with 6% base chance per push, modified by terrain, weather, night, and map-checking
