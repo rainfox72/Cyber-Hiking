@@ -62,8 +62,8 @@ export function createInitialState(): GameState {
       bodyTemp: 70,
       o2Saturation: 100,
       morale: 100,
-      food: 6,
-      water: 5,
+      food: 14,
+      water: 6,
       gear: 100,
       medicine: 3,
       exposure: 0,
@@ -353,9 +353,9 @@ export function processAction(
     previousState.time.hour < 19 &&
     newState.time.hour >= 19;
   if (crossedIntoNight) {
-    newState.player.bodyTemp -= 20;
-    newState.player.morale -= 15;
-    newState.player.energy -= 10;
+    newState.player.bodyTemp -= 10;
+    newState.player.morale -= 8;
+    newState.player.energy -= 5;
     const bivouacEntry: LogEntry = {
       turnNumber: newState.turnNumber,
       text: "[FORCED BIVOUAC] Nightfall caught you between waypoints. You spend a miserable night exposed on the mountain.",
@@ -407,6 +407,60 @@ export function processAction(
     }
   }
 
+  // 5a. Random resupply at waypoints
+  if ((action === "push_forward" || action === "descend") && !newState.player.isLost) {
+    const arrivedWP = waypoints[newState.player.currentWaypointIndex];
+
+    // Water resupply: 70% chance at stream_valley or Water Pit Camp
+    if (arrivedWP.terrain === "stream_valley" || arrivedWP.id === "shuiwo") {
+      if (rng.chance(0.70)) {
+        const refillAmount = Math.max(0, 6 - newState.player.water);
+        if (refillAmount > 0.5) {
+          newState.player.water = Math.min(6, newState.player.water + refillAmount);
+          const refillEntry: LogEntry = {
+            turnNumber: newState.turnNumber,
+            text: `[WATER SOURCE] Found fresh water at ${arrivedWP.name} (${arrivedWP.nameCN}). Refilled ${refillAmount.toFixed(1)}L.`,
+            type: "event",
+            timestamp: formatTimestamp(newState.time.day, newState.time.hour),
+          };
+          newState.log.push(refillEntry);
+        }
+      } else {
+        const dryEntry: LogEntry = {
+          turnNumber: newState.turnNumber,
+          text: `[DRY SOURCE] The water source at ${arrivedWP.name} (${arrivedWP.nameCN}) has dried up.`,
+          type: "event",
+          timestamp: formatTimestamp(newState.time.day, newState.time.hour),
+        };
+        newState.log.push(dryEntry);
+      }
+    }
+
+    // Food cache: 70% chance at shelter waypoints
+    const FOOD_CACHE_WAYPOINTS = ["camp_2900", "shuiwo", "camp_2800"];
+    if (FOOD_CACHE_WAYPOINTS.includes(arrivedWP.id)) {
+      if (rng.chance(0.70)) {
+        const cacheAmount = 2;
+        newState.player.food += cacheAmount;
+        const cacheEntry: LogEntry = {
+          turnNumber: newState.turnNumber,
+          text: `[SUPPLY CACHE] Found cached rations at ${arrivedWP.name} (${arrivedWP.nameCN}). +${cacheAmount} food.`,
+          type: "event",
+          timestamp: formatTimestamp(newState.time.day, newState.time.hour),
+        };
+        newState.log.push(cacheEntry);
+      } else {
+        const emptyEntry: LogEntry = {
+          turnNumber: newState.turnNumber,
+          text: `[EMPTY CACHE] The supply cache at ${arrivedWP.name} (${arrivedWP.nameCN}) has been raided.`,
+          type: "event",
+          timestamp: formatTimestamp(newState.time.day, newState.time.hour),
+        };
+        newState.log.push(emptyEntry);
+      }
+    }
+  }
+
   // 5b. Camp fatigue tracking
   if (action === "set_camp" || action === "rest") {
     if (newState.player.lastCampWaypoint === newState.player.currentWaypointIndex) {
@@ -417,6 +471,21 @@ export function processAction(
     }
   } else if (action === "push_forward" || action === "descend") {
     newState.player.campFatigueCount = 0;
+  }
+
+  // 5b2. Camp foraging: daytime camp = guaranteed 0.5 food, night camp = none
+  if (action === "set_camp") {
+    const campStartTime = previousState.time.timeOfDay;
+    if (campStartTime === "morning" || campStartTime === "afternoon") {
+      newState.player.food += 0.5;
+      const forageEntry: LogEntry = {
+        turnNumber: newState.turnNumber,
+        text: "[FORAGE] Gathered edible plants and berries while setting up camp. +0.5 food.",
+        type: "event",
+        timestamp: formatTimestamp(newState.time.day, newState.time.hour),
+      };
+      newState.log.push(forageEntry);
+    }
   }
 
   // 5c: Navigation — lost check on push_forward (only if not already lost)
@@ -504,19 +573,19 @@ export function processAction(
     }
   }
 
-  // Passive energy drain at altitude: -1 per hour above 3000m
+  // Passive energy drain at altitude above 3000m (halved to reduce death spiral)
   if (currentElevation > 3000) {
-    newState.player.energy -= timeCost * 0.5;
+    newState.player.energy -= timeCost * 0.15;
   }
 
   // Weather force multiplier: harsh weather amplifies vital drains
   if (newState.weather.current === "blizzard" || newState.weather.current === "wind") {
-    newState.player.energy -= 2;
-    newState.player.bodyTemp -= 2;
-    newState.player.hydration -= 2;
+    newState.player.energy -= 1;
+    newState.player.bodyTemp -= 1;
+    newState.player.hydration -= 1;
   } else if (newState.weather.current === "snow") {
-    newState.player.energy -= 2;
-    newState.player.bodyTemp -= 2;
+    newState.player.energy -= 1;
+    newState.player.bodyTemp -= 1;
   }
 
   // Clamp after altitude/weather drains

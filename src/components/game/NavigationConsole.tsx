@@ -1,6 +1,6 @@
 /**
  * NavigationConsole component — panel containing all available player action buttons.
- * Includes AUTO toggle for AI auto-play mode.
+ * Includes AUTO toggle for AI auto-play mode with status ticker.
  */
 
 import { ActionButton } from "./ActionButton.tsx";
@@ -9,20 +9,20 @@ import type { GameAction } from "../../engine/types.ts";
 
 export const ACTION_CONFIG: { action: GameAction; label: string; cost: string }[] = [
   { action: "push_forward", label: "PUSH FORWARD", cost: "3-5h | Advance (or wander if lost)" },
-  { action: "set_camp", label: "SET CAMP", cost: "4h day / sleep til dawn | Major recovery" },
+  { action: "set_camp", label: "SET CAMP", cost: "4h day / sleep til dawn | -1 Food, Major recovery" },
   { action: "descend", label: "DESCEND", cost: "2h | Retreat to prev waypoint" },
   { action: "check_map", label: "CHECK MAP", cost: "1h | Navigation (reduces getting lost)" },
-  { action: "rest", label: "REST", cost: "2h | Minor recovery / wait out weather" },
-  { action: "eat", label: "EAT RATION", cost: "0.5h | Energy +25, Morale +5" },
+  { action: "rest", label: "REST", cost: "2h | -0.3 Water, Minor recovery" },
+  { action: "eat", label: "EAT RATION", cost: "0.5h | Energy +50, Morale +8" },
   { action: "drink", label: "DRINK WATER", cost: "0.5h | Hydration +40, Morale +3" },
-  { action: "use_medicine", label: "USE MEDICINE", cost: "0.5h | Heal O2/Temp or treat fall injury" },
+  { action: "use_medicine", label: "USE MEDICINE", cost: "0.5h | Heal O2 or treat fall injury" },
 ];
 
 export function NavigationConsole() {
   const isLost = useGameStore((s) => s.player.isLost);
   const hasFallInjury = useGameStore((s) => s.player.statusEffects.some(e => e.id === "fall_injury"));
   const autoPlayEnabled = useGameStore((s) => s.autoPlayEnabled);
-  const isAIThinking = useGameStore((s) => s.isAIThinking);
+  const aiStatusPhase = useGameStore((s) => s.aiStatusPhase);
   const toggleAutoPlay = useGameStore((s) => s.toggleAutoPlay);
 
   return (
@@ -34,8 +34,11 @@ export function NavigationConsole() {
       >
         {autoPlayEnabled ? "■ STOP AUTO" : "▶ AUTO"}
       </button>
-      {isAIThinking && (
-        <div className="auto-play-thinking">AI THINKING...</div>
+      {aiStatusPhase && (
+        <div className="ai-status-ticker">
+          <span className="ai-status-ticker__label">AI</span>
+          <span className="ai-status-ticker__phase">{aiStatusPhase}</span>
+        </div>
       )}
       {isLost && (
         <div style={{

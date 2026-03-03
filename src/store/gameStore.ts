@@ -25,6 +25,7 @@ import { generateNarrative } from "../services/ollamaService.ts";
 import { generateFallbackNarrative } from "../services/fallbackNarrator.ts";
 import { soundManager } from "../services/soundManager.ts";
 import { generateDecision, heuristicDecision } from "../services/ollamaDecision.ts";
+import { calculateRisk } from "../engine/riskCalculator.ts";
 
 interface GameStore {
   // Game state
@@ -51,6 +52,8 @@ interface GameStore {
   // Auto-play
   autoPlayEnabled: boolean;
   isAIThinking: boolean;
+  lastAIAction: GameAction | null;
+  aiStatusPhase: string;
 
   // RNG
   rng: RNG;
@@ -112,6 +115,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   lastAction: null,
   autoPlayEnabled: false,
   isAIThinking: false,
+  lastAIAction: null,
+  aiStatusPhase: "",
 
   // RNG with random seed
   rng: createRNG(Date.now()),
@@ -128,6 +133,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       lastAction: null,
       autoPlayEnabled: false,
       isAIThinking: false,
+      lastAIAction: null,
+      aiStatusPhase: "",
       rng: createRNG(Date.now()),
     });
   },
@@ -223,7 +230,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
       // Stop auto-play on game end
       if (result.newState.gamePhase !== "playing") {
-        set({ autoPlayEnabled: false, isAIThinking: false });
+        set({ autoPlayEnabled: false, isAIThinking: false, lastAIAction: null, aiStatusPhase: "" });
       }
 
       // Async: request Ollama narration (non-blocking)
@@ -269,7 +276,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       while (true) {
         const current = get();
         if (!current.autoPlayEnabled || current.gamePhase !== "playing" || current.isProcessing) {
-          set({ isAIThinking: false });
+          set({ isAIThinking: false, aiStatusPhase: "", lastAIAction: null });
           break;
         }
 
@@ -284,30 +291,49 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         if (validActions.length === 0) break;
 
-        set({ isAIThinking: true });
+        // Phase 1: THINKING
+        set({ isAIThinking: true, aiStatusPhase: "THINKING...", lastAIAction: null });
+
+        // Calculate risk for AI decision
+        const riskPercent = calculateRisk(currentState, WAYPOINTS);
+
+        // Phase 2: ANALYZING RISK
+        await new Promise((r) => setTimeout(r, 500));
+        if (!get().autoPlayEnabled) { set({ isAIThinking: false, aiStatusPhase: "" }); break; }
+        set({ aiStatusPhase: `ANALYZING RISK... ${Math.round(riskPercent * 100)}%` });
+
+        await new Promise((r) => setTimeout(r, 500));
+        if (!get().autoPlayEnabled) { set({ isAIThinking: false, aiStatusPhase: "" }); break; }
 
         let decision = current.ollamaConnected
-          ? await generateDecision(currentState, validActions)
+          ? await generateDecision(currentState, validActions, riskPercent)
           : null;
 
         if (!decision) {
-          decision = heuristicDecision(currentState, validActions);
+          decision = heuristicDecision(currentState, validActions, riskPercent);
         }
 
         if (!get().autoPlayEnabled) {
-          set({ isAIThinking: false });
+          set({ isAIThinking: false, aiStatusPhase: "" });
           break;
         }
 
+        // Phase 3: DECISION
+        const actionLabel = decision.action.replace("_", " ").toUpperCase();
+        set({ aiStatusPhase: `DECISION: ${actionLabel}`, lastAIAction: decision.action });
+
         const aiEntry: LogEntry = {
           turnNumber: currentState.turnNumber + 1,
-          text: `[AI] ${decision.reasoning}`,
+          text: `[AI: ${actionLabel}] ${decision.reasoning}`,
           type: "ai",
           timestamp: `Day ${currentState.time.day}, ${String(Math.floor(currentState.time.hour)).padStart(2, "0")}:00`,
         };
         set((s) => ({ log: [...s.log, aiEntry], isAIThinking: false }));
 
         get().performAction(decision.action);
+
+        // Clear AI action highlight after 2s
+        setTimeout(() => set({ lastAIAction: null, aiStatusPhase: "" }), 2000);
 
         await new Promise((r) => setTimeout(r, 3500));
       }

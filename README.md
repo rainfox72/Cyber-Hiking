@@ -1,73 +1,131 @@
-# React + TypeScript + Vite
+# Ao Tai Cyber-Hike | 鳌太线
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A turn-based survival simulation of the dangerous Ao Tai Line (鳌太线) — an 80km high-altitude ridge traverse in China's Qinling Mountains, from Tangkou (1,740m) to Baxian Platform (3,767m).
 
-Currently, two official plugins are available:
+## Status
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**v2.6 — Ghost in the Machine (AI Intent + Resource Economy + 15% Summit Rate)**
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Turn-based survival** — Manage energy, hydration, body temperature, O2 saturation, and morale
+- **Real Ao Tai route** — 13 waypoints based on the actual trail (officially banned since 2018)
+- **Tactical topo map** — Isometric contour lines with 1-3x zoom and diamond waypoint markers
+- **Cyberpunk hiker figure** — 8 geometric SVG poses with glitch scanlines and diamond scan field
+- **AI Auto-Play** — Watch Ollama hike the Ao Tai Line, with heuristic fallback when offline
+- **AI Intent Visualization** — Selection glow on buttons, 3-phase thought ticker, formatted AI log entries
+- **Resource drain economy** — Camp costs food, rest costs water; food caches and water resupply at key waypoints
+- **Balance tuning** — Difficulty calibrated from 220+ automated Ollama playtest games (11 rounds)
+- **Two endings** — Ending 1: Escape (descend back to Tangkou alive), Ending 2: Summit (reach Baxian Platform)
+- **Hardcore survival** — ~15% AI summit rate; rest is minor recovery, camp is essential for overnight survival
+- **Getting lost system** — Navigation accuracy with 6% base chance per push, modified by terrain, weather, night, and map-checking
+- **Fall/drop system** — Terrain-based falls with 50% vital damage; fatal at avg health <=25%
+- **Smart camp duration** — 4h during day, automatically sleeps until dawn at night
+- **Starvation/dehydration cascade** — Running out of food or water triggers rapid vital decay
+- **Resource-dependent recovery** — Camping without food/water gives drastically reduced recovery
+- **Passive altitude drains** — Energy and O2 drain continuously above 3000m
+- **Morale isolation** — Loneliness drains morale every action (Death Stranding inspired)
+- **25 critical events** — Hypothermia, altitude sickness, whiteout, pulmonary edema, frostbite, gear failure, trail collapse, and more
+- **Weather escalation** — Markov chain weather system with Day 4+ shift toward snow, blizzard, and wind
+- **Weather force multiplier** — Blizzard/wind/snow amplify all vital drain rates
+- **Risk engine** — Risk % calculated from altitude, weather, vitals, terrain, time of day
+- **Dynamic vignette overlay** — Tunnel vision effect as vitals drop, with blue/red tinting (readable even at critical health)
+- **"Dying breath" death display** — 2-second death cause overlay before SIGNAL LOST screen
+- **Background music** — Looping MP3 with fade-in, plus procedural Web Audio API sounds
+- **Procedural audio** — Web Audio API sound synthesis for footsteps, weather, UI, and ambient loops
+- **Fog-of-war vitals** — Vitals display jitters when morale drops below 40%
+- **AI narration** — Ollama (llama3.1:8b) generates atmospheric descriptions; offline fallback included
+- **Tactical GPS aesthetic** — Dark mode, neon green/amber accents, scanlines, weather particles, typewriter text
+- **Boot-up title screen** — Simulated terminal boot sequence with ASCII mountain art
+- **Game over/victory screens** — Enhanced with static noise (defeat) and glow effects (victory)
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 19 + TypeScript + Vite 7
+- Zustand 5 (state management with selector subscriptions)
+- Ollama llama3.1:8b (local AI narration, async non-blocking)
+- Pure CSS/Canvas visual effects (scanlines, particles, screen shake, typewriter)
+- Pure TS game engine (zero React deps, testable independently)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Quick Start
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+```bash
+# Install dependencies
+npm install
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Start dev server
+npm run dev
+
+# Or double-click on Windows
+start.bat
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Ollama Setup (optional, for AI narration)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# Install Ollama: https://ollama.com
+ollama pull llama3.1:8b
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# If CORS issues in browser, set:
+# Windows: set OLLAMA_ORIGINS=*
+# Linux/Mac: OLLAMA_ORIGINS=* ollama serve
 ```
+
+The game works fully without Ollama — fallback narratives are built in. The header shows a green/red dot indicating Ollama connection status.
+
+## Route: 鳌太线 (Ao Tai Line)
+
+Standard west-to-east traverse:
+
+```
+塘口 (1740m) -> 西花沟 -> 2900营地 -> 盆景园 -> 导航架 (鳌山顶)
+-> 药王庙 -> 麦秸梁 -> 水窝子 -> 飞机梁 -> 2800营地
+-> 南天门 -> 太白梁 -> 拔仙台 (3767m)
+```
+
+Total: ~80km, 5-6 days, crossing multiple peaks above 3,400m.
+
+## Controls
+
+| Action | Effect | Time Cost |
+|--------|--------|-----------|
+| Push Forward | Advance to next waypoint (or wander if lost) | 3-5h |
+| Set Camp | Major recovery, costs 1 food (sleep until dawn at night) | 4h-13h |
+| Descend | Retreat to previous waypoint | 2h |
+| Check Map | Navigation aid — reduces getting lost chance | 1h |
+| Rest | Minor recovery, costs 0.3L water | 2h |
+| Eat Ration | Energy +50, Morale +8, consumes 1 food | 0.5h |
+| Drink Water | Hydration +40, Morale +3, consumes 0.5L | 0.5h |
+| Use Medicine | O2 +15, temp normalize, or treat fall injury | 0.5h |
+
+## Project Structure
+
+```
+src/
+  engine/           # Pure TS game logic (types, gameEngine, risk, weather, vitals, dayNight, navigation, fall)
+  data/             # Waypoint data, events, weather transitions
+  store/            # Zustand store (gameStore.ts)
+  services/         # Ollama client, fallback narrator, SoundManager
+  components/
+    effects/        # Scanlines, ParticleCanvas, Vignette
+    game/           # StatusDashboard, NavigationConsole, LogWindow, etc.
+    map/            # TacticalMap, HumanMarker
+    screens/        # TitleScreen
+  hooks/            # useTypewriter
+  utils/            # Seeded PRNG (random.ts)
+DOC/                # README, TASKS, CLAUDE_INSTRUCTIONS
+scripts/            # Playtest bots (playtest-ollama.ts)
+docs/plans/         # Design docs and balance plans
+start.bat           # Windows launcher
+```
+
+## Architecture
+
+- **Game Engine** — Pure TypeScript, no React imports. 12-step turn pipeline: validate -> time cost -> clock -> weather -> movement -> vitals -> risk -> events -> win check -> defeat check -> narrative -> log entry.
+- **Store** — Zustand with selector-based subscriptions. Synchronous engine updates, async Ollama narration.
+- **Visual Effects** — CSS scanlines overlay, HTML5 Canvas weather particles (snow/rain/fog/wind), CSS screen shake on critical events, typewriter hook for narrative text.
+- **Ollama** — Async POST to localhost:11434/api/generate. Non-blocking: game never waits for AI. Falls back to template-based narratives on timeout/error.
+
+## Historical Note
+
+The 鳌太线 (Ao Tai Line) has been officially banned since 2018 due to numerous fatalities. This game is an educational simulation honoring the route's history and the challenge it represents. 拔仙台 (Baxian Platform, 3,767m) is the summit of Mount Taibai and the highest point of the entire Qinling range.

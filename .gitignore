@@ -12,6 +12,15 @@ dist
 dist-ssr
 *.local
 
+# Claude Code local files
+.claude/
+
+# Background music (unattributed, local only)
+public/music/
+
+# Generated data
+data/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

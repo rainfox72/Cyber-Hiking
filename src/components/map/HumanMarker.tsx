@@ -8,6 +8,9 @@ import type { GameAction } from "../../engine/types.ts";
 
 type HikerPose = "idle" | "walking" | "camping" | "eating" | "drinking" | "resting" | "mapping" | "medicine";
 
+/** Direction the hiker faces: right = forward/ascending, left = descending/retreating */
+type FacingDirection = "right" | "left";
+
 interface HumanMarkerProps {
   healthPercent: number;
   lastAction: GameAction | null;
@@ -34,6 +37,10 @@ function actionToPose(action: GameAction | null): HikerPose {
     default:
       return "idle";
   }
+}
+
+function actionToFacing(action: GameAction | null): FacingDirection {
+  return action === "descend" ? "left" : "right";
 }
 
 /** Horizontal scanlines overlaid on the figure for CRT/hologram effect */
@@ -89,10 +96,12 @@ function IdlePose({ color }: { color: string }) {
   );
 }
 
-function WalkingPose({ color }: { color: string }) {
+function WalkingPose({ color, facing }: { color: string; facing: FacingDirection }) {
+  // Faces right (forward) by default; scale(-1,1) flips to face left (descend)
+  const scaleTransform = facing === "left" ? "scale(-1, 1)" : "scale(1, 1)";
   return (
     <g className="hiker-walking">
-      <g transform="scale(-1, 1)">
+      <g transform={scaleTransform}>
         <polygon points="-2,-15 2,-15 2.5,-12 -2.5,-12" fill={color} />
         <polygon points="-2,-12 3,-12 4,-3 -2.5,-3" fill={color} opacity="0.9" />
         <rect x="-4.5" y="-11" width="2.5" height="7" fill={color} opacity="0.6" />
@@ -206,13 +215,14 @@ export function HumanMarker({ healthPercent, lastAction, isLost }: HumanMarkerPr
     "var(--danger)";
 
   const pose = actionToPose(lastAction);
+  const facing = actionToFacing(lastAction);
   const jitterClass = healthPercent <= 10 ? " hiker-jitter" : "";
 
   return (
     <g className={`human-marker${jitterClass}`} style={{ color }}>
 
       {pose === "idle" && <IdlePose color={color} />}
-      {pose === "walking" && <WalkingPose color={color} />}
+      {pose === "walking" && <WalkingPose color={color} facing={facing} />}
       {pose === "camping" && <CampingPose color={color} />}
       {pose === "eating" && <EatingPose color={color} />}
       {pose === "drinking" && <DrinkingPose color={color} />}

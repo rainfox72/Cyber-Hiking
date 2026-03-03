@@ -9,6 +9,7 @@ import { WAYPOINTS } from "../src/data/waypoints.ts";
 import { createRNG } from "../src/utils/random.ts";
 import type { GameState, GameAction } from "../src/engine/types.ts";
 import { generateDecision, heuristicDecision } from "../src/services/ollamaDecision.ts";
+import { calculateRisk } from "../src/engine/riskCalculator.ts";
 
 const NUM_GAMES = 20;
 const MAX_TURNS = 120; // safety cap
@@ -73,12 +74,15 @@ async function playGame(gameId: number): Promise<GameResult> {
     const validActions = getValidActions(state);
     if (validActions.length === 0) break;
 
+    // Calculate risk for AI decisions
+    const riskPercent = calculateRisk(state, WAYPOINTS);
+
     // Try Ollama first, fall back to heuristic
-    let decision = await generateDecision(state, validActions);
+    let decision = await generateDecision(state, validActions, riskPercent);
     if (decision) {
       ollamaDecisions++;
     } else {
-      decision = heuristicDecision(state, validActions);
+      decision = heuristicDecision(state, validActions, riskPercent);
       heuristicFallbacks++;
     }
 
@@ -333,8 +337,8 @@ async function main() {
   console.log(`\nResource Usage (at end):`);
   const avgFood = results.reduce((s, r) => s + r.finalFood, 0) / NUM_GAMES;
   const avgWater = results.reduce((s, r) => s + r.finalWater, 0) / NUM_GAMES;
-  console.log(`  Avg remaining food: ${avgFood.toFixed(1)} (started: 6)`);
-  console.log(`  Avg remaining water: ${avgWater.toFixed(1)}L (started: 4L)`);
+  console.log(`  Avg remaining food: ${avgFood.toFixed(1)} (started: 14 + caches)`);
+  console.log(`  Avg remaining water: ${avgWater.toFixed(1)}L (started: 6L)`);
 
   // Action distribution
   console.log(`\nAction Distribution (across all games):`);

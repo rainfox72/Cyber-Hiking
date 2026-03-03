@@ -23,13 +23,13 @@ const O2_DROP_PER_METER = 1 / 40;
 
 /** Terrain energy cost modifiers for push_forward action. */
 const TERRAIN_ENERGY_COST: Record<TerrainType, number> = {
-  stream_valley: 15,
-  forest: 17,
-  meadow: 16,
-  scree: 22,
-  stone_sea: 23,
-  ridge: 25,
-  summit: 24,
+  stream_valley: 11,
+  forest: 13,
+  meadow: 12,
+  scree: 16,
+  stone_sea: 17,
+  ridge: 18,
+  summit: 17,
 };
 
 /**
@@ -97,7 +97,7 @@ export function applyVitalChanges(
         .reduce((sum, e) => sum + (e.modifiers!.pushForwardEnergyCost ?? 0), 0);
 
       player.energy -= (terrainCost + encumbrancePenalty + kneeInjuryPenalty) * exposureEnergyMult;
-      player.hydration -= 10;
+      player.hydration -= 7;
       player.gear -= 3;
 
       // Gear degradation cascade
@@ -131,16 +131,52 @@ export function applyVitalChanges(
 
       const recoveryMult = fatigueMultiplier * moraleCollapseMult * resourceMult;
 
-      player.energy += 15 * hoursMult * recoveryMult;
-      if (waypoint.shelterAvailable) {
-        player.bodyTemp += 12 * hoursMult * recoveryMult;
-      } else {
-        player.bodyTemp += 5 * hoursMult * recoveryMult;
-      }
-      player.bodyTemp += (50 - player.bodyTemp) * 0.1;
+      player.energy += 20 * hoursMult * recoveryMult;
 
-      // Camping hydration drain scales with hours (1/h)
-      player.hydration -= 1 * (timeCost ?? 4);
+      // Body temp recovery — camp is the PRIMARY way to recover bodyTemp.
+      // Overnight camp with shelter should nearly fully restore bodyTemp.
+      // Bad weather significantly reduces recovery.
+      const isOvernight = (timeCost ?? 4) >= 6;
+      const weatherPenalty =
+        state.weather.current === "blizzard" ? 0.3 :
+        state.weather.current === "wind" ? 0.5 :
+        state.weather.current === "snow" ? 0.7 : 1.0;
+
+      if (waypoint.shelterAvailable) {
+        if (isOvernight) {
+          // Shelter + overnight: fully recover bodyTemp to 70 in clear weather.
+          // Weather reduces the target: blizzard→70*0.3=21, wind→35, snow→49, clear→70.
+          const target = 70 * weatherPenalty;
+          player.bodyTemp = Math.max(player.bodyTemp, target * recoveryMult + player.bodyTemp * (1 - recoveryMult));
+        } else {
+          player.bodyTemp += 15 * hoursMult * weatherPenalty * recoveryMult;
+        }
+      } else {
+        if (isOvernight) {
+          // No shelter + overnight: converge toward 50 (partial warmth)
+          const target = 50 * weatherPenalty;
+          player.bodyTemp = Math.max(player.bodyTemp, target * recoveryMult + player.bodyTemp * (1 - recoveryMult));
+        } else {
+          player.bodyTemp += 8 * hoursMult * weatherPenalty * recoveryMult;
+        }
+      }
+
+      // Camping hydration drain scales with hours (1/h), capped at 4
+      player.hydration -= Math.min(4, 1 * (timeCost ?? 4));
+
+      // Resource drain: camping costs food (cold exposure = double)
+      const campFoodCost = player.bodyTemp < 35 ? 2 : 1;
+      if (player.food >= campFoodCost) {
+        player.food -= campFoodCost;
+      } else if (player.food > 0) {
+        player.food = 0;
+        player.morale -= 10; // partial penalty — had some food but not enough
+      } else {
+        // No food: massive morale penalty
+        player.morale -= 20;
+      }
+      // Camping boosts morale (shelter from the elements)
+      player.morale += 5;
       break;
     }
 
@@ -163,7 +199,14 @@ export function applyVitalChanges(
     }
 
     case "rest": {
+      // Rest = catching your breath in the open. Minor recovery only.
+      // For serious recovery, use set_camp (shelter, fire, proper sleep).
       const moraleCollapseMult = player.morale < 20 ? 0.5 : 1.0;
+
+      // Rest fatigue: diminishing returns like camp (uses shared campFatigueCount)
+      const restFatigueMult =
+        state.player.campFatigueCount <= 1 ? 1.0 :
+        state.player.campFatigueCount === 2 ? 0.50 : 0.1;
 
       // Resource-dependent recovery
       let resourceMult = 1.0;
@@ -171,25 +214,41 @@ export function applyVitalChanges(
       else if (player.water <= 0) resourceMult = 0.3;
       else if (player.food <= 0) resourceMult = 0.5;
 
-      player.energy += 12 * moraleCollapseMult * resourceMult;
-      player.bodyTemp += 5;
-      player.bodyTemp += (50 - player.bodyTemp) * 0.05;
+      const restRecovery = restFatigueMult * moraleCollapseMult * resourceMult;
+      player.energy += 8 * restRecovery;
+      // Slight bodyTemp recovery from rest — huddling, rubbing hands, small fire.
+      // Much weaker than camp. Bad weather negates it entirely.
+      if (state.weather.current !== "blizzard" && state.weather.current !== "wind") {
+        player.bodyTemp += 2 * restRecovery;
+      }
 
-      // Resting restores a small amount of hydration (sipping water)
-      player.hydration += 3;
+      // Resource drain: resting costs water (cold exposure = double)
+      const restWaterCost = player.bodyTemp < 35 ? 0.6 : 0.3;
+      if (player.water >= restWaterCost) {
+        player.water -= restWaterCost;
+        // Hydration still gets a small boost from drinking during rest
+        player.hydration += 3;
+      } else if (player.water > 0) {
+        player.water = 0;
+        player.hydration += 1; // minimal hydration from last drops
+      } else {
+        // No water: no hydration recovery, energy recovery halved
+        player.energy -= 4 * restRecovery; // claw back half the recovery
+      }
       break;
     }
 
     case "eat": {
       if (player.food > 0) {
-        // 10% food poisoning chance (was 15%)
-        const poisoned = (state.turnNumber * 7 + player.food * 13) % 100 < 10;
+        // 5% food poisoning chance
+        const poisoned = (state.turnNumber * 7 + player.food * 13) % 100 < 5;
         if (poisoned) {
           player.energy -= 10;
         } else {
-          player.energy += 25;  // Was 20
+          player.energy += 50;
         }
-        player.morale += 5;  // NEW: eating boosts spirits
+        player.morale += 8;
+        player.bodyTemp += 3; // hot food warms you up slightly
         player.food -= 1;
       }
       break;
@@ -217,11 +276,8 @@ export function applyVitalChanges(
           player.morale = Math.min(100, player.morale + 25);
           player.statusEffects = player.statusEffects.filter(e => e.id !== "fall_injury");
         } else {
-          // Normal medicine: O2 + temp normalize
-          player.o2Saturation += 15;
-          const tempDiff = 50 - player.bodyTemp;
-          const shift = Math.sign(tempDiff) * Math.min(Math.abs(tempDiff), 10);
-          player.bodyTemp += shift;
+          // Normal medicine: O2 recovery only (bodyTemp requires camp)
+          player.o2Saturation += 20;
         }
         player.medicine -= 1;
       }
@@ -237,25 +293,25 @@ export function applyVitalChanges(
 
   // Starvation cascade: when food is depleted
   if (player.food <= 0) {
-    player.energy -= 5;
-    player.morale -= 3;
+    player.energy -= 3;
+    player.morale -= 2;
   }
 
   // Dehydration cascade: when water is depleted
   if (player.water <= 0) {
-    player.energy -= 8;
-    player.bodyTemp -= 3;
-    player.o2Saturation -= 3;
+    player.energy -= 5;
+    player.bodyTemp -= 2;
+    player.o2Saturation -= 2;
   }
 
   // Morale: isolation drain (Death Stranding loneliness)
   player.morale -= 0.5;
 
-  // Morale: low vitals penalty
+  // Morale: low vitals penalty (reduced to slow death spiral)
   const lowVitals = (["energy", "hydration", "bodyTemp", "o2Saturation"] as const)
     .filter((v) => player[v] < 30);
   if (lowVitals.length > 0) {
-    player.morale -= 2 * lowVitals.length;
+    player.morale -= 1 * lowVitals.length;
   }
 
   // Morale: weather effects
@@ -267,10 +323,10 @@ export function applyVitalChanges(
     player.morale += 3;
   }
 
-  // Low morale movement penalty: +25% energy cost on push_forward
-  if (action === "push_forward" && player.morale < 40) {
+  // Low morale movement penalty: +10% energy cost on push_forward (reduced to break death spiral)
+  if (action === "push_forward" && player.morale < 20) {
     const terrainCost = TERRAIN_ENERGY_COST[waypoint.terrain];
-    player.energy -= terrainCost * 0.25;
+    player.energy -= terrainCost * 0.10;
   }
 
   // Clamp all vitals to 0-100
