@@ -1,7 +1,7 @@
 # Animated 3D Hiker + Procedural Terrain Detail — Design Spec
 
 **Date**: 2026-03-18
-**Status**: Draft (pending review)
+**Status**: Draft v2 (post spec-review — 14 issues fixed)
 **Scope**: Sub-project B — Replace sphere hiker with articulated 3D character, add terrain-type-specific procedural map details and unique waypoint landmarks
 **Branch**: `feature/visual-atmosphere-overhaul` (extends v3.1)
 **Reviewers**: Claude (author), Codex (technical review), Gemini (art direction review)
@@ -11,7 +11,7 @@
 The 3D TacticalMap currently renders the hiker as a green sphere with a scan beam — functional but visually flat. The wireframe terrain has no vegetation, rocks, or landmarks — a bare data mesh.
 
 This sub-project adds:
-1. **Animated 3D hiker** with an 11-joint articulated skeleton, 9 poses, smooth blending, walk cycle, and CRT holographic rendering
+1. **Animated 3D hiker** with an 11-joint articulated skeleton (+ 1 static pack attachment), 9 poses, smooth blending, walk cycle, and CRT holographic rendering
 2. **Procedural terrain details** — terrain-type-specific vegetation, rocks, and debris rendered as instanced wireframe geometry
 3. **Unique waypoint landmarks** — hand-crafted markers at significant trail locations
 4. **Movement polish** — trail afterimages, radar ping on arrival, CRT glitch transitions
@@ -47,7 +47,7 @@ src/components/map/
 
 ### Skeleton Structure
 
-11-joint articulated hierarchy using `THREE.Group` nodes:
+11-joint articulated hierarchy using `THREE.Group` nodes, plus 1 static attachment (pack):
 
 ```
 root (local origin at FEET, not hips)
@@ -56,10 +56,12 @@ root (local origin at FEET, not hips)
     │   ├── head
     │   ├── armL → forearmL
     │   ├── armR → forearmR
-    │   └── pack (backpack, always visible)
+    │   └── pack (backpack — rigidly attached to spine, NOT an animated joint)
     ├── legL → shinL
     └── legR → shinR
 ```
+
+**Joint count**: 11 animated joints (hips, spine, head, armL, forearmL, armR, forearmR, legL, shinL, legR, shinR). Pack is a static child of spine with no independent rotation — it is excluded from `JointRotations` and does not get a joint glow sphere.
 
 **Critical rule (from Codex review)**: Root origin is at feet. Parent `HikerMarker` group positions the root at ground level (lines 273/302 of TacticalMap3D.tsx). Hips are offset upward as the first child. This prevents floating.
 
@@ -72,14 +74,14 @@ Each body part rendered with up to 3 layers:
 | Layer | Technique | Material | Opacity |
 |-------|-----------|----------|---------|
 | **Solid volume** | Low-segment `BoxGeometry` / `CylinderGeometry` | `MeshBasicMaterial`, `depthWrite: false` | 0.08–0.15 |
-| **Edge wireframe** | `Line2` from drei (fixed 2px pixel width) | `LineMaterial` | 0.7–1.0 |
+| **Edge wireframe** | `<Line>` component from `@react-three/drei` (uses `Line2` internally, fixed 2px via `lineWidth` prop) | `LineMaterial` (managed by `<Line>`) | 0.7–1.0 |
 | **Joint glow** | `SphereGeometry` (r=0.006, 4 segments) at each joint | `MeshBasicMaterial` | 1.0 |
 
-**Edge rendering simplification (from Codex review)**: Full wireframe (`Line2`) on **5 major parts only**: head, spine, hips, upper legs, pack. Forearms and shins get solid + joint glow only — too small for edges to read.
+**Edge rendering simplification (from Codex review)**: Full wireframe (`<Line>`) on **6 major parts only**: head, spine, hips, legL (upper), legR (upper), pack. Arms (upper + forearm) and shins get solid mesh only — too small for edges to read at this scale.
 
 **Depth sorting (from Codex review)**: Solid layer uses `depthWrite={false}`. Edge layer uses higher `renderOrder`. Prevents wireframe disappearing into body parts.
 
-**Line width (from Gemini review)**: Use `Line2` from `@react-three/drei` instead of `LineSegments` + `LineBasicMaterial`. Standard WebGL lines are capped at 1px on most platforms — invisible at the hiker's small scale. `Line2` provides fixed pixel-width lines (2px) regardless of camera distance.
+**Line width (from Gemini review)**: Use `<Line>` from `@react-three/drei` (internally uses `Line2` / `LineMaterial`) instead of `LineSegments` + `LineBasicMaterial`. Standard WebGL lines are capped at 1px on most platforms — invisible at the hiker's small scale. The `<Line lineWidth={2}>` prop provides fixed pixel-width lines regardless of camera distance. Import as `{ Line } from '@react-three/drei'`.
 
 ### Body Part Proportions
 
@@ -98,7 +100,7 @@ Hiker total height: ~0.25 scene units. All geometry uses `BoxGeometry` for limbs
 
 ### Color System
 
-Driven by `healthPercent`, derived from game store vitals using the same formula as `TacticalMapLegacy.tsx:52` (average of stamina, hunger, hydration, warmth, health):
+Driven by `healthPercent`, derived from game store vitals using the same formula as `TacticalMapLegacy.tsx:52–54`: `(energy + hydration + bodyTemp + o2Saturation + morale) / 5`:
 
 | Health | Color | Signal Quality |
 |--------|-------|----------------|
@@ -166,6 +168,8 @@ type PoseDef = {
 ```
 
 Poses: `idle`, `walkingA`, `walkingB`, `camping`, `eating`, `drinking`, `resting`, `mapping`, `medicine`.
+
+**Euler → Quaternion conversion**: Euler targets in the pose table are converted to `THREE.Quaternion` at load time (once). Runtime blending uses `Quaternion.slerp()` on the pre-converted values — never on raw Euler tuples.
 
 ### File: `src/components/map/hiker/hikerAnimator.ts`
 
@@ -308,6 +312,8 @@ type LandmarkType =
 | **ridge** | Rock teeth | Thin tall `ConeGeometry` | 5–8 | `InstancedMesh` |
 | **scree** | Loose rocks | Small `OctahedronGeometry` | 25–35 | `InstancedMesh` |
 | **scree** | Dust fragments | Tiny flat triangles | 15–20 | `LineSegments` |
+| **summit** | Exposed rocks | Small `OctahedronGeometry` | 5–10 | `InstancedMesh` |
+| **summit** | Wind-scoured debris | Tiny flat triangles | 8–12 | `LineSegments` |
 | **stream_valley** | Water ribbon | 2 parallel translucent lines | 1–2 | `Line` with opacity pulse |
 | **stream_valley** | Boulders | Medium `OctahedronGeometry` | 5–8 | `InstancedMesh` |
 
@@ -360,12 +366,12 @@ Each landmark is a small hand-built `<group>` with wireframe geometry. Bound by 
 
 | Landmark | Waypoint(s) | Visual | Animation |
 |----------|-------------|--------|-----------|
-| `trailhead_gate` | `tangkou` (start) | Two vertical posts + horizontal bar, wireframe | Slow opacity breathe |
-| `shelter_marker` | Shelter waypoints (`camp_2820`, etc.) | Small tent pyramid + amber campfire glow point | Campfire flickers (opacity oscillation) |
-| `cairn` | Ridge waypoints | 3 stacked octahedra, decreasing size | None (static) |
-| `warning_sign` | `liangtaizi` (point of no return) | Tall post + triangle sign, amber/red | **Aggressive**: constant jitter + local scanline pulse + flicker (Gemini review) |
-| `summit_beacon` | `baxiantai` (3767m peak) | Tall vertical pole + pulsing bright point + slow rotating ring | Pulse + rotate (most visually prominent landmark) |
-| `shrine` | Cultural waypoints | Torii-gate wireframe (2 posts + curved top) | Slow opacity breathe |
+| `trailhead_gate` | `tangkou` (start, 1740m) | Two vertical posts + horizontal bar, wireframe | Slow opacity breathe |
+| `shelter_marker` | `camp_2900`, `camp_2800` (shelters with camping) | Small tent pyramid + amber campfire glow point | Campfire flickers (opacity oscillation) |
+| `shrine` | `yaowangmiao` (Medicine King Temple, 3327m) | Torii-gate wireframe (2 posts + curved top) | Slow opacity breathe |
+| `cairn` | Ridge waypoints (`daohangja`, `maijianliang`, `taibailiang`) | 3 stacked octahedra, decreasing size | None (static) |
+| `warning_sign` | `nantianmen` (South Heaven Gate — point of no return, 3300m) | Tall post + triangle sign, amber/red | **Aggressive**: constant jitter + local scanline pulse + flicker (Gemini review) |
+| `summit_beacon` | `baxiantai` (拔仙台, 3767m peak) | Tall vertical pole + pulsing bright point + slow rotating ring | Pulse + rotate (most visually prominent landmark) |
 
 ### Weather Reactivity (from Gemini review)
 
@@ -432,18 +438,19 @@ Add terrain detail components as Canvas siblings:
 </Canvas>
 ```
 
-Where `DETAIL_DATA = generateTerrainDetails(WAYPOINTS, MESH_DATA)` computed once at module scope.
+Where `DETAIL_DATA = generateTerrainDetails(WAYPOINTS, MESH_DATA)` is computed in `TacticalMap3D.tsx` at module scope, immediately after `MESH_DATA`, and passed as props to terrain detail components.
 
 ### Modified: `terrainMesh.ts`
 
-Export additional data for detail placement:
-- `positions` array (currently local to `generateTerrainMesh`)
-- Per-grid-cell terrain type lookup
+Export additional data for detail placement. Note: `positions` is already exported via `TerrainMeshData`. New exports needed:
+- Per-grid-cell terrain type array (`Float32Array` or `Uint8Array` indexed by `ix * GRID_Z + iz`)
+- Grid constants `GRID_X` (128) and `GRID_Z` (64)
+- `valueNoise` function (for consistent detail placement using same noise source)
 - ~15 lines added, no logic changes.
 
 ### No New Dependencies
 
-Everything uses `three`, `@react-three/fiber`, `@react-three/drei` already installed. `Line2` / `LineMaterial` from drei is the only new import.
+Everything uses `three`, `@react-three/fiber`, `@react-three/drei` already installed. `<Line>` from drei (which internally uses `Line2` / `LineMaterial` from `three-stdlib`) is the only new import from the existing drei package.
 
 ## Build Order
 
@@ -473,19 +480,19 @@ Two independent tracks:
 |----------|-----------|-------------------|
 | Existing terrain wireframe | 1 | ~24K edge vertices |
 | Existing trail + waypoints | 3 | ~140 trail points + 13 markers |
-| **Hiker (new)** | ~15 | 5 solid + 5 Line2 edges + 11 joint spheres |
+| **Hiker (new)** | ~18 | 12 solid meshes + 6 `<Line>` edges (head/spine/hips/legL/legR/pack) + 11 joint spheres |
 | **Afterimage ghosts (new)** | 4 | 44 spheres total (11 × 4 ghosts) |
 | **Terrain vegetation (new)** | 2–3 | ~300–600 instanced trees + 1 merged line batch |
 | **Terrain rocks (new)** | 2–3 | ~200–500 instanced rocks + 1 merged line batch |
 | **Terrain water (new)** | 1–2 | ~2 line objects per stream zone |
 | **Landmarks (new)** | 6–10 | ~6 unique groups, ~15 meshes total |
-| **Total** | ~35–40 | Well within Apple Silicon budget |
+| **Total** | ~38–45 | Well within Apple Silicon budget |
 
 ## Risk Assessment
 
 | Risk | Mitigation |
 |------|-----------|
-| Hiker too small to read | `Line2` fixed 2px width; bad-weather forced opacity; tune proportions. Test at all 3 zoom levels. |
+| Hiker too small to read | drei `<Line>` with `lineWidth={2}` for fixed 2px; bad-weather forced opacity; tune proportions. Test at all 3 zoom levels. |
 | Walk cycle without movement (push while lost) | Trigger from `currentWaypointIndex` change, not `lastAction`. Lost-push gets wandering idle. |
 | Repeated actions don't retrigger | `turnNumber + lastAction + waypointIndex` trigger tuple. |
 | Depth sorting (wireframe into body) | `depthWrite: false` on solid; higher `renderOrder` on edges. |
