@@ -7,8 +7,8 @@
 import type { Waypoint, TerrainType } from "../../engine/types.ts";
 import * as THREE from "three";
 
-const GRID_X = 128;
-const GRID_Z = 64;
+export const GRID_X = 128;
+export const GRID_Z = 64;
 
 /** Lateral falloff width per terrain type (0 = narrow ridge, 1 = wide valley) */
 const RIDGE_WIDTH: Record<TerrainType, number> = {
@@ -33,7 +33,7 @@ const NOISE_AMP: Record<TerrainType, number> = {
 };
 
 /** Simple mulberry32-based value noise for terrain displacement */
-function valueNoise(x: number, z: number, seed: number): number {
+export function valueNoise(x: number, z: number, seed: number): number {
   let state = (Math.floor(x * 100) * 73856093 ^ Math.floor(z * 100) * 19349663 ^ seed) | 0;
   state = (state + 0x6d2b79f5) | 0;
   let t = Math.imul(state ^ (state >>> 15), 1 | state);
@@ -99,6 +99,8 @@ export interface TerrainMeshData {
   edgeColors: Float32Array;
   trailPoints: THREE.Vector3[];
   waypointPositions: THREE.Vector3[];
+  cellTerrains: Uint8Array;   // terrain type index per grid cell (ix * GRID_Z + iz)
+  elevations: Float32Array;   // raw elevation in meters per grid cell
 }
 
 export function generateTerrainMesh(waypoints: Waypoint[]): TerrainMeshData {
@@ -109,7 +111,10 @@ export function generateTerrainMesh(waypoints: Waypoint[]): TerrainMeshData {
 
   const positions = new Float32Array(GRID_X * GRID_Z * 3);
   const colors = new Float32Array(GRID_X * GRID_Z * 3);
-  const elevations: number[] = [];
+
+  const terrainTypes: TerrainType[] = ["forest", "meadow", "stone_sea", "ridge", "summit", "scree", "stream_valley"];
+  const cellTerrains = new Uint8Array(GRID_X * GRID_Z);
+  const elevationsOut = new Float32Array(GRID_X * GRID_Z);
 
   for (let ix = 0; ix < GRID_X; ix++) {
     const distNorm = ix / (GRID_X - 1);
@@ -117,6 +122,7 @@ export function generateTerrainMesh(waypoints: Waypoint[]): TerrainMeshData {
     const { elevation: centerElev, terrain } = sampleTrail(waypoints, dist, maxDist);
     const ridgeW = RIDGE_WIDTH[terrain];
     const noiseAmp = NOISE_AMP[terrain];
+    const terrainIdx = terrainTypes.indexOf(terrain);
 
     for (let iz = 0; iz < GRID_Z; iz++) {
       const zNorm = (iz / (GRID_Z - 1)) * 2 - 1;
@@ -129,12 +135,14 @@ export function generateTerrainMesh(waypoints: Waypoint[]): TerrainMeshData {
       const noise = valueNoise(distNorm * 20, zNorm * 20, 12345) * noiseAmp * elevRange;
       const finalElev = Math.max(minElev, baseElev + noise);
 
-      const idx = (ix * GRID_Z + iz) * 3;
+      const cellIdx = ix * GRID_Z + iz;
+      cellTerrains[cellIdx] = terrainIdx;
+      elevationsOut[cellIdx] = finalElev;
+
+      const idx = cellIdx * 3;
       positions[idx] = distNorm * 10 - 5;
       positions[idx + 1] = (finalElev - minElev) / elevRange * 2;
       positions[idx + 2] = zNorm * 3;
-
-      elevations.push(finalElev);
 
       const color = elevationColor(finalElev);
       colors[idx] = color.r;
@@ -202,5 +210,5 @@ export function generateTerrainMesh(waypoints: Waypoint[]): TerrainMeshData {
     return new THREE.Vector3(positions[idx], positions[idx + 1] + 0.05, positions[idx + 2]);
   });
 
-  return { positions, colors, indices, edgePositions, edgeColors, trailPoints, waypointPositions };
+  return { positions, colors, indices, edgePositions, edgeColors, trailPoints, waypointPositions, cellTerrains, elevations: elevationsOut };
 }
