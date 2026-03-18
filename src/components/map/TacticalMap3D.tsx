@@ -11,6 +11,7 @@ import { useGameStore } from "../../store/gameStore.ts";
 import { WAYPOINTS } from "../../data/waypoints.ts";
 import { generateTerrainMesh } from "./terrainMesh.ts";
 import { TacticalMapLegacy } from "./TacticalMapLegacy.tsx";
+import { HikerRig3D } from "./hiker/HikerRig3D.tsx";
 
 // Compute terrain mesh once at module load (WAYPOINTS is static)
 const MESH_DATA = generateTerrainMesh(WAYPOINTS);
@@ -218,6 +219,10 @@ function HikerMarker() {
   const lastAction = useGameStore((s) => s.lastAction);
   const isLost = useGameStore((s) => s.player.isLost);
   const lostTurns = useGameStore((s) => s.player.lostTurns);
+  const turnNumber = useGameStore((s) => s.turnNumber);
+  const weather = useGameStore((s) => s.weather.current);
+  const timeOfDay = useGameStore((s) => s.time.timeOfDay);
+  const gamePhase = useGameStore((s) => s.gamePhase);
   const markerRef = useRef<THREE.Group>(null);
   const prevIndexRef = useRef(0);
 
@@ -272,7 +277,7 @@ function HikerMarker() {
 
       if (markerRef.current) {
         markerRef.current.position.copy(pos);
-        markerRef.current.position.y += 0.15 + Math.sin(clock.elapsedTime * 4) * 0.02;
+        markerRef.current.position.y += 0.15;
       }
       hikerDisplayPos.current.copy(pos);
       hikerDisplayPos.current.y += 0.5;
@@ -301,7 +306,7 @@ function HikerMarker() {
     const displayPos = truePos.clone().add(d.offset);
     if (markerRef.current) {
       markerRef.current.position.copy(displayPos);
-      markerRef.current.position.y += 0.15 + Math.sin(clock.elapsedTime * 2) * 0.02;
+      markerRef.current.position.y += 0.15;
     }
     hikerDisplayPos.current.copy(displayPos);
     hikerDisplayPos.current.y += 0.5;
@@ -310,14 +315,17 @@ function HikerMarker() {
   return (
     <>
       <group ref={markerRef} position={[0, 0, 0]}>
-        <mesh>
-          <sphereGeometry args={[0.04, 8, 8]} />
-          <meshBasicMaterial color="#00ff41" />
-        </mesh>
-        <mesh position={[0, 0.15, 0]}>
-          <cylinderGeometry args={[0.005, 0.005, 0.3, 4]} />
-          <meshBasicMaterial color="#00ff41" transparent opacity={0.4} />
-        </mesh>
+        <HikerRig3D
+          lastAction={lastAction}
+          turnNumber={turnNumber}
+          currentWaypointIndex={currentIndex}
+          isMoving={animRef.current.active}
+          movementDuration={animRef.current.duration}
+          isLost={isLost}
+          weather={weather}
+          timeOfDay={timeOfDay}
+          gamePhase={gamePhase}
+        />
       </group>
       {isLost && <SearchRing posRef={hikerDisplayPos} lostTurns={lostTurns} />}
     </>
