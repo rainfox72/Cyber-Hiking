@@ -37,7 +37,7 @@ function generateContours(x: number, y: number, elevation: number) {
   });
 }
 
-export function TacticalMapLegacy() {
+export function TacticalMapLegacy({ bare = false }: { bare?: boolean }) {
   const currentIndex = useGameStore((s) => s.player.currentWaypointIndex);
   const energy = useGameStore((s) => s.player.energy);
   const hydration = useGameStore((s) => s.player.hydration);
@@ -87,15 +87,9 @@ export function TacticalMapLegacy() {
     .map((wp) => `${toMapX(wp.distanceFromStart)},${toMapY(wp.elevation)}`)
     .join(" ");
 
-  return (
-    <div className="tactical-map" onWheel={handleWheel}>
-      <div className="tactical-map__zoom-controls">
-        <button onClick={() => setZoomLevel((z) => Math.min(z + 1, 3))}>+</button>
-        <span>{zoomLevel}x</span>
-        <button onClick={() => setZoomLevel((z) => Math.max(z - 1, 1))}>-</button>
-      </div>
-      <div className="tactical-map__perspective">
-        <svg
+  const svgContent = (
+    <div className="tactical-map__perspective">
+      <svg
           viewBox={`${vbX} ${vbY} ${vbW} ${vbH}`}
           preserveAspectRatio="xMidYMid meet"
           className="tactical-map__svg"
@@ -231,7 +225,19 @@ export function TacticalMapLegacy() {
             />
           </g>
         </svg>
+    </div>
+  );
+
+  if (bare) return svgContent;
+
+  return (
+    <div className="tactical-map" onWheel={handleWheel}>
+      <div className="tactical-map__zoom-controls">
+        <button onClick={() => setZoomLevel((z) => Math.min(z + 1, 3))}>+</button>
+        <span>{zoomLevel}x</span>
+        <button onClick={() => setZoomLevel((z) => Math.max(z - 1, 1))}>-</button>
       </div>
+      {svgContent}
     </div>
   );
 }

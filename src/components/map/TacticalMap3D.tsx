@@ -19,10 +19,11 @@ const MESH_DATA = generateTerrainMesh(WAYPOINTS);
 
 interface ErrorBoundaryState { hasError: boolean }
 
-class WebGLErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, ErrorBoundaryState> {
+class WebGLErrorBoundary extends Component<{ children: ReactNode; onError: () => void }, ErrorBoundaryState> {
   state: ErrorBoundaryState = { hasError: false };
   static getDerivedStateFromError() { return { hasError: true }; }
-  render() { return this.state.hasError ? this.props.fallback : this.props.children; }
+  componentDidCatch() { this.props.onError(); }
+  render() { return this.state.hasError ? null : this.props.children; }
 }
 
 // ── Terrain wireframe mesh ─────────────────────
@@ -137,6 +138,9 @@ function TrailLine() {
     return geo;
   }, [futurePoints]);
 
+  const traversedLineRef = useRef<THREE.Line | null>(null);
+  const futureLineRef = useRef<THREE.Line | null>(null);
+
   const traversedLine = useMemo(() => {
     if (!traversedGeo) return null;
     const mat = new THREE.LineBasicMaterial({ color: "#00ff41", transparent: true, opacity: 0.9 });
@@ -151,6 +155,27 @@ function TrailLine() {
     line.computeLineDistances();
     return line;
   }, [futureGeo]);
+
+  // Dispose old Three.js objects in useEffect cleanup (not useMemo)
+  useEffect(() => {
+    traversedLineRef.current = traversedLine;
+    return () => {
+      if (traversedLineRef.current) {
+        traversedLineRef.current.geometry.dispose();
+        (traversedLineRef.current.material as THREE.Material).dispose();
+      }
+    };
+  }, [traversedLine]);
+
+  useEffect(() => {
+    futureLineRef.current = futureLine;
+    return () => {
+      if (futureLineRef.current) {
+        futureLineRef.current.geometry.dispose();
+        (futureLineRef.current.material as THREE.Material).dispose();
+      }
+    };
+  }, [futureLine]);
 
   return (
     <>
@@ -269,37 +294,20 @@ function FogController() {
   return null;
 }
 
-// ── Zoom controls ──────────────────────────────
-
-function ZoomControls({ zoom, setZoom }: { zoom: number; setZoom: (z: number) => void }) {
-  return (
-    <div className="tactical-map__zoom-controls">
-      <button onClick={() => setZoom(Math.max(1, zoom - 1))}>-</button>
-      <span>{zoom}x</span>
-      <button onClick={() => setZoom(Math.min(3, zoom + 1))}>+</button>
-    </div>
-  );
-}
-
 // ── Main component ─────────────────────────────
 
 export function TacticalMap3D() {
-  const [zoom, setZoom] = useState(1);
+  const [webglFailed, setWebglFailed] = useState(false);
 
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    if (e.deltaY < 0) setZoom((z) => Math.min(3, z + 1));
-    else setZoom((z) => Math.max(1, z - 1));
-  };
+  if (webglFailed) return <TacticalMapLegacy />;
 
   return (
-    <div className="tactical-map" onWheel={handleWheel}>
-      <ZoomControls zoom={zoom} setZoom={setZoom} />
-      <WebGLErrorBoundary fallback={<TacticalMapLegacy />}>
+    <div className="tactical-map">
+      <WebGLErrorBoundary onError={() => setWebglFailed(true)}>
         <Canvas
           style={{ width: "100%", height: "100%" }}
           gl={{ alpha: true, antialias: true }}
-          camera={{ fov: 45 + (zoom - 1) * -10, near: 0.1, far: 50, position: [2, 3, 4] }}
+          camera={{ fov: 40, near: 0.1, far: 50, position: [2, 3, 4] }}
           frameloop="always"
         >
           <CameraController />
