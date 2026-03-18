@@ -93,7 +93,7 @@ function TrailheadGate({
 
   const { x, y, z } = landmark.position;
   const s = landmark.scale;
-  const postHeight = 0.08 * s;
+  const postHeight = 0.08; // group scale handles sizing — don't multiply here
 
   return (
     <group
@@ -267,7 +267,7 @@ function Shrine({
 
   const { x, y, z } = landmark.position;
   const s = landmark.scale;
-  const postHeight = 0.06 * s;
+  const postHeight = 0.06; // group scale handles sizing — don't multiply here
 
   return (
     <group
@@ -503,8 +503,9 @@ function SummitBeacon({
     }
 
     if (weather === "blizzard") {
-      // Blizzard: degrade opacity, speed up beacon pulse (4Hz)
-      const baseOpacity = 0.3 + Math.random() * 0.4;
+      // Blizzard: speed up beacon pulse to 4Hz + position jitter
+      const pulseFreq = 4;
+      const baseOpacity = 0.5 + Math.sin(elapsed * Math.PI * 2 * pulseFreq) * 0.2;
       groupRef.current.position.x =
         landmark.position.x + (Math.random() - 0.5) * 0.006;
       groupRef.current.position.z =
