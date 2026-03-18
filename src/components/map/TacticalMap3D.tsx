@@ -6,7 +6,6 @@
 import { useRef, useMemo, useState, useEffect, Component } from "react";
 import type { ReactNode } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { useGameStore } from "../../store/gameStore.ts";
 import { WAYPOINTS } from "../../data/waypoints.ts";
@@ -20,11 +19,10 @@ const MESH_DATA = generateTerrainMesh(WAYPOINTS);
 
 interface ErrorBoundaryState { hasError: boolean }
 
-class WebGLErrorBoundary extends Component<{ children: ReactNode; onError: () => void }, ErrorBoundaryState> {
+class WebGLErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, ErrorBoundaryState> {
   state: ErrorBoundaryState = { hasError: false };
   static getDerivedStateFromError() { return { hasError: true }; }
-  componentDidCatch() { this.props.onError(); }
-  render() { return this.state.hasError ? null : this.props.children; }
+  render() { return this.state.hasError ? this.props.fallback : this.props.children; }
 }
 
 // ── Terrain wireframe mesh ─────────────────────
@@ -47,7 +45,6 @@ function TerrainWireframe() {
   }, [meshData]);
 
   useFrame(({ clock }, delta) => {
-    // Reveal animation
     if (currentIndex !== prevIndexRef.current) {
       prevIndexRef.current = currentIndex;
       revealProgressRef.current = 0;
@@ -56,7 +53,6 @@ function TerrainWireframe() {
       revealProgressRef.current = Math.min(1, revealProgressRef.current + delta * 1.5);
     }
 
-    // Lost-state tint with sine-wave flicker + reset when found
     if (isLost && lineRef.current) {
       const colors = geometry.getAttribute("color") as THREE.BufferAttribute;
       const baseColors = meshData.edgeColors;
@@ -76,7 +72,6 @@ function TerrainWireframe() {
       wasTintedRef.current = false;
     }
 
-    // Direct material opacity mutation (fix reveal animation)
     if (lineRef.current) {
       const mat = lineRef.current.material as THREE.LineBasicMaterial;
       const nightDim = timeOfDay === "night" ? 0.6 : timeOfDay === "dusk" ? 0.8 : 1.0;
@@ -139,9 +134,6 @@ function TrailLine() {
     return geo;
   }, [futurePoints]);
 
-  const traversedLineRef = useRef<THREE.Line | null>(null);
-  const futureLineRef = useRef<THREE.Line | null>(null);
-
   const traversedLine = useMemo(() => {
     if (!traversedGeo) return null;
     const mat = new THREE.LineBasicMaterial({ color: "#00ff41", transparent: true, opacity: 0.9 });
@@ -156,27 +148,6 @@ function TrailLine() {
     line.computeLineDistances();
     return line;
   }, [futureGeo]);
-
-  // Dispose old Three.js objects in useEffect cleanup (not useMemo)
-  useEffect(() => {
-    traversedLineRef.current = traversedLine;
-    return () => {
-      if (traversedLineRef.current) {
-        traversedLineRef.current.geometry.dispose();
-        (traversedLineRef.current.material as THREE.Material).dispose();
-      }
-    };
-  }, [traversedLine]);
-
-  useEffect(() => {
-    futureLineRef.current = futureLine;
-    return () => {
-      if (futureLineRef.current) {
-        futureLineRef.current.geometry.dispose();
-        (futureLineRef.current.material as THREE.Material).dispose();
-      }
-    };
-  }, [futureLine]);
 
   return (
     <>
@@ -210,262 +181,70 @@ function WaypointMarkers() {
   );
 }
 
-// ── Search radius ring ─────────────────────────
-
-function SearchRing({ posRef, lostTurns }: {
-  posRef: React.MutableRefObject<THREE.Vector3>;
-  lostTurns: number;
-}) {
-  const ringRef = useRef<THREE.Mesh>(null);
-  const radius = 0.4 + lostTurns * 0.15;
-
-  useFrame(({ clock }) => {
-    if (ringRef.current) {
-      ringRef.current.position.x = posRef.current.x;
-      ringRef.current.position.z = posRef.current.z;
-      const mat = ringRef.current.material as THREE.MeshBasicMaterial;
-      mat.opacity = 0.3 + Math.sin(clock.elapsedTime * 4) * 0.2;
-    }
-  });
-
-  return (
-    <mesh ref={ringRef} position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <ringGeometry args={[radius - 0.02, radius, 32]} />
-      <meshBasicMaterial color="#ff2222" transparent opacity={0.5} side={THREE.DoubleSide} />
-    </mesh>
-  );
-}
-
 // ── Hiker marker ───────────────────────────────
 
-interface HikerMarkerProps {
-  hikerPosRef: React.MutableRefObject<THREE.Vector3>;
-}
-
-function HikerMarker({ hikerPosRef }: HikerMarkerProps) {
+function HikerMarker() {
   const meshData = MESH_DATA;
   const currentIndex = useGameStore((s) => s.player.currentWaypointIndex);
-  const lastAction = useGameStore((s) => s.lastAction);
-  const isLost = useGameStore((s) => s.player.isLost);
-  const lostTurns = useGameStore((s) => s.player.lostTurns);
   const markerRef = useRef<THREE.Group>(null);
-  const prevIndexRef = useRef(0);
 
-  // Drift state for lost displacement
-  const driftRef = useRef({
-    offset: new THREE.Vector3(),
-    direction: 0,
-    prevLost: false,
-    prevLostTurns: 0,
-  });
+  const pos = meshData.waypointPositions[Math.min(currentIndex, meshData.waypointPositions.length - 1)];
 
-  // Animation state for smooth movement
-  const animRef = useRef({
-    active: false,
-    progress: 0,
-    duration: 0,
-    startPos: new THREE.Vector3(),
-    endPos: new THREE.Vector3(),
-  });
-
-  // Start movement animation on waypoint change
-  useEffect(() => {
-    if (currentIndex === prevIndexRef.current) return;
-    const oldIdx = prevIndexRef.current;
-    prevIndexRef.current = currentIndex;
-
-    // Snap previous animation if mid-flight
-    if (animRef.current.active) {
-      animRef.current.active = false;
-    }
-
-    const durations: Record<string, number> = {
-      push_forward: 2.5,
-      descend: 1.5,
-    };
-    const dur = durations[lastAction ?? ""] ?? 0;
-    if (dur === 0) return;
-
-    const startPos = meshData.waypointPositions[Math.min(oldIdx, meshData.waypointPositions.length - 1)];
-    const endPos = meshData.waypointPositions[Math.min(currentIndex, meshData.waypointPositions.length - 1)];
-
-    animRef.current = {
-      active: true,
-      progress: 0,
-      duration: dur,
-      startPos: startPos.clone(),
-      endPos: endPos.clone(),
-    };
-  }, [currentIndex, lastAction, meshData]);
-
-  useFrame(({ clock }, delta) => {
-    const anim = animRef.current;
-    const d = driftRef.current;
-
-    // Movement animation (priority over drift)
-    if (anim.active) {
-      anim.progress += delta / anim.duration;
-      if (anim.progress >= 1) {
-        anim.active = false;
-        anim.progress = 1;
-      }
-
-      const t = anim.progress < 0.5
-        ? 2 * anim.progress * anim.progress
-        : 1 - Math.pow(-2 * anim.progress + 2, 2) / 2;
-
-      const pos = anim.startPos.clone().lerp(anim.endPos, t);
-
-      if (markerRef.current) {
-        markerRef.current.position.copy(pos);
-        markerRef.current.position.y += 0.15 + Math.sin(clock.elapsedTime * 4) * 0.02;
-      }
-      hikerPosRef.current.copy(pos);
-      hikerPosRef.current.y += 0.5;
-      return; // Skip drift during animation
-    }
-
-    // Lost drift logic
-    const truePos = meshData.waypointPositions[
-      Math.min(currentIndex, meshData.waypointPositions.length - 1)
-    ];
-
-    if (isLost && !d.prevLost) {
-      d.direction = Math.random() * Math.PI * 2;
-      d.prevLostTurns = 0;
-      d.prevLost = true;
-    }
-
-    if (isLost && lostTurns !== d.prevLostTurns) {
-      d.prevLostTurns = lostTurns;
-      const magnitude = Math.min(0.3 + lostTurns * 0.25, 1.5);
-      const wobble = (lostTurns * 0.3) % (Math.PI * 2);
-      d.offset.set(
-        Math.cos(d.direction + wobble * 0.2) * magnitude,
-        0,
-        Math.sin(d.direction + wobble * 0.2) * magnitude,
-      );
-    }
-
-    if (!isLost && d.prevLost) {
-      d.offset.lerp(new THREE.Vector3(), delta * 3);
-      if (d.offset.length() < 0.01) {
-        d.offset.set(0, 0, 0);
-        d.prevLost = false;
-      }
-    }
-
-    const displayPos = truePos.clone().add(d.offset);
-
+  useFrame(({ clock }) => {
     if (markerRef.current) {
-      markerRef.current.position.copy(displayPos);
-      markerRef.current.position.y += 0.15 + Math.sin(clock.elapsedTime * 2) * 0.02;
+      markerRef.current.position.y = pos.y + 0.15 + Math.sin(clock.elapsedTime * 2) * 0.02;
     }
-
-    hikerPosRef.current.copy(displayPos);
-    hikerPosRef.current.y += 0.5;
-  }, 1); // priority 1: write before camera reads
+  });
 
   return (
-    <>
-      <group ref={markerRef} position={[0, 0, 0]}>
-        <mesh>
-          <sphereGeometry args={[0.04, 8, 8]} />
-          <meshBasicMaterial color="#00ff41" />
-        </mesh>
-        <mesh position={[0, 0.15, 0]}>
-          <cylinderGeometry args={[0.005, 0.005, 0.3, 4]} />
-          <meshBasicMaterial color="#00ff41" transparent opacity={0.4} />
-        </mesh>
-      </group>
-      {isLost && <SearchRing posRef={hikerPosRef} lostTurns={lostTurns} />}
-    </>
+    <group ref={markerRef} position={[pos.x, pos.y + 0.15, pos.z]}>
+      <mesh>
+        <sphereGeometry args={[0.04, 8, 8]} />
+        <meshBasicMaterial color="#00ff41" />
+      </mesh>
+      <mesh position={[0, 0.15, 0]}>
+        <cylinderGeometry args={[0.005, 0.005, 0.3, 4]} />
+        <meshBasicMaterial color="#00ff41" transparent opacity={0.4} />
+      </mesh>
+    </group>
   );
 }
 
-// ── Camera system (OrbitControls + auto-orbit) ─
+// ── Camera controller ──────────────────────────
 
-interface CameraSystemProps {
-  hikerPosRef: React.MutableRefObject<THREE.Vector3>;
-  recenterRef: React.MutableRefObject<(() => void) | null>;
-}
+function CameraController() {
+  const currentIndex = useGameStore((s) => s.player.currentWaypointIndex);
+  const isLost = useGameStore((s) => s.player.isLost);
+  const meshData = MESH_DATA;
+  const { camera } = useThree();
+  const targetRef = useRef(new THREE.Vector3(0, 1, 0));
+  const orbitAngleRef = useRef(0);
 
-function CameraSystem({ hikerPosRef, recenterRef }: CameraSystemProps) {
-  const controlsRef = useRef<any>(null);
-  const isUserControllingRef = useRef(false);
-  const inactivityTimerRef = useRef<number | null>(null);
-  const autoOrbitRef = useRef(true);
-  const isTargetFollowingRef = useRef(true);
+  useEffect(() => {
+    const pos = meshData.waypointPositions[Math.min(currentIndex, meshData.waypointPositions.length - 1)];
+    targetRef.current.set(pos.x, pos.y + 0.5, pos.z);
+  }, [currentIndex, meshData]);
 
   useFrame((_, delta) => {
-    if (!controlsRef.current) return;
+    const target = targetRef.current;
 
-    if (isTargetFollowingRef.current) {
-      controlsRef.current.target.lerp(hikerPosRef.current, 0.05);
+    orbitAngleRef.current += delta * 0.5 * (Math.PI / 180);
+    const orbitRadius = 3.3;
+    const orbitX = Math.sin(orbitAngleRef.current) * orbitRadius;
+    const orbitZ = Math.cos(orbitAngleRef.current) * orbitRadius;
+
+    const camPos = new THREE.Vector3(target.x + orbitX, target.y + 2, target.z + orbitZ);
+
+    if (isLost) {
+      camPos.x += (Math.random() - 0.5) * 0.05;
+      camPos.y += (Math.random() - 0.5) * 0.03;
     }
 
-    if (autoOrbitRef.current && !isUserControllingRef.current) {
-      const azimuth = controlsRef.current.getAzimuthalAngle();
-      controlsRef.current.setAzimuthalAngle(azimuth + delta * 0.5 * (Math.PI / 180));
-    }
+    camera.position.lerp(camPos, 0.03);
+    camera.lookAt(target);
+  });
 
-    controlsRef.current.update();
-  }, 2); // priority 2: reads after HikerMarker writes
-
-  const handleStart = () => {
-    isUserControllingRef.current = true;
-    autoOrbitRef.current = false;
-    isTargetFollowingRef.current = false;
-    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
-  };
-
-  const handleEnd = () => {
-    isUserControllingRef.current = false;
-    inactivityTimerRef.current = window.setTimeout(() => {
-      autoOrbitRef.current = true;
-      isTargetFollowingRef.current = true;
-    }, 5000);
-  };
-
-  useEffect(() => {
-    recenterRef.current = () => {
-      if (!controlsRef.current) return;
-      controlsRef.current.target.copy(hikerPosRef.current);
-      autoOrbitRef.current = true;
-      isTargetFollowingRef.current = true;
-      isUserControllingRef.current = false;
-      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
-    };
-    return () => {
-      recenterRef.current = null;
-      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
-    };
-  }, [recenterRef, hikerPosRef]);
-
-  return (
-    <OrbitControls
-      ref={controlsRef}
-      enablePan={false}
-      minPolarAngle={0.3}
-      maxPolarAngle={Math.PI / 2.2}
-      minDistance={1.5}
-      maxDistance={8}
-      enableDamping
-      dampingFactor={0.05}
-      onStart={handleStart}
-      onEnd={handleEnd}
-    />
-  );
-}
-
-// ── Recenter button ────────────────────────────
-
-function RecenterButton({ onRecenter }: { onRecenter: () => void }) {
-  return (
-    <div className="tactical-map__controls">
-      <button onClick={onRecenter} title="Recenter on hiker">⌖</button>
-    </div>
-  );
+  return null;
 }
 
 // ── Fog controller ─────────────────────────────
@@ -487,32 +266,46 @@ function FogController() {
   return null;
 }
 
+// ── Zoom controls ──────────────────────────────
+
+function ZoomControls({ zoom, setZoom }: { zoom: number; setZoom: (z: number) => void }) {
+  return (
+    <div className="tactical-map__zoom-controls">
+      <button onClick={() => setZoom(Math.max(1, zoom - 1))}>-</button>
+      <span>{zoom}x</span>
+      <button onClick={() => setZoom(Math.min(3, zoom + 1))}>+</button>
+    </div>
+  );
+}
+
 // ── Main component ─────────────────────────────
 
 export function TacticalMap3D() {
-  const [webglFailed, setWebglFailed] = useState(false);
-  const hikerPosRef = useRef(new THREE.Vector3());
-  const recenterRef = useRef<(() => void) | null>(null);
+  const [zoom, setZoom] = useState(1);
 
-  if (webglFailed) return <TacticalMapLegacy />;
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    if (e.deltaY < 0) setZoom((z) => Math.min(3, z + 1));
+    else setZoom((z) => Math.max(1, z - 1));
+  };
 
   return (
-    <div className="tactical-map">
-      <RecenterButton onRecenter={() => recenterRef.current?.()} />
-      <WebGLErrorBoundary onError={() => setWebglFailed(true)}>
+    <div className="tactical-map" onWheel={handleWheel}>
+      <ZoomControls zoom={zoom} setZoom={setZoom} />
+      <WebGLErrorBoundary fallback={<TacticalMapLegacy />}>
         <Canvas
           style={{ width: "100%", height: "100%" }}
           gl={{ alpha: true, antialias: true }}
-          camera={{ fov: 40, near: 0.1, far: 50, position: [2, 3, 4] }}
+          camera={{ fov: 45 + (zoom - 1) * -10, near: 0.1, far: 50, position: [2, 3, 4] }}
           frameloop="always"
         >
-          <CameraSystem hikerPosRef={hikerPosRef} recenterRef={recenterRef} />
+          <CameraController />
           <FogController />
           <GridFloor />
           <TerrainWireframe />
           <TrailLine />
           <WaypointMarkers />
-          <HikerMarker hikerPosRef={hikerPosRef} />
+          <HikerMarker />
         </Canvas>
       </WebGLErrorBoundary>
     </div>
