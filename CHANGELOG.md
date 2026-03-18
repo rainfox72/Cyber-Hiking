@@ -1,5 +1,28 @@
 # Changelog
 
+## [3.2] - 2026-03-18
+
+### Features
+- Animated 3D hiker with 11-joint skeleton, 9 action-driven poses, smooth blending
+- Hybrid tactical hologram rendering (solid mesh + Line edges + joint glow)
+- Walk cycle synced to movement animation (push_forward / descend)
+- CRT glitch transitions on action change (opacity pulse + jitter + color shift)
+- Trail afterimages during movement (4 joint-only ghost copies)
+- Radar ping on waypoint arrival (expanding ring)
+- Procedural terrain details: trees, grass, rocks, debris per terrain type
+- Animated stream valley water ribbons
+- 6 unique waypoint landmarks (trailhead gate, shelter, shrine, cairn, warning sign, summit beacon)
+- Weather reactivity on landmarks (blizzard jitter, night glow)
+- Elevation-driven vegetation scaling (smaller trees at altitude)
+- Bad-weather hiker visibility enforcement
+
+### Design Rationale
+- "Hybrid Tactical Hologram" rendering chosen for readability at small scale + CRT aesthetic
+- drei `<Line>` (Line2) for fixed 2px edge width regardless of zoom
+- Joint-only afterimages instead of full rig clones for performance
+- InstancedMesh for vegetation/rocks, merged LineSegments for wire details
+- Landmarks bound by waypoint ID (not index) for stability
+
 ## [3.1] - 2026-03-18
 
 ### Bug Fixes

@@ -18,9 +18,11 @@ npx tsc --noEmit     # Type check (zero errors policy)
 - `src/components/` — React UI (game panels, map, effects, screens)
   - `effects/Skybox.tsx` — Time-of-day gradient backgrounds with star canvas (z-index: 0)
   - `effects/TerrainAtmosphere.tsx` — Terrain-type SVG noise/gradient overlays (z-index: 1)
-  - `map/TacticalMap3D.tsx` — Three.js WebGL wireframe heightmap (replaces SVG map)
+  - `map/TacticalMap3D.tsx` — Three.js WebGL wireframe heightmap with animated hiker and terrain details (replaces SVG map)
   - `map/terrainMesh.ts` — Pure TS heightmap mesh generation from waypoint data
   - `map/TacticalMapLegacy.tsx` — Original SVG isometric map (WebGL fallback)
+  - `map/hiker/` — 3D hiker rig: skeleton, pose table, animator, effects
+  - `map/terrain/` — Procedural map details: vegetation, rocks, water, landmarks
 - `src/hooks/` — useTypewriter (character-by-character text reveal)
 - `src/utils/random.ts` — Seeded PRNG (mulberry32)
 - `scripts/` — Playtest bots (Ollama AI + heuristic)
@@ -36,7 +38,7 @@ npx tsc --noEmit     # Type check (zero errors policy)
 - **All vitals clamped 0-100**, inventory items clamped to min 0, risk capped at 95%
 - **Auto-play** — Ollama AI decisions with heuristic fallback, 3.5s delay between turns
 - **Visual atmosphere layers** — Skybox (time-of-day gradients) + TerrainAtmosphere (terrain SVG noise) + TacticalMap3D (Three.js wireframe) compose via z-index stacking behind semi-transparent panels
-- **3D Map** — React Three Fiber with `frameloop="always"`, per-vertex elevation colors, custom auto-orbit camera, fog/lost/reveal effects, smooth movement animation (2.5s push, 1.5s descend), lost-state hiker displacement with pulsing search ring. Falls back to SVG map on WebGL failure. Note: drei OrbitControls crashes R3F Canvas — drag/scale deferred.
+- **3D Map** — React Three Fiber with `frameloop="always"`, per-vertex elevation colors, custom auto-orbit camera, fog/lost/reveal effects, smooth movement animation (2.5s push, 1.5s descend), lost-state hiker displacement with pulsing search ring. Animated 3D hiker (11-joint skeleton, 9 poses, CRT glitch transitions, trail afterimages, radar ping). Procedural terrain details (instanced trees/rocks, grass, animated water ribbons, 6 landmark types) via `TerrainDetailLayer`. Falls back to SVG map on WebGL failure. Note: drei OrbitControls crashes R3F Canvas — drag/scale deferred.
 
 ## Internal Docs
 
