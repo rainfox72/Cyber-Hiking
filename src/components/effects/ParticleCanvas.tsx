@@ -5,7 +5,7 @@
 
 import { useRef, useEffect } from "react";
 import { useGameStore } from "../../store/gameStore.ts";
-import type { WeatherCondition, TimeOfDay } from "../../engine/types.ts";
+import type { WeatherCondition } from "../../engine/types.ts";
 
 interface Particle {
   x: number;
