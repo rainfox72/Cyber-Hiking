@@ -23,7 +23,7 @@ import { LocationInfo } from "./components/game/LocationInfo.tsx";
 import { Header } from "./components/game/Header.tsx";
 import { GameOverlay } from "./components/game/GameOverlay.tsx";
 import { OllamaPoller } from "./components/game/OllamaPoller.tsx";
-import { TacticalMap } from "./components/map/TacticalMap.tsx";
+import { TacticalMap3D } from "./components/map/TacticalMap3D.tsx";
 import { soundManager } from "./services/soundManager.ts";
 import { WAYPOINTS } from "./data/waypoints.ts";
 
@@ -107,7 +107,7 @@ function App() {
         </div>
         <div className="panel-center">
           <LocationInfo />
-          <TacticalMap />
+          <TacticalMap3D />
           <LogWindow />
           <div style={{ display: "flex", gap: "2px" }}>
             <WeatherDisplay />

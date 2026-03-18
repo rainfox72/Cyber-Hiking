@@ -37,7 +37,7 @@ function generateContours(x: number, y: number, elevation: number) {
   });
 }
 
-export function TacticalMap() {
+export function TacticalMapLegacy() {
   const currentIndex = useGameStore((s) => s.player.currentWaypointIndex);
   const energy = useGameStore((s) => s.player.energy);
   const hydration = useGameStore((s) => s.player.hydration);
