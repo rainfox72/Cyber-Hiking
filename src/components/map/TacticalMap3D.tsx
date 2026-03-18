@@ -47,10 +47,10 @@ function TerrainWireframe() {
   useFrame(({ clock }, delta) => {
     if (currentIndex !== prevIndexRef.current) {
       prevIndexRef.current = currentIndex;
-      revealProgressRef.current = 0;
+      revealProgressRef.current = 0.7; // subtle dim, not full blackout
     }
     if (revealProgressRef.current < 1) {
-      revealProgressRef.current = Math.min(1, revealProgressRef.current + delta * 1.5);
+      revealProgressRef.current = Math.min(1, revealProgressRef.current + delta * 2);
     }
 
     if (isLost && lineRef.current) {
@@ -181,52 +181,158 @@ function WaypointMarkers() {
   );
 }
 
-// ── Hiker marker ───────────────────────────────
+// ── Search radius ring ─────────────────────────
 
-function HikerMarker() {
-  const meshData = MESH_DATA;
-  const currentIndex = useGameStore((s) => s.player.currentWaypointIndex);
-  const markerRef = useRef<THREE.Group>(null);
-
-  const pos = meshData.waypointPositions[Math.min(currentIndex, meshData.waypointPositions.length - 1)];
+function SearchRing({ posRef, lostTurns }: {
+  posRef: React.MutableRefObject<THREE.Vector3>;
+  lostTurns: number;
+}) {
+  const ringRef = useRef<THREE.Mesh>(null);
+  const radius = 0.4 + lostTurns * 0.15;
 
   useFrame(({ clock }) => {
-    if (markerRef.current) {
-      markerRef.current.position.y = pos.y + 0.15 + Math.sin(clock.elapsedTime * 2) * 0.02;
+    if (ringRef.current) {
+      ringRef.current.position.x = posRef.current.x;
+      ringRef.current.position.z = posRef.current.z;
+      const mat = ringRef.current.material as THREE.MeshBasicMaterial;
+      mat.opacity = 0.3 + Math.sin(clock.elapsedTime * 4) * 0.2;
     }
   });
 
   return (
-    <group ref={markerRef} position={[pos.x, pos.y + 0.15, pos.z]}>
-      <mesh>
-        <sphereGeometry args={[0.04, 8, 8]} />
-        <meshBasicMaterial color="#00ff41" />
-      </mesh>
-      <mesh position={[0, 0.15, 0]}>
-        <cylinderGeometry args={[0.005, 0.005, 0.3, 4]} />
-        <meshBasicMaterial color="#00ff41" transparent opacity={0.4} />
-      </mesh>
-    </group>
+    <mesh ref={ringRef} position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <ringGeometry args={[radius - 0.02, radius, 32]} />
+      <meshBasicMaterial color="#ff2222" transparent opacity={0.5} side={THREE.DoubleSide} />
+    </mesh>
   );
 }
 
-// ── Camera controller ──────────────────────────
+// ── Hiker marker with displacement + animation ─
 
-function CameraController() {
-  const currentIndex = useGameStore((s) => s.player.currentWaypointIndex);
-  const isLost = useGameStore((s) => s.player.isLost);
+// Shared ref for camera to follow displaced hiker position
+const hikerDisplayPos = { current: new THREE.Vector3() };
+
+function HikerMarker() {
   const meshData = MESH_DATA;
-  const { camera } = useThree();
-  const targetRef = useRef(new THREE.Vector3(0, 1, 0));
-  const orbitAngleRef = useRef(0);
+  const currentIndex = useGameStore((s) => s.player.currentWaypointIndex);
+  const lastAction = useGameStore((s) => s.lastAction);
+  const isLost = useGameStore((s) => s.player.isLost);
+  const lostTurns = useGameStore((s) => s.player.lostTurns);
+  const markerRef = useRef<THREE.Group>(null);
+  const prevIndexRef = useRef(0);
+
+  const driftRef = useRef({
+    offset: new THREE.Vector3(),
+    direction: 0,
+    prevLost: false,
+    prevLostTurns: 0,
+  });
+
+  const animRef = useRef({
+    active: false,
+    progress: 0,
+    duration: 0,
+    startPos: new THREE.Vector3(),
+    endPos: new THREE.Vector3(),
+  });
 
   useEffect(() => {
-    const pos = meshData.waypointPositions[Math.min(currentIndex, meshData.waypointPositions.length - 1)];
-    targetRef.current.set(pos.x, pos.y + 0.5, pos.z);
-  }, [currentIndex, meshData]);
+    if (currentIndex === prevIndexRef.current) return;
+    const oldIdx = prevIndexRef.current;
+    prevIndexRef.current = currentIndex;
+
+    if (animRef.current.active) animRef.current.active = false;
+
+    const durations: Record<string, number> = { push_forward: 2.5, descend: 1.5 };
+    const dur = durations[lastAction ?? ""] ?? 0;
+    if (dur === 0) return;
+
+    const startPos = meshData.waypointPositions[Math.min(oldIdx, meshData.waypointPositions.length - 1)];
+    const endPos = meshData.waypointPositions[Math.min(currentIndex, meshData.waypointPositions.length - 1)];
+
+    animRef.current = {
+      active: true, progress: 0, duration: dur,
+      startPos: startPos.clone(), endPos: endPos.clone(),
+    };
+  }, [currentIndex, lastAction, meshData]);
+
+  useFrame(({ clock }, delta) => {
+    const anim = animRef.current;
+    const d = driftRef.current;
+
+    // Movement animation
+    if (anim.active) {
+      anim.progress += delta / anim.duration;
+      if (anim.progress >= 1) { anim.active = false; anim.progress = 1; }
+
+      const t = anim.progress < 0.5
+        ? 2 * anim.progress * anim.progress
+        : 1 - Math.pow(-2 * anim.progress + 2, 2) / 2;
+      const pos = anim.startPos.clone().lerp(anim.endPos, t);
+
+      if (markerRef.current) {
+        markerRef.current.position.copy(pos);
+        markerRef.current.position.y += 0.15 + Math.sin(clock.elapsedTime * 4) * 0.02;
+      }
+      hikerDisplayPos.current.copy(pos);
+      hikerDisplayPos.current.y += 0.5;
+      return;
+    }
+
+    // Normal positioning + lost drift
+    const truePos = meshData.waypointPositions[Math.min(currentIndex, meshData.waypointPositions.length - 1)];
+
+    if (isLost && !d.prevLost) {
+      d.direction = Math.random() * Math.PI * 2;
+      d.prevLostTurns = 0;
+      d.prevLost = true;
+    }
+    if (isLost && lostTurns !== d.prevLostTurns) {
+      d.prevLostTurns = lostTurns;
+      const magnitude = Math.min(0.3 + lostTurns * 0.25, 1.5);
+      const wobble = (lostTurns * 0.3) % (Math.PI * 2);
+      d.offset.set(Math.cos(d.direction + wobble * 0.2) * magnitude, 0, Math.sin(d.direction + wobble * 0.2) * magnitude);
+    }
+    if (!isLost && d.prevLost) {
+      d.offset.lerp(new THREE.Vector3(), delta * 3);
+      if (d.offset.length() < 0.01) { d.offset.set(0, 0, 0); d.prevLost = false; }
+    }
+
+    const displayPos = truePos.clone().add(d.offset);
+    if (markerRef.current) {
+      markerRef.current.position.copy(displayPos);
+      markerRef.current.position.y += 0.15 + Math.sin(clock.elapsedTime * 2) * 0.02;
+    }
+    hikerDisplayPos.current.copy(displayPos);
+    hikerDisplayPos.current.y += 0.5;
+  });
+
+  return (
+    <>
+      <group ref={markerRef} position={[0, 0, 0]}>
+        <mesh>
+          <sphereGeometry args={[0.04, 8, 8]} />
+          <meshBasicMaterial color="#00ff41" />
+        </mesh>
+        <mesh position={[0, 0.15, 0]}>
+          <cylinderGeometry args={[0.005, 0.005, 0.3, 4]} />
+          <meshBasicMaterial color="#00ff41" transparent opacity={0.4} />
+        </mesh>
+      </group>
+      {isLost && <SearchRing posRef={hikerDisplayPos} lostTurns={lostTurns} />}
+    </>
+  );
+}
+
+// ── Camera controller (follows displaced hiker) ─
+
+function CameraController() {
+  const isLost = useGameStore((s) => s.player.isLost);
+  const { camera } = useThree();
+  const orbitAngleRef = useRef(0);
 
   useFrame((_, delta) => {
-    const target = targetRef.current;
+    const target = hikerDisplayPos.current;
 
     orbitAngleRef.current += delta * 0.5 * (Math.PI / 180);
     const orbitRadius = 3.3;
