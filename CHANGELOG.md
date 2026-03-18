@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.1] - 2026-03-18
+
+### Bug Fixes
+- Lost-state wireframe red tint now properly resets when player finds the trail
+- Terrain reveal animation works (direct material opacity mutation in useFrame)
+- WebGL fallback no longer nests double .tactical-map containers
+- Three.js Line objects properly disposed on waypoint change (no memory leaks)
+- TerrainAtmosphere initializes correctly on first mount
+- Wireframe lost-state flicker uses smooth sine-wave instead of raw random
+
+### Features
+- **Lost-state displacement**: hiker visually drifts off-trail when lost, with pulsing red search radius ring
+- **Smooth movement animation**: hiker interpolates along trail on push_forward (2.5s) and descend (1.5s) with ease-in-out
+- **Drag and scale**: OrbitControls for rotate/zoom with auto-orbit (resumes after 5s inactivity), recenter button
+
+### Notes
+- @react-three/drei now imported (OrbitControls)
+- Discrete zoom controls replaced with continuous smooth zoom + recenter button (⌖)
+
 ## [3.0] - 2026-03-17
 
 ### Features
