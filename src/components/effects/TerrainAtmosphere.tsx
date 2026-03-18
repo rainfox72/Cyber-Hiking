@@ -59,7 +59,7 @@ export function TerrainAtmosphere() {
     return { effects: [e, e] as [TerrainEffect, TerrainEffect], activeLayer: 0 };
   });
 
-  const prevIndexRef = useRef(0);
+  const prevIndexRef = useRef(-1);
 
   useEffect(() => {
     if (gamePhase === "title") return;

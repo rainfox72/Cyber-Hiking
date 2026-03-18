@@ -35,6 +35,7 @@ function TerrainWireframe() {
   const currentIndex = useGameStore((s) => s.player.currentWaypointIndex);
   const prevIndexRef = useRef(0);
   const revealProgressRef = useRef(1);
+  const wasTintedRef = useRef(false);
 
   const geometry = useMemo(() => {
     const geo = new THREE.BufferGeometry();
@@ -43,7 +44,8 @@ function TerrainWireframe() {
     return geo;
   }, [meshData]);
 
-  useFrame((_, delta) => {
+  useFrame(({ clock }, delta) => {
+    // Reveal animation
     if (currentIndex !== prevIndexRef.current) {
       prevIndexRef.current = currentIndex;
       revealProgressRef.current = 0;
@@ -52,25 +54,37 @@ function TerrainWireframe() {
       revealProgressRef.current = Math.min(1, revealProgressRef.current + delta * 1.5);
     }
 
+    // Lost-state tint with sine-wave flicker + reset when found
     if (isLost && lineRef.current) {
       const colors = geometry.getAttribute("color") as THREE.BufferAttribute;
       const baseColors = meshData.edgeColors;
       const arr = colors.array as Float32Array;
-      const flickerR = 0.8 + Math.random() * 0.2;
+      const flickerR = 0.9 + Math.sin(clock.elapsedTime * 20) * 0.1;
       for (let i = 0; i < arr.length; i += 3) {
         arr[i] = baseColors[i] * 0.5 + flickerR * 0.5;
         arr[i + 1] = baseColors[i + 1] * 0.3;
         arr[i + 2] = baseColors[i + 2] * 0.3;
       }
       colors.needsUpdate = true;
+      wasTintedRef.current = true;
+    } else if (wasTintedRef.current && lineRef.current) {
+      const colors = geometry.getAttribute("color") as THREE.BufferAttribute;
+      (colors.array as Float32Array).set(meshData.edgeColors);
+      colors.needsUpdate = true;
+      wasTintedRef.current = false;
+    }
+
+    // Direct material opacity mutation (fix reveal animation)
+    if (lineRef.current) {
+      const mat = lineRef.current.material as THREE.LineBasicMaterial;
+      const nightDim = timeOfDay === "night" ? 0.6 : timeOfDay === "dusk" ? 0.8 : 1.0;
+      mat.opacity = nightDim * revealProgressRef.current;
     }
   });
 
-  const opacity = timeOfDay === "night" ? 0.6 : timeOfDay === "dusk" ? 0.8 : 1.0;
-
   return (
     <lineSegments ref={lineRef} geometry={geometry}>
-      <lineBasicMaterial vertexColors transparent opacity={opacity * revealProgressRef.current} />
+      <lineBasicMaterial vertexColors transparent />
     </lineSegments>
   );
 }
