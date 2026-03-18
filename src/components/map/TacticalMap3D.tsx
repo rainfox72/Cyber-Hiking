@@ -13,9 +13,15 @@ import { generateTerrainMesh } from "./terrainMesh.ts";
 import { TacticalMapLegacy } from "./TacticalMapLegacy.tsx";
 import { HikerRig3D } from "./hiker/HikerRig3D.tsx";
 import { HikerEffects } from "./hiker/HikerEffects.tsx";
+import { generateTerrainDetails, type TerrainDetailData } from "./terrain/terrainDetails.ts";
+import { TerrainVegetation } from "./terrain/TerrainVegetation.tsx";
+import { TerrainRocks } from "./terrain/TerrainRocks.tsx";
+import { TerrainWater } from "./terrain/TerrainWater.tsx";
+import { TerrainLandmarks } from "./terrain/TerrainLandmarks.tsx";
 
 // Compute terrain mesh once at module load (WAYPOINTS is static)
 const MESH_DATA = generateTerrainMesh(WAYPOINTS);
+const DETAIL_DATA: TerrainDetailData = generateTerrainDetails(WAYPOINTS, MESH_DATA);
 
 // ── Error boundary for WebGL fallback ──────────
 
@@ -348,6 +354,22 @@ function HikerMarker() {
   );
 }
 
+// ── Terrain detail layer ────────────────────────
+
+function TerrainDetailLayer() {
+  const timeOfDay = useGameStore((s) => s.time.timeOfDay);
+  const weather = useGameStore((s) => s.weather.current);
+  const currentIndex = useGameStore((s) => s.player.currentWaypointIndex);
+  return (
+    <>
+      <TerrainVegetation details={DETAIL_DATA} timeOfDay={timeOfDay} weather={weather} />
+      <TerrainRocks details={DETAIL_DATA} timeOfDay={timeOfDay} weather={weather} />
+      <TerrainWater details={DETAIL_DATA} timeOfDay={timeOfDay} />
+      <TerrainLandmarks details={DETAIL_DATA} timeOfDay={timeOfDay} weather={weather} currentIndex={currentIndex} />
+    </>
+  );
+}
+
 // ── Camera controller (follows displaced hiker) ─
 
 function CameraController() {
@@ -436,6 +458,7 @@ export function TacticalMap3D() {
           <TrailLine />
           <WaypointMarkers />
           <HikerMarker />
+          <TerrainDetailLayer />
         </Canvas>
       </WebGLErrorBoundary>
     </div>
