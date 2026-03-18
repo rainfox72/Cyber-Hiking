@@ -77,13 +77,7 @@ export function ParticleCanvas() {
       const w = canvas.width;
       const h = canvas.height;
 
-      // Night overlay
-      const isNight = timeOfDay === "night" || timeOfDay === "dusk";
       ctx.clearRect(0, 0, w, h);
-      if (isNight) {
-        ctx.fillStyle = `rgba(0, 0, 10, ${timeOfDay === "night" ? 0.15 : 0.06})`;
-        ctx.fillRect(0, 0, w, h);
-      }
 
       if (!shouldRenderParticles(weather)) {
         animRef.current = requestAnimationFrame(render);

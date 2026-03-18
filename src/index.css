@@ -38,6 +38,10 @@
   --panel-gap: 2px;
   --border-radius: 2px;
 
+  /* Atmosphere tinting (set by Skybox.tsx and TerrainAtmosphere.tsx) */
+  --sky-tint: rgba(0, 0, 0, 0);
+  --terrain-tint: rgba(0, 0, 0, 0);
+
   font-family: var(--font-mono);
   line-height: 1.4;
   font-weight: 400;
@@ -91,7 +95,7 @@ body {
 
 /* Panel base class */
 .panel {
-  background: var(--bg-panel);
+  background: rgba(13, 13, 13, 0.85);
   border: 1px solid var(--bg-panel-border);
   border-radius: var(--border-radius);
   padding: var(--panel-padding);
