@@ -59,18 +59,17 @@ export function TerrainAtmosphere() {
     return { effects: [e, e] as [TerrainEffect, TerrainEffect], activeLayer: 0 };
   });
 
-  const prevTerrainRef = useRef<TerrainType>("stream_valley");
+  const prevIndexRef = useRef(0);
 
   useEffect(() => {
     if (gamePhase === "title") return;
     const wp = WAYPOINTS[waypointIndex];
     if (!wp) return;
-    const terrain = wp.terrain;
 
-    if (terrain === prevTerrainRef.current) return;
-    prevTerrainRef.current = terrain;
+    if (waypointIndex === prevIndexRef.current) return;
+    prevIndexRef.current = waypointIndex;
 
-    let effect = { ...TERRAIN_EFFECTS[terrain] };
+    let effect = { ...TERRAIN_EFFECTS[wp.terrain] };
 
     if (wp.elevation > HIGH_ALTITUDE_THRESHOLD) {
       const factor = Math.min((wp.elevation - HIGH_ALTITUDE_THRESHOLD) / 600, 1);

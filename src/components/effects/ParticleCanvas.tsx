@@ -57,7 +57,6 @@ export function ParticleCanvas() {
   const animRef = useRef<number>(0);
   const weather = useGameStore((s) => s.weather.current);
   const intensity = useGameStore((s) => s.weather.intensity);
-  const timeOfDay = useGameStore((s) => s.time.timeOfDay);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -145,7 +144,7 @@ export function ParticleCanvas() {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener("resize", resize);
     };
-  }, [weather, intensity, timeOfDay]);
+  }, [weather, intensity]);
 
   // Reset particles when weather changes
   useEffect(() => {

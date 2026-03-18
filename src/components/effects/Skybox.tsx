@@ -145,8 +145,7 @@ export function Skybox() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       if (!isNight) {
-        animRef.current = requestAnimationFrame(render);
-        return;
+        return; // Don't loop during daytime — canvas is faded out anyway
       }
 
       const now = performance.now();
