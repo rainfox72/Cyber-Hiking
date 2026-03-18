@@ -1,7 +1,7 @@
 # Visual Atmosphere Overhaul — Design Spec
 
 **Date**: 2026-03-17
-**Status**: Reviewed (v2 — addresses Codex/Gemini/Claude review feedback)
+**Status**: Implemented (branch: feature/visual-atmosphere-overhaul)
 **Scope**: Visual/atmosphere enhancement — deepening the CRT tactical aesthetic with three independent rendering layers
 
 ## Overview

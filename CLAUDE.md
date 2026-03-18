@@ -5,7 +5,7 @@ Turn-based survival simulation of the 鳌太线 (Ao Tai Line): Vite 7 + React 19
 ## Commands
 
 ```bash
-npm run dev          # Vite dev server on :5173
+npm run dev          # Vite dev server on :3100
 npx tsc --noEmit     # Type check (zero errors policy)
 ```
 
@@ -16,6 +16,11 @@ npx tsc --noEmit     # Type check (zero errors policy)
 - `src/store/gameStore.ts` — Zustand: wraps engine, async Ollama narration, auto-play loop
 - `src/services/` — Ollama HTTP client, fallback narrator, SoundManager (Web Audio API synthesis)
 - `src/components/` — React UI (game panels, map, effects, screens)
+  - `effects/Skybox.tsx` — Time-of-day gradient backgrounds with star canvas (z-index: 0)
+  - `effects/TerrainAtmosphere.tsx` — Terrain-type SVG noise/gradient overlays (z-index: 1)
+  - `map/TacticalMap3D.tsx` — Three.js WebGL wireframe heightmap (replaces SVG map)
+  - `map/terrainMesh.ts` — Pure TS heightmap mesh generation from waypoint data
+  - `map/TacticalMapLegacy.tsx` — Original SVG isometric map (WebGL fallback)
 - `src/hooks/` — useTypewriter (character-by-character text reveal)
 - `src/utils/random.ts` — Seeded PRNG (mulberry32)
 - `scripts/` — Playtest bots (Ollama AI + heuristic)
@@ -30,6 +35,8 @@ npx tsc --noEmit     # Type check (zero errors policy)
 - **Ollama** — POST to `localhost:11434/api/generate`, 15s timeout, stream: false. Falls back to template narratives.
 - **All vitals clamped 0-100**, inventory items clamped to min 0, risk capped at 95%
 - **Auto-play** — Ollama AI decisions with heuristic fallback, 3.5s delay between turns
+- **Visual atmosphere layers** — Skybox (time-of-day gradients) + TerrainAtmosphere (terrain SVG noise) + TacticalMap3D (Three.js wireframe) compose via z-index stacking behind semi-transparent panels
+- **3D Map** — React Three Fiber with `frameloop="always"`, per-vertex elevation colors, auto-orbit camera, fog/lost/reveal effects. Falls back to SVG map on WebGL failure.
 
 ## Internal Docs
 
