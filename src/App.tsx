@@ -9,6 +9,7 @@ import { useGameStore } from "./store/gameStore.ts";
 import { Scanlines } from "./components/effects/Scanlines.tsx";
 import { ParticleCanvas } from "./components/effects/ParticleCanvas.tsx";
 import { Vignette } from "./components/effects/Vignette.tsx";
+import { Skybox } from "./components/effects/Skybox.tsx";
 import TitleScreen from "./components/screens/TitleScreen.tsx";
 import { StatusDashboard } from "./components/game/StatusDashboard.tsx";
 import { InventoryPanel } from "./components/game/InventoryPanel.tsx";
@@ -70,6 +71,7 @@ function App() {
   if (gamePhase === "title") {
     return (
       <>
+        <Skybox />
         <Scanlines />
         <TitleScreen />
       </>
@@ -78,6 +80,7 @@ function App() {
 
   return (
     <>
+      <Skybox />
       <Scanlines />
       <ParticleCanvas />
       <OllamaPoller />
