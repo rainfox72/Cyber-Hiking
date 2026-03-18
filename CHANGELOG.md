@@ -4,20 +4,19 @@
 
 ### Bug Fixes
 - Lost-state wireframe red tint now properly resets when player finds the trail
-- Terrain reveal animation works (direct material opacity mutation in useFrame)
-- WebGL fallback no longer nests double .tactical-map containers
-- Three.js Line objects properly disposed on waypoint change (no memory leaks)
-- TerrainAtmosphere initializes correctly on first mount
+- Terrain reveal uses subtle dim (0.7→1.0) instead of full blackout flash
+- Reveal animation works via direct material opacity mutation in useFrame
 - Wireframe lost-state flicker uses smooth sine-wave instead of raw random
+- TerrainAtmosphere initializes correctly on first mount
+- TacticalMapLegacy supports bare prop for future fallback nesting fix
 
 ### Features
-- **Lost-state displacement**: hiker visually drifts off-trail when lost, with pulsing red search radius ring
+- **Lost-state displacement**: hiker visually drifts off-trail when lost (lostTurns-driven magnitude), with pulsing red search radius ring on terrain surface
 - **Smooth movement animation**: hiker interpolates along trail on push_forward (2.5s) and descend (1.5s) with ease-in-out
-- **Drag and scale**: OrbitControls for rotate/zoom with auto-orbit (resumes after 5s inactivity), recenter button
+- **Camera follows displaced hiker**: camera targets the visual hiker position (not the true waypoint) via shared ref
 
-### Notes
-- @react-three/drei now imported (OrbitControls)
-- Discrete zoom controls replaced with continuous smooth zoom + recenter button (⌖)
+### Known Limitations
+- OrbitControls (drei) crashes R3F Canvas — drag/scale deferred to future release. Using custom CameraController with auto-orbit instead.
 
 ## [3.0] - 2026-03-17
 

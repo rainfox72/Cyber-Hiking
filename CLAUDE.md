@@ -36,7 +36,7 @@ npx tsc --noEmit     # Type check (zero errors policy)
 - **All vitals clamped 0-100**, inventory items clamped to min 0, risk capped at 95%
 - **Auto-play** — Ollama AI decisions with heuristic fallback, 3.5s delay between turns
 - **Visual atmosphere layers** — Skybox (time-of-day gradients) + TerrainAtmosphere (terrain SVG noise) + TacticalMap3D (Three.js wireframe) compose via z-index stacking behind semi-transparent panels
-- **3D Map** — React Three Fiber with `frameloop="always"`, per-vertex elevation colors, OrbitControls (drag/zoom with auto-orbit coexistence, 5s resume timeout), fog/lost/reveal effects, smooth movement animation, lost-state hiker displacement with search ring. Falls back to SVG map on WebGL failure.
+- **3D Map** — React Three Fiber with `frameloop="always"`, per-vertex elevation colors, custom auto-orbit camera, fog/lost/reveal effects, smooth movement animation (2.5s push, 1.5s descend), lost-state hiker displacement with pulsing search ring. Falls back to SVG map on WebGL failure. Note: drei OrbitControls crashes R3F Canvas — drag/scale deferred.
 
 ## Internal Docs
 
