@@ -15,7 +15,8 @@
 import * as THREE from "three";
 import type { GameAction } from "../../../engine/types.ts";
 import type { GamePhase } from "../../../engine/types.ts";
-import { POSES, actionToPose, actionToFacing, PoseDef } from "./hikerPoses.ts";
+import { POSES, actionToPose, actionToFacing } from "./hikerPoses.ts";
+import type { PoseDef } from "./hikerPoses.ts";
 
 // ---------------------------------------------------------------------------
 // Types
