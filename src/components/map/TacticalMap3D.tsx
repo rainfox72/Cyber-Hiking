@@ -6,6 +6,7 @@
 import { useRef, useMemo, useState, useEffect, Component } from "react";
 import type { ReactNode } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { useGameStore } from "../../store/gameStore.ts";
 import { WAYPOINTS } from "../../data/waypoints.ts";
@@ -382,41 +383,89 @@ function HikerMarker({ hikerPosRef }: HikerMarkerProps) {
   );
 }
 
-// ── Camera controller ──────────────────────────
+// ── Camera system (OrbitControls + auto-orbit) ─
 
-function CameraController() {
-  const currentIndex = useGameStore((s) => s.player.currentWaypointIndex);
-  const isLost = useGameStore((s) => s.player.isLost);
-  const meshData = MESH_DATA;
-  const { camera } = useThree();
-  const targetRef = useRef(new THREE.Vector3(0, 1, 0));
-  const orbitAngleRef = useRef(0);
+interface CameraSystemProps {
+  hikerPosRef: React.MutableRefObject<THREE.Vector3>;
+  recenterRef: React.MutableRefObject<(() => void) | null>;
+}
 
-  useEffect(() => {
-    const pos = meshData.waypointPositions[Math.min(currentIndex, meshData.waypointPositions.length - 1)];
-    targetRef.current.set(pos.x, pos.y + 0.5, pos.z);
-  }, [currentIndex, meshData]);
+function CameraSystem({ hikerPosRef, recenterRef }: CameraSystemProps) {
+  const controlsRef = useRef<any>(null);
+  const isUserControllingRef = useRef(false);
+  const inactivityTimerRef = useRef<number | null>(null);
+  const autoOrbitRef = useRef(true);
+  const isTargetFollowingRef = useRef(true);
 
   useFrame((_, delta) => {
-    const target = targetRef.current;
+    if (!controlsRef.current) return;
 
-    orbitAngleRef.current += delta * 0.5 * (Math.PI / 180);
-    const orbitRadius = 3.3;
-    const orbitX = Math.sin(orbitAngleRef.current) * orbitRadius;
-    const orbitZ = Math.cos(orbitAngleRef.current) * orbitRadius;
-
-    const camPos = new THREE.Vector3(target.x + orbitX, target.y + 2, target.z + orbitZ);
-
-    if (isLost) {
-      camPos.x += (Math.random() - 0.5) * 0.05;
-      camPos.y += (Math.random() - 0.5) * 0.03;
+    if (isTargetFollowingRef.current) {
+      controlsRef.current.target.lerp(hikerPosRef.current, 0.05);
     }
 
-    camera.position.lerp(camPos, 0.03);
-    camera.lookAt(target);
-  });
+    if (autoOrbitRef.current && !isUserControllingRef.current) {
+      const azimuth = controlsRef.current.getAzimuthalAngle();
+      controlsRef.current.setAzimuthalAngle(azimuth + delta * 0.5 * (Math.PI / 180));
+    }
 
-  return null;
+    controlsRef.current.update();
+  }, 2); // priority 2: reads after HikerMarker writes
+
+  const handleStart = () => {
+    isUserControllingRef.current = true;
+    autoOrbitRef.current = false;
+    isTargetFollowingRef.current = false;
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+  };
+
+  const handleEnd = () => {
+    isUserControllingRef.current = false;
+    inactivityTimerRef.current = window.setTimeout(() => {
+      autoOrbitRef.current = true;
+      isTargetFollowingRef.current = true;
+    }, 5000);
+  };
+
+  useEffect(() => {
+    recenterRef.current = () => {
+      if (!controlsRef.current) return;
+      controlsRef.current.target.copy(hikerPosRef.current);
+      autoOrbitRef.current = true;
+      isTargetFollowingRef.current = true;
+      isUserControllingRef.current = false;
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    };
+    return () => {
+      recenterRef.current = null;
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    };
+  }, [recenterRef, hikerPosRef]);
+
+  return (
+    <OrbitControls
+      ref={controlsRef}
+      enablePan={false}
+      minPolarAngle={0.3}
+      maxPolarAngle={Math.PI / 2.2}
+      minDistance={1.5}
+      maxDistance={8}
+      enableDamping
+      dampingFactor={0.05}
+      onStart={handleStart}
+      onEnd={handleEnd}
+    />
+  );
+}
+
+// ── Recenter button ────────────────────────────
+
+function RecenterButton({ onRecenter }: { onRecenter: () => void }) {
+  return (
+    <div className="tactical-map__controls">
+      <button onClick={onRecenter} title="Recenter on hiker">⌖</button>
+    </div>
+  );
 }
 
 // ── Fog controller ─────────────────────────────
@@ -443,11 +492,13 @@ function FogController() {
 export function TacticalMap3D() {
   const [webglFailed, setWebglFailed] = useState(false);
   const hikerPosRef = useRef(new THREE.Vector3());
+  const recenterRef = useRef<(() => void) | null>(null);
 
   if (webglFailed) return <TacticalMapLegacy />;
 
   return (
     <div className="tactical-map">
+      <RecenterButton onRecenter={() => recenterRef.current?.()} />
       <WebGLErrorBoundary onError={() => setWebglFailed(true)}>
         <Canvas
           style={{ width: "100%", height: "100%" }}
@@ -455,7 +506,7 @@ export function TacticalMap3D() {
           camera={{ fov: 40, near: 0.1, far: 50, position: [2, 3, 4] }}
           frameloop="always"
         >
-          <CameraController />
+          <CameraSystem hikerPosRef={hikerPosRef} recenterRef={recenterRef} />
           <FogController />
           <GridFloor />
           <TerrainWireframe />

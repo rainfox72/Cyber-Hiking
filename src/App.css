@@ -434,35 +434,31 @@
   min-height: 150px;
 }
 
-.tactical-map__zoom-controls {
+.tactical-map__controls {
   position: absolute;
   top: 4px;
   right: 4px;
   z-index: 10;
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  font-size: 9px;
-  color: var(--text-dim);
-  font-family: var(--font-mono);
 }
 
-.tactical-map__zoom-controls button {
+.tactical-map__controls button {
   background: var(--bg-input);
   border: 1px solid var(--bg-panel-border);
   color: var(--neon-green);
-  width: 18px;
-  height: 18px;
-  font-size: 11px;
+  text-shadow: 0 0 6px var(--neon-green-glow);
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.tactical-map__zoom-controls button:hover {
+.tactical-map__controls button:hover {
   background: var(--neon-green);
   color: var(--bg-dark);
+  text-shadow: none;
 }
 
 /* Human Marker Bob Animation — uses SVG-local translateY, no conflicting position transforms */
