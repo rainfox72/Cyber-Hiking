@@ -12,6 +12,7 @@ import { WAYPOINTS } from "../../data/waypoints.ts";
 import { generateTerrainMesh } from "./terrainMesh.ts";
 import { TacticalMapLegacy } from "./TacticalMapLegacy.tsx";
 import { HikerRig3D } from "./hiker/HikerRig3D.tsx";
+import { HikerEffects } from "./hiker/HikerEffects.tsx";
 
 // Compute terrain mesh once at module load (WAYPOINTS is static)
 const MESH_DATA = generateTerrainMesh(WAYPOINTS);
@@ -223,6 +224,14 @@ function HikerMarker() {
   const weather = useGameStore((s) => s.weather.current);
   const timeOfDay = useGameStore((s) => s.time.timeOfDay);
   const gamePhase = useGameStore((s) => s.gamePhase);
+
+  // Health vitals for HikerEffects ping color
+  const energy = useGameStore((s) => s.player.energy);
+  const hydration = useGameStore((s) => s.player.hydration);
+  const bodyTemp = useGameStore((s) => s.player.bodyTemp);
+  const o2 = useGameStore((s) => s.player.o2Saturation);
+  const morale = useGameStore((s) => s.player.morale);
+  const healthPercent = (energy + hydration + bodyTemp + o2 + morale) / 5;
   const markerRef = useRef<THREE.Group>(null);
   const prevIndexRef = useRef(0);
 
@@ -327,6 +336,13 @@ function HikerMarker() {
           gamePhase={gamePhase}
         />
       </group>
+      <HikerEffects
+        hikerPosRef={hikerDisplayPos}
+        isMoving={animRef.current.active}
+        currentWaypointIndex={currentIndex}
+        healthPercent={healthPercent}
+        isLost={isLost}
+      />
       {isLost && <SearchRing posRef={hikerDisplayPos} lostTurns={lostTurns} />}
     </>
   );
