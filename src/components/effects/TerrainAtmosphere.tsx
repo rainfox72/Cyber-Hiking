@@ -78,7 +78,7 @@ export function TerrainAtmosphere() {
 
     setState((prev) => {
       const newActive = prev.activeLayer === 0 ? 1 : 0;
-      const effects: [TerrainEffect, TerrainEffect] = [...prev.effects];
+      const effects: [TerrainEffect, TerrainEffect] = [prev.effects[0], prev.effects[1]];
       effects[newActive] = effect;
       return { effects, activeLayer: newActive };
     });
@@ -98,7 +98,7 @@ export function TerrainAtmosphere() {
 
   return (
     <>
-      <svg aria-hidden="true" style={{ position: "absolute", width: 0, height: 0 }}>
+      <svg aria-hidden="true" style={{ position: "fixed", width: 0, height: 0 }}>
         <defs>
           <filter id="terrain-noise-forest" x="0%" y="0%" width="100%" height="100%">
             <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" seed="42" result="noise" />

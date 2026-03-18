@@ -116,7 +116,7 @@ export function Skybox() {
 
     setState((prev) => {
       const newActive = prev.activeLayer === 0 ? 1 : 0;
-      const gradients: [string, string] = [...prev.gradients];
+      const gradients: [string, string] = [prev.gradients[0], prev.gradients[1]];
       gradients[newActive] = bg;
       return { gradients, activeLayer: newActive };
     });
