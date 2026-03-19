@@ -562,10 +562,12 @@ export function processAction(
   // 6a. Altitude passive drains
   const currentElevation = waypoints[newState.player.currentWaypointIndex].elevation;
 
-  // Altitude O2 continuous drain on push_forward
+  // Altitude O2 continuous drain on push_forward (steeper above 3500m)
   if (action === "push_forward") {
     if (currentElevation > 3600) {
-      newState.player.o2Saturation -= 6;
+      newState.player.o2Saturation -= 8; // was 6
+    } else if (currentElevation > 3500) {
+      newState.player.o2Saturation -= 5; // new tier: steeper curve
     } else if (currentElevation > 3400) {
       newState.player.o2Saturation -= 4;
     } else if (currentElevation > 3000) {
@@ -573,19 +575,26 @@ export function processAction(
     }
   }
 
-  // Passive energy drain at altitude above 3000m (halved to reduce death spiral)
+  // Passive energy drain at altitude above 3000m
   if (currentElevation > 3000) {
-    newState.player.energy -= timeCost * 0.15;
+    let altitudeEnergyDrain = timeCost * 0.15;
+    // Compound effect: above 3500m in bad weather, energy drain scales steeply
+    const isBadWeather = ["rain", "snow", "wind", "blizzard"].includes(newState.weather.current);
+    if (currentElevation > 3500 && isBadWeather) {
+      const altitudeMult = 1 + (currentElevation - 3500) / 1000;
+      altitudeEnergyDrain *= altitudeMult;
+    }
+    newState.player.energy -= altitudeEnergyDrain;
   }
 
   // Weather force multiplier: harsh weather amplifies vital drains
   if (newState.weather.current === "blizzard" || newState.weather.current === "wind") {
     newState.player.energy -= 1;
-    newState.player.bodyTemp -= 1;
+    newState.player.bodyTemp -= 0.5;
     newState.player.hydration -= 1;
   } else if (newState.weather.current === "snow") {
-    newState.player.energy -= 1;
-    newState.player.bodyTemp -= 1;
+    newState.player.energy -= 0.5;
+    newState.player.bodyTemp -= 0.5;
   }
 
   // Clamp after altitude/weather drains
@@ -597,7 +606,7 @@ export function processAction(
   // 6b. Update exposure
   const wpForExposure = waypoints[newState.player.currentWaypointIndex];
   newState.player.exposure = updateExposure(
-    newState, action, wpForExposure.terrain, wpForExposure.shelterAvailable,
+    newState, action, wpForExposure.terrain, wpForExposure.shelterAvailable, wpForExposure.elevation,
   );
 
   // 6c. Apply persistent status effects

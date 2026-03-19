@@ -14,13 +14,19 @@ export function updateExposure(
   action: GameAction,
   terrain: TerrainType,
   shelterAvailable: boolean,
+  elevation: number = 0,
 ): number {
   let exposure = state.player.exposure;
   const isExposedTerrain = EXPOSED_TERRAIN.includes(terrain);
   const isHarshWeather = EXPOSURE_WEATHER.includes(state.weather.current);
 
   if (isExposedTerrain && isHarshWeather) {
-    exposure += 15 * state.weather.intensity;
+    let exposureGain = 15 * state.weather.intensity;
+    // Above 3500m: increased exposure accumulation rate
+    if (elevation > 3500) {
+      exposureGain *= 1 + (elevation - 3500) / 1000; // e.g., 3767m = 1.267x
+    }
+    exposure += exposureGain;
   }
 
   if (action === "set_camp") {
@@ -33,8 +39,8 @@ export function updateExposure(
 }
 
 export function getExposureTempMultiplier(exposure: number): number {
-  if (exposure > 60) return 3;
-  if (exposure > 30) return 2;
+  if (exposure > 60) return 2.5;
+  if (exposure > 30) return 1.5;
   return 1;
 }
 

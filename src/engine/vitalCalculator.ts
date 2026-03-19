@@ -42,10 +42,18 @@ function clamp(value: number, min: number, max: number): number {
 /**
  * Computes the baseline O2 saturation for a given elevation.
  * 100% below 2500m, then drops by 1 per 40m of elevation gain.
+ * Above 3500m, the drop steepens to 1 per 25m (altitude sickness zone).
  */
 function getO2Baseline(elevation: number): number {
   if (elevation <= O2_ALTITUDE_FLOOR) return 100;
-  return Math.max(0, 100 - (elevation - O2_ALTITUDE_FLOOR) * O2_DROP_PER_METER);
+  if (elevation <= 3500) {
+    return Math.max(0, 100 - (elevation - O2_ALTITUDE_FLOOR) * O2_DROP_PER_METER);
+  }
+  // Up to 3500m: standard drop
+  const baselineTo3500 = 100 - (3500 - O2_ALTITUDE_FLOOR) * O2_DROP_PER_METER;
+  // Above 3500m: steeper drop (1 per 25m)
+  const steepDrop = (elevation - 3500) / 25;
+  return Math.max(0, baselineTo3500 - steepDrop);
 }
 
 /**
@@ -115,10 +123,10 @@ export function applyVitalChanges(
     case "set_camp": {
       const hoursMult = (timeCost ?? 4) / 4;
 
-      // Camp fatigue: harsher diminishing returns (100%/35%/10%)
+      // Camp fatigue: diminishing returns (95%/30%/8%)
       const fatigueMultiplier =
-        state.player.campFatigueCount <= 1 ? 1.0 :
-        state.player.campFatigueCount === 2 ? 0.50 : 0.1;
+        state.player.campFatigueCount <= 1 ? 0.95 :
+        state.player.campFatigueCount === 2 ? 0.30 : 0.08;
 
       // Morale collapse halves recovery
       const moraleCollapseMult = player.morale < 20 ? 0.5 : 1.0;
@@ -304,6 +312,18 @@ export function applyVitalChanges(
     player.o2Saturation -= 2;
   }
 
+  // Night penalties: extra energy drain and morale drain
+  const isNight = state.time.timeOfDay === "night" || state.time.timeOfDay === "dusk";
+  if (isNight) {
+    // Night energy drain: 15% multiplicative increase on energy spent this action
+    if (action === "push_forward") {
+      const terrainCost = TERRAIN_ENERGY_COST[waypoint.terrain];
+      player.energy -= terrainCost * 0.15;
+    }
+    // Night morale drain: extra -1 per action
+    player.morale -= 1;
+  }
+
   // Morale: isolation drain (Death Stranding loneliness)
   player.morale -= 0.5;
 
@@ -314,11 +334,15 @@ export function applyVitalChanges(
     player.morale -= 1 * lowVitals.length;
   }
 
-  // Morale: weather effects
+  // Morale: weather effects (includes severity scaling)
   if (state.weather.current === "blizzard") {
     player.morale -= 5;
   } else if (state.weather.current === "wind") {
     player.morale -= 3;
+  } else if (state.weather.current === "snow") {
+    player.morale -= 1.5;
+  } else if (state.weather.current === "rain") {
+    player.morale -= 0.5;
   } else if (state.weather.current === "clear") {
     player.morale += 3;
   }

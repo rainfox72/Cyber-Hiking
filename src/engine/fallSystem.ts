@@ -50,9 +50,12 @@ export function rollFall(
   // Weather multiplier
   chance *= WEATHER_FALL_MULT[state.weather.current];
 
-  // Night multiplier
+  // Night multiplier + additive bonus
   const isNight = state.time.timeOfDay === "night" || state.time.timeOfDay === "dusk";
-  if (isNight) chance *= NIGHT_FALL_MULTIPLIER;
+  if (isNight) {
+    chance *= NIGHT_FALL_MULTIPLIER;
+    chance += 0.05; // +5% additive night fall risk
+  }
 
   // Lost multiplier
   if (state.player.isLost) chance *= LOST_FALL_MULTIPLIER;

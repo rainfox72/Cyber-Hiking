@@ -14,12 +14,13 @@ dist-ssr
 
 # Claude Code local files
 .claude/
+.superpowers/
 
 # Background music (unattributed, local only)
 public/music/
 
 # Generated data
-data/
+/data/
 
 # Editor directories and files
 .vscode/*

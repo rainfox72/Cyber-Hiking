@@ -13,15 +13,17 @@ export function InventoryPanel() {
   const isLost = useGameStore((s) => s.player.isLost);
   const hasFallInjury = useGameStore((s) => s.player.statusEffects.some(e => e.id === "fall_injury"));
 
-  const foodColor = food <= 0 ? "var(--danger)" : food <= 2 ? "var(--amber)" : undefined;
-  const waterColor = water <= 0 ? "var(--danger)" : water <= 1 ? "var(--amber)" : undefined;
+  const foodColor = food <= 0 ? "var(--hazard-red)" : food <= 2 ? "var(--amber)" : undefined;
+  const waterColor = water <= 0 ? "var(--hazard-red)" : water <= 1 ? "var(--amber)" : undefined;
 
   return (
-    <div className="inventory-grid">
+    <div>
+      <div className="section-label">SUPPLIES</div>
+      <div className="inventory-grid">
       {isLost && (
         <div className="inventory-item" style={{
           gridColumn: "1 / -1",
-          color: "var(--danger)",
+          color: "var(--hazard-red)",
           textAlign: "center",
           fontSize: "10px",
           letterSpacing: "1px",
@@ -60,6 +62,7 @@ export function InventoryPanel() {
         <span className="inventory-item__label">Medicine</span>
         <span className="inventory-item__value">{medicine}</span>
       </div>
+    </div>
     </div>
   );
 }

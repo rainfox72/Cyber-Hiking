@@ -1,41 +1,47 @@
 :root {
-  /* Neon tactical palette */
-  --neon-green: #00ff41;
-  --neon-green-dim: #00aa2a;
-  --neon-green-glow: rgba(0, 255, 65, 0.3);
-  --amber: #ffb000;
-  --amber-dim: #aa7500;
-  --amber-glow: rgba(255, 176, 0, 0.3);
-  --danger: #ff2222;
-  --danger-dim: #aa1111;
-  --danger-glow: rgba(255, 34, 34, 0.3);
-  --cyan: #00aaff;
-  --magenta: #ff00ff;
+  /* Base layer */
+  --bg-abyss: #08090c;
+  --bg-panel: #0d1117;
+  --bg-panel-raised: #151b26;
+  --bg-storm: #1c2333;
 
-  /* Backgrounds */
-  --bg-dark: #0a0a0a;
-  --bg-panel: #0d0d0d;
-  --bg-panel-hover: #141414;
-  --bg-panel-border: #1a1a1a;
-  --bg-input: #080808;
+  /* Instrumentation (nominal) */
+  --tactical-green: #3d8b37;
+  --tactical-green-bright: #5ca854;
+  --amber: #d4a843;
+  --teal-muted: #1e5c6b;
 
-  /* Text */
-  --text-primary: #00ff41;
-  --text-secondary: #ffb000;
-  --text-dim: #335533;
-  --text-muted: #444444;
+  /* Danger states */
+  --warning-orange: #c97a2e;
+  --hazard-red: #c93838;
+  --critical-red: #ff4444;
+  --ice-blue: #6cb4d4;
 
-  /* Typography */
+  /* Environmental accents */
+  --dawn-gold: #e8dcc0;
+  --moonlight: #c4d6e8;
+  --lightning-white: #f0f0ff;
+  --night-purple: #2a1a2e;
+
+  /* Subdued text */
+  --neon-green-dim: var(--tactical-green);
+  --text-dim: rgba(61, 139, 55, 0.4);
+  --text-muted: rgba(61, 139, 55, 0.5);
+
+  /* Panel treatment */
+  --panel-bg: rgba(13, 17, 23, 0.85);
+  --panel-border: rgba(61, 139, 55, 0.15);
+  --panel-border-alert: rgba(201, 168, 67, 0.4);
+  --panel-border-danger: rgba(201, 56, 56, 0.5);
+  --panel-blur: 8px;
+  --panel-gap: 4px;
+
+  /* Glow values (used in keyframes) */
+  --neon-green-glow: rgba(61, 139, 55, 0.3);
+  --amber-glow: rgba(212, 168, 67, 0.3);
+  --bg-panel-border: var(--bg-storm);
   --font-mono: 'Courier New', 'Consolas', 'Monaco', monospace;
-
-  /* Glows */
-  --glow-green: 0 0 10px var(--neon-green-glow);
-  --glow-amber: 0 0 10px var(--amber-glow);
-  --glow-danger: 0 0 10px var(--danger-glow);
-
-  /* Sizes */
   --panel-padding: 12px;
-  --panel-gap: 2px;
   --border-radius: 2px;
 
   font-family: var(--font-mono);
@@ -43,8 +49,8 @@
   font-weight: 400;
   font-size: 13px;
 
-  color: var(--text-primary);
-  background-color: var(--bg-dark);
+  color: var(--tactical-green);
+  background-color: var(--bg-abyss);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -62,7 +68,7 @@ body {
   margin: 0;
   min-height: 100vh;
   overflow: hidden;
-  background: var(--bg-dark);
+  background: var(--bg-abyss);
 }
 
 #root {
@@ -77,7 +83,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-dark);
+  background: var(--bg-abyss);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -95,17 +101,18 @@ body {
   border: 1px solid var(--bg-panel-border);
   border-radius: var(--border-radius);
   padding: var(--panel-padding);
-  box-shadow: inset 0 0 30px rgba(0, 255, 65, 0.01);
+  box-shadow: inset 0 0 30px rgba(61, 139, 55, 0.03);
 }
 
 .panel-header {
-  font-size: 10px;
-  letter-spacing: 2px;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--bg-panel-border);
-  padding-bottom: 6px;
-  margin-bottom: 8px;
+  color: var(--tactical-green);
+  opacity: 0.6;
+  border-bottom: none;
+  padding-bottom: 4px;
+  margin-bottom: 10px;
 }
 
 /* Pulsing danger animation */
@@ -145,7 +152,7 @@ body {
 /* Glow pulse for active elements */
 @keyframes glow-pulse {
   0%, 100% { box-shadow: 0 0 5px var(--neon-green-glow); }
-  50% { box-shadow: 0 0 15px var(--neon-green-glow), 0 0 30px rgba(0, 255, 65, 0.1); }
+  50% { box-shadow: 0 0 15px var(--neon-green-glow), 0 0 30px var(--neon-green-glow); }
 }
 
 /* Static noise flicker for defeat screen */
@@ -202,5 +209,119 @@ body {
   50% {
     opacity: 0.6;
     text-shadow: 0 0 4px var(--amber-glow);
+  }
+}
+
+/* Weather UI interference on panels */
+.panel-grid[data-weather="fog"] .panel { box-shadow: inset 0 0 20px rgba(150, 150, 150, 0.05); }
+.panel-grid[data-weather="blizzard"] .panel { box-shadow: inset 0 0 30px rgba(200, 200, 220, 0.08); }
+
+/* ── Action feedback — scene responses ──────── */
+.scene-push .mountain-layer { transition: transform 0.4s ease; }
+.scene-camp .sky-layer { filter: brightness(0.9); transition: filter 0.6s ease; }
+.scene-rest .mountain-layer { transform: scale(1.005); transition: transform 0.5s ease; }
+.scene-medicine .mountain-layer { filter: brightness(1.05); transition: filter 0.4s ease; }
+.scene-injury { animation: screen-shake 0.2s ease-in-out; }
+.scene-lost .mountain-layer { filter: blur(2px); transition: filter 0.3s ease; }
+
+/* ── Action feedback — UI responses ──────────── */
+.ui-push .panel--center { border-color: var(--tactical-green) !important; transition: border-color 0.4s ease; }
+.ui-camp .panel { border-color: var(--amber) !important; transition: border-color 0.6s ease; }
+.ui-map .panel--center { border-color: var(--tactical-green-bright) !important; transition: border-color 0.3s ease; }
+.ui-rest .panel { opacity: 0.92; transition: opacity 0.5s ease; }
+.ui-consume .panel--left { border-color: var(--amber) !important; transition: border-color 0.3s ease; }
+.ui-medicine .panel--left { border-color: var(--tactical-green-bright) !important; transition: border-color 0.4s ease; }
+.ui-injury .panel { border-color: var(--critical-red) !important; transition: border-color 0.15s ease; }
+.ui-lost .panel--center { animation: panel-flicker 0.5s ease; }
+
+@keyframes panel-flicker {
+  0%, 100% { opacity: 1; }
+  25% { opacity: 0.7; }
+  50% { opacity: 0.9; }
+  75% { opacity: 0.75; }
+}
+
+/* ── Danger overlay system ─────────────────── */
+.danger-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.danger-overlay__layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 1.5s ease;
+}
+
+.danger-overlay__frost-corner {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.danger-overlay__frost-corner--tl {
+  top: 0; left: 0;
+  background: radial-gradient(ellipse at 0% 0%, rgba(108, 180, 212, 0.25) 0%, transparent 70%);
+}
+.danger-overlay__frost-corner--tr {
+  top: 0; right: 0;
+  background: radial-gradient(ellipse at 100% 0%, rgba(108, 180, 212, 0.25) 0%, transparent 70%);
+}
+.danger-overlay__frost-corner--bl {
+  bottom: 0; left: 0;
+  background: radial-gradient(ellipse at 0% 100%, rgba(108, 180, 212, 0.25) 0%, transparent 70%);
+}
+.danger-overlay__frost-corner--br {
+  bottom: 0; right: 0;
+  background: radial-gradient(ellipse at 100% 100%, rgba(108, 180, 212, 0.25) 0%, transparent 70%);
+}
+
+/* Altitude heartbeat pulse */
+@keyframes heartbeat-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+/* Morale scene jitter */
+@keyframes scene-jitter {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(1px, -1px); }
+  50% { transform: translate(-1px, 1px); }
+  75% { transform: translate(1px, 1px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Fall risk vertigo drift */
+@keyframes vertigo-drift {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(1px) rotate(0.3deg); }
+  50% { transform: translateY(-1px) rotate(-0.2deg); }
+  75% { transform: translateY(0.5px) rotate(0.1deg); }
+}
+
+/* Danger filter classes applied to .game-shell */
+.danger-dehydration { filter: contrast(1.2) saturate(0.8); }
+.danger-starvation { filter: brightness(0.85) saturate(0.7); }
+.danger-morale .mountain-layer { animation: scene-jitter 0.15s steps(2) infinite; }
+.danger-lost .tactical-map { filter: blur(1px); opacity: 0.85; }
+.danger-fall-risk .mountain-layer { animation: vertigo-drift 3s ease-in-out infinite; }
+
+/* Accent border tints for non-dominant conditions */
+.danger-accent-cold { border-top: 2px solid rgba(108, 180, 212, 0.2); }
+.danger-accent-altitude { border-top: 2px solid rgba(0, 0, 0, 0.3); }
+.danger-accent-dehydration { border-top: 2px solid rgba(212, 168, 67, 0.2); }
+.danger-accent-starvation { border-top: 2px solid rgba(201, 56, 56, 0.15); }
+.danger-accent-morale { border-top: 2px solid rgba(100, 60, 120, 0.2); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

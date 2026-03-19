@@ -8,16 +8,23 @@ export function clamp(v: number, min: number, max: number) {
 }
 
 export function vitalColor(value: number): string {
-  if (value > 60) return "var(--neon-green)";
+  if (value > 60) return "var(--tactical-green-bright)";
   if (value > 30) return "var(--amber)";
-  return "var(--danger)";
+  if (value > 15) return "var(--hazard-red)";
+  return "var(--critical-red)";
+}
+
+function vitalDangerClass(value: number): string {
+  if (value < 15) return "vital-bar--critical-intense";
+  if (value < 30) return "vital-bar--critical";
+  return "";
 }
 
 export function VitalBar({ label, value, color }: { label: string; value: number; color?: string }) {
   const c = color ?? vitalColor(value);
-  const isCritical = value < 30;
+  const dangerClass = color ? "" : vitalDangerClass(value);
   return (
-    <div className={`vital-bar ${isCritical ? "vital-bar--critical" : ""}`}>
+    <div className={`vital-bar ${dangerClass}`}>
       <div className="vital-bar__label">
         <span className="vital-bar__label-name">{label}</span>
         <span className="vital-bar__label-value" style={{ color: c }}>{Math.round(value)}%</span>

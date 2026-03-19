@@ -4,7 +4,7 @@ A turn-based survival simulation of the dangerous Ao Tai Line (鳌太线) — an
 
 ## Status
 
-**v2.6 — Ghost in the Machine (AI Intent + Resource Economy + 15% Summit Rate)**
+**v3.0 — Tactical Alpine Nightmare (Visual Overhaul + ~5% Summit Rate)**
 
 ## Features
 
@@ -15,9 +15,9 @@ A turn-based survival simulation of the dangerous Ao Tai Line (鳌太线) — an
 - **AI Auto-Play** — Watch Ollama hike the Ao Tai Line, with heuristic fallback when offline
 - **AI Intent Visualization** — Selection glow on buttons, 3-phase thought ticker, formatted AI log entries
 - **Resource drain economy** — Camp costs food, rest costs water; food caches and water resupply at key waypoints
-- **Balance tuning** — Difficulty calibrated from 220+ automated Ollama playtest games (11 rounds)
+- **Balance tuning** — Difficulty validated from 500 automated simulations
 - **Two endings** — Ending 1: Escape (descend back to Tangkou alive), Ending 2: Summit (reach Baxian Platform)
-- **Hardcore survival** — ~15% AI summit rate; rest is minor recovery, camp is essential for overnight survival
+- **Hardcore survival** — ~5% summit rate; rest is minor recovery, camp is essential for overnight survival
 - **Getting lost system** — Navigation accuracy with 6% base chance per push, modified by terrain, weather, night, and map-checking
 - **Fall/drop system** — Terrain-based falls with 50% vital damage; fatal at avg health <=25%
 - **Smart camp duration** — 4h during day, automatically sleeps until dawn at night
@@ -35,9 +35,10 @@ A turn-based survival simulation of the dangerous Ao Tai Line (鳌太线) — an
 - **Procedural audio** — Web Audio API sound synthesis for footsteps, weather, UI, and ambient loops
 - **Fog-of-war vitals** — Vitals display jitters when morale drops below 40%
 - **AI narration** — Ollama (llama3.1:8b) generates atmospheric descriptions; offline fallback included
-- **Tactical GPS aesthetic** — Dark mode, neon green/amber accents, scanlines, weather particles, typewriter text
-- **Boot-up title screen** — Simulated terminal boot sequence with ASCII mountain art
-- **Game over/victory screens** — Enhanced with static noise (defeat) and glow effects (victory)
+- **v3.0 visual overhaul** — Layered mountain ridgelines, atmospheric weather canvas, danger overlays, action feedback, and run summary screen. "Tactical Alpine Nightmare" art direction.
+- **Tactical GPS aesthetic** — Dark mode, muted green/amber instrumentation, scanlines, weather particles, typewriter text
+- **Boot-up title screen** — Simulated terminal boot sequence over mountain backdrop
+- **Game over/victory screens** — Run summary stats, static noise (defeat), glow effects (victory)
 
 ## Tech Stack
 

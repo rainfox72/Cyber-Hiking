@@ -1,14 +1,16 @@
 /**
  * Ao Tai Cyber-Hike — Main application component.
- * 3-panel layout: Status Dashboard | Center (Elevation + Log + HUD) | Navigation Console
+ * Full-bleed layered viewport with floating instrument panels.
+ * Z-stack: sky → mountain → atmosphere → danger → panels → scanlines → modals
  */
 
 import "./App.css";
 import { useState, useEffect } from "react";
 import { useGameStore } from "./store/gameStore.ts";
 import { Scanlines } from "./components/effects/Scanlines.tsx";
-import { ParticleCanvas } from "./components/effects/ParticleCanvas.tsx";
-import { Vignette } from "./components/effects/Vignette.tsx";
+import { AtmosphereCanvas } from "./components/effects/AtmosphereCanvas.tsx";
+import { DangerOverlay } from "./components/effects/DangerOverlay.tsx";
+import { useActionFeedback } from "./hooks/useActionFeedback.ts";
 import TitleScreen from "./components/screens/TitleScreen.tsx";
 import { StatusDashboard } from "./components/game/StatusDashboard.tsx";
 import { InventoryPanel } from "./components/game/InventoryPanel.tsx";
@@ -22,6 +24,8 @@ import { Header } from "./components/game/Header.tsx";
 import { GameOverlay } from "./components/game/GameOverlay.tsx";
 import { OllamaPoller } from "./components/game/OllamaPoller.tsx";
 import { TacticalMap } from "./components/map/TacticalMap.tsx";
+import SkyLayer from "./components/scene/SkyLayer.tsx";
+import MountainScene from "./components/scene/MountainScene.tsx";
 import { soundManager } from "./services/soundManager.ts";
 import { WAYPOINTS } from "./data/waypoints.ts";
 
@@ -66,55 +70,71 @@ function App() {
   const isShaking = useGameStore((s) => s.isShaking);
   const gamePhase = useGameStore((s) => s.gamePhase);
 
-  // Title screen: render only TitleScreen + Scanlines
-  if (gamePhase === "title") {
-    return (
-      <>
-        <Scanlines />
-        <TitleScreen />
-      </>
-    );
-  }
+  // Action feedback — transient CSS classes on scene/UI elements
+  useActionFeedback();
 
   return (
-    <>
+    <div className={`game-shell ${isShaking ? "shaking" : ""}`}>
+      {/* z:0 — Sky gradient */}
+      <SkyLayer />
+      {/* z:1 — Mountain ridgelines */}
+      <MountainScene />
+      {/* z:2 — Atmosphere */}
+      <AtmosphereCanvas />
+      {/* z:3 — Danger overlays (condition-specific treatments) */}
+      <DangerOverlay />
+
+      {/* z:4 — Floating panel grid */}
+      {gamePhase !== "title" && (
+        <div className="panel-grid">
+          <div className="panel panel--header">
+            <Header />
+          </div>
+          <div className="panel panel--left">
+            <div className="panel">
+              <div className="panel-header">VITALS</div>
+              <StatusDashboard />
+            </div>
+            <div className="panel">
+              <div className="panel-header">INVENTORY</div>
+              <InventoryPanel />
+            </div>
+            <div className="panel">
+              <div className="panel-header">RISK ASSESSMENT</div>
+              <RiskMeter />
+            </div>
+          </div>
+          <div className="panel panel--center">
+            <LocationInfo />
+            <TacticalMap />
+            <LogWindow />
+            <div style={{ display: "flex", gap: "2px" }}>
+              <WeatherDisplay />
+              <DayNightIndicator />
+            </div>
+          </div>
+          <div className="panel panel--right">
+            <NavigationConsole />
+          </div>
+        </div>
+      )}
+
+      {/* Non-visual game services */}
+      {gamePhase !== "title" && (
+        <>
+          <OllamaPoller />
+          <SoundAmbience />
+          <SoundControls />
+        </>
+      )}
+
+      {/* z:5 — Scanlines */}
       <Scanlines />
-      <ParticleCanvas />
-      <OllamaPoller />
-      <SoundAmbience />
-      <Vignette />
-      <div className={`game-shell ${isShaking ? "shaking" : ""}`}>
-        <Header />
-        <SoundControls />
-        <div className="panel-left">
-          <div className="panel">
-            <div className="panel-header">VITALS</div>
-            <StatusDashboard />
-          </div>
-          <div className="panel">
-            <div className="panel-header">INVENTORY</div>
-            <InventoryPanel />
-          </div>
-          <div className="panel">
-            <div className="panel-header">RISK ASSESSMENT</div>
-            <RiskMeter />
-          </div>
-        </div>
-        <div className="panel-center">
-          <LocationInfo />
-          <TacticalMap />
-          <LogWindow />
-          <div style={{ display: "flex", gap: "2px" }}>
-            <WeatherDisplay />
-            <DayNightIndicator />
-          </div>
-        </div>
-        <div className="panel-right">
-          <NavigationConsole />
-        </div>
-      </div>
-      <GameOverlay />
-    </>
+
+      {/* z:6+ — Screen overlays (title, game over, victory) */}
+      {gamePhase === "title" && <TitleScreen />}
+      {(gamePhase === "dying" || gamePhase === "defeat" || gamePhase === "victory") && <GameOverlay />}
+    </div>
   );
 }
 

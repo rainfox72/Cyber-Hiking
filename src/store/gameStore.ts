@@ -26,6 +26,7 @@ import { generateFallbackNarrative } from "../services/fallbackNarrator.ts";
 import { soundManager } from "../services/soundManager.ts";
 import { generateDecision, heuristicDecision } from "../services/ollamaDecision.ts";
 import { calculateRisk } from "../engine/riskCalculator.ts";
+import type { KeyEvent } from "../utils/runSummary.ts";
 
 interface GameStore {
   // Game state
@@ -39,6 +40,9 @@ interface GameStore {
   dyingCause: string | null;
   endingType: "escape" | "summit" | null;
   mapRevealed: boolean;
+
+  // Event history for run summaries
+  eventHistory: KeyEvent[];
 
   // UI state
   isProcessing: boolean;
@@ -105,6 +109,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
   ...stateFromGameState(initialGameState),
   gamePhase: "title" as GamePhase,
 
+  // Event history for run summaries
+  eventHistory: [],
+
   // UI state
   isProcessing: false,
   ollamaConnected: false,
@@ -125,6 +132,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const fresh = createInitialState();
     set({
       ...stateFromGameState(fresh),
+      eventHistory: [],
       isProcessing: false,
       lastRiskPercent: 0,
       lastEvents: [],
@@ -206,15 +214,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
       }
 
-      set({
+      // Track major/critical events for run summary
+      const newKeyEvents: KeyEvent[] = result.events
+        .filter((e) => e.severity === "major" || e.severity === "critical")
+        .map((e) => ({
+          day: result.newState.time.day,
+          event: e.name,
+          waypoint: WAYPOINTS[result.newState.player.currentWaypointIndex].name,
+          severity: e.severity,
+        }));
+
+      set((s) => ({
         ...stateFromGameState(result.newState),
+        eventHistory: [...s.eventHistory, ...newKeyEvents],
         isProcessing: false,
         lastRiskPercent: result.riskPercent,
         lastEvents: result.events,
         isShaking: hasEvents,
         vitalsJitter: jitter,
         lastAction: action,
-      });
+      }));
 
       // Clear shake after animation
       if (hasEvents) {
