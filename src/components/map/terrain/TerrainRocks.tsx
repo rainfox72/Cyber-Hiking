@@ -44,7 +44,7 @@ export function TerrainRocks({ details, timeOfDay, weather }: Props) {
   // vertexColors: true — per-instance colors are supplied via instanceColor
   const octaMat = useMemo(
     () =>
-      new THREE.MeshBasicMaterial({
+      new THREE.MeshLambertMaterial({
         transparent: true,
         opacity: 0.35,
         depthWrite: false,
@@ -54,7 +54,7 @@ export function TerrainRocks({ details, timeOfDay, weather }: Props) {
   );
   const tetraMat = useMemo(
     () =>
-      new THREE.MeshBasicMaterial({
+      new THREE.MeshLambertMaterial({
         transparent: true,
         opacity: 0.35,
         depthWrite: false,
@@ -107,10 +107,10 @@ export function TerrainRocks({ details, timeOfDay, weather }: Props) {
   useFrame(() => {
     const opacity = resolveOpacity(timeOfDay, weather);
     if (octaRef.current) {
-      (octaRef.current.material as THREE.MeshBasicMaterial).opacity = opacity;
+      (octaRef.current.material as THREE.MeshLambertMaterial).opacity = opacity;
     }
     if (tetraRef.current) {
-      (tetraRef.current.material as THREE.MeshBasicMaterial).opacity = opacity;
+      (tetraRef.current.material as THREE.MeshLambertMaterial).opacity = opacity;
     }
   });
 

@@ -19,6 +19,7 @@ import { TerrainRocks } from "./terrain/TerrainRocks.tsx";
 import { TerrainWater } from "./terrain/TerrainWater.tsx";
 import { TerrainLandmarks } from "./terrain/TerrainLandmarks.tsx";
 import { Skydome3D } from "./atmosphere/Skydome3D.tsx";
+import { SceneLighting } from "./atmosphere/SceneLighting.tsx";
 
 // Compute terrain mesh once at module load (WAYPOINTS is static)
 const MESH_DATA = generateTerrainMesh(WAYPOINTS);
@@ -409,6 +410,7 @@ export function SceneContent() {
   return (
     <>
       <Skydome3D />
+      <SceneLighting />
       <TempCamera />
       <GridFloor />
       <TerrainWireframe />

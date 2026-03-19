@@ -48,7 +48,7 @@ function TrailheadGate({
 
   const mat = useMemo(
     () =>
-      new THREE.MeshBasicMaterial({
+      new THREE.MeshLambertMaterial({
         color: "#00ff41",
         transparent: true,
         opacity: 0.5,
@@ -129,7 +129,7 @@ function ShelterMarker({
 
   const tentMat = useMemo(
     () =>
-      new THREE.MeshBasicMaterial({
+      new THREE.MeshLambertMaterial({
         color: "#00ff41",
         transparent: true,
         opacity: 0.4,
@@ -139,7 +139,7 @@ function ShelterMarker({
   );
   const fireMat = useMemo(
     () =>
-      new THREE.MeshBasicMaterial({
+      new THREE.MeshLambertMaterial({
         color: "#ffb000",
         transparent: true,
         opacity: 0.6,
@@ -223,7 +223,7 @@ function Shrine({
 
   const mat = useMemo(
     () =>
-      new THREE.MeshBasicMaterial({
+      new THREE.MeshLambertMaterial({
         color: "#ff6644",
         transparent: true,
         opacity: 0.4,
@@ -304,7 +304,7 @@ function Cairn({
 
   const mat = useMemo(
     () =>
-      new THREE.MeshBasicMaterial({
+      new THREE.MeshLambertMaterial({
         color: "#888888",
         transparent: true,
         opacity: 0.5,
@@ -382,7 +382,7 @@ function WarningSign({
 
   const mat = useMemo(
     () =>
-      new THREE.MeshBasicMaterial({
+      new THREE.MeshLambertMaterial({
         color: "#ff4400",
         transparent: true,
         opacity: 0.7,
@@ -463,7 +463,7 @@ function SummitBeacon({
 
   const poleMat = useMemo(
     () =>
-      new THREE.MeshBasicMaterial({
+      new THREE.MeshLambertMaterial({
         color: "#00ff41",
         transparent: true,
         opacity: 0.6,
@@ -472,7 +472,7 @@ function SummitBeacon({
   );
   const sphereMat = useMemo(
     () =>
-      new THREE.MeshBasicMaterial({
+      new THREE.MeshLambertMaterial({
         color: "#00ff41",
         transparent: true,
         opacity: 0.8,
@@ -481,7 +481,7 @@ function SummitBeacon({
   );
   const ringMat = useMemo(
     () =>
-      new THREE.MeshBasicMaterial({
+      new THREE.MeshLambertMaterial({
         color: "#00ff41",
         transparent: true,
         opacity: 0.5,

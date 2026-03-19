@@ -41,7 +41,7 @@ export function TerrainVegetation({ details, timeOfDay, weather }: Props) {
   const treeGeo = useMemo(() => new THREE.ConeGeometry(0.03, 0.06, 4), []);
   const treeMat = useMemo(
     () =>
-      new THREE.MeshBasicMaterial({
+      new THREE.MeshLambertMaterial({
         color: "#1a5c1a",
         transparent: true,
         opacity: 0.4,
@@ -135,7 +135,7 @@ export function TerrainVegetation({ details, timeOfDay, weather }: Props) {
 
     // Tree opacity
     if (treeRef.current) {
-      (treeRef.current.material as THREE.MeshBasicMaterial).opacity = treeOpacity;
+      (treeRef.current.material as THREE.MeshLambertMaterial).opacity = treeOpacity;
     }
 
     // Grass sway + opacity
