@@ -181,7 +181,7 @@ export function HikerRig3D({
     // Props
     mapProp:     new THREE.BoxGeometry(0.03, 0.001, 0.02),
     bottleProp:  new THREE.CylinderGeometry(0.003, 0.003, 0.015, 4),
-    tentProp:    new THREE.ConeGeometry(0.03, 0.04, 6),
+    tentProp:    new THREE.ConeGeometry(0.08, 0.10, 6), // big tent on the ground
     medkitProp:  new THREE.BoxGeometry(0.008, 0.008, 0.006),
     foodProp:    new THREE.SphereGeometry(0.004, 4, 4),
   }), []);
@@ -233,6 +233,9 @@ export function HikerRig3D({
       for (const m of Object.values(mats)) m.dispose();
     };
   }, [geos, mats]);
+
+  // ── Camping "enter tent" animation progress (0=standing, 1=inside tent) ──
+  const campProgressRef = useRef(0);
 
   // ── Prop visibility refs ──
   const mapPropRef = useRef<THREE.Mesh>(null);
@@ -362,11 +365,41 @@ export function HikerRig3D({
 
     // Prop visibility based on animator's activeProp
     const activeProp = animator.activeProp;
+    const isCamping = activeProp === "tent";
     if (mapPropRef.current)    mapPropRef.current.visible    = activeProp === "map";
     if (bottlePropRef.current) bottlePropRef.current.visible = activeProp === "bottle";
-    if (tentPropRef.current)   tentPropRef.current.visible   = activeProp === "tent";
     if (medkitPropRef.current) medkitPropRef.current.visible = activeProp === "medkit";
     if (foodPropRef.current)   foodPropRef.current.visible   = activeProp === "food";
+
+    // Camping "enter tent" animation
+    if (isCamping) {
+      campProgressRef.current = Math.min(1, campProgressRef.current + delta * 1.2); // ~0.8s to enter
+    } else {
+      campProgressRef.current = Math.max(0, campProgressRef.current - delta * 2.5); // fast exit
+    }
+
+    const campT = campProgressRef.current;
+
+    // Tent: visible and scales up as hiker enters
+    if (tentPropRef.current) {
+      tentPropRef.current.visible = campT > 0.01;
+      const tentScale = 0.3 + campT * 0.7; // 30% → 100%
+      tentPropRef.current.scale.setScalar(tentScale);
+    }
+
+    // Hiker body: shrink + move toward tent as camping progresses
+    if (hipsRef.current && campT > 0) {
+      // Scale hiker down (1.0 → 0.2)
+      const hikerScale = 1 - campT * 0.8;
+      hipsRef.current.scale.setScalar(hikerScale);
+      // Move hiker toward tent position
+      hipsRef.current.position.x = campT * 0.04;
+      // Fade hiker opacity
+      mats.solid.opacity = solidOpacity * (1 - campT * 0.7);
+    } else if (hipsRef.current && campT <= 0) {
+      hipsRef.current.scale.setScalar(1);
+      hipsRef.current.position.x = 0;
+    }
 
     // Update glow sphere scales
     if (rootRef.current) {
@@ -520,8 +553,8 @@ export function HikerRig3D({
         </group>
       </group>
 
-      {/* ══ TENT PROP (above hiker, world-local) ══ */}
-      <group ref={tentPropRef} position={[0, 0.28, 0]} visible={false}>
+      {/* ══ TENT PROP (ground level, beside hiker) ══ */}
+      <group ref={tentPropRef} position={[0.06, -0.02, 0]} visible={false}>
         <mesh geometry={geos.tentProp} material={mats.tentWire} />
       </group>
     </group>
