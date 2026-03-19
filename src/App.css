@@ -106,6 +106,16 @@
 .panel-left > *,
 .panel-center > *,
 .panel-right > * {
+  background: var(--bg-panel);
+  border: 1px solid var(--bg-panel-border);
+  border-radius: var(--border-radius);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Game header also needs background when floating */
+.game-header {
+  background: var(--bg-panel) !important;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -198,7 +208,7 @@
   min-height: 100px;
   overflow-y: auto;
   padding: var(--panel-padding);
-  background: rgba(13, 13, 13, 0.85);
+  background: var(--bg-panel);
   border: 1px solid var(--bg-panel-border);
   border-radius: var(--border-radius);
 }
