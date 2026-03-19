@@ -880,6 +880,44 @@
   50% { transform: translateY(1px); }
 }
 
+/* Condition modifier: exhaustion — slower bob */
+.hiker-exhausted .hiker-walking {
+  animation-duration: 1.2s;
+}
+
+/* Condition modifier: critical — signal break flicker */
+.hiker-signal-break {
+  animation: signal-break 0.5s steps(4) infinite;
+  filter: saturate(0.3);
+}
+
+@keyframes signal-break {
+  0% { opacity: 1; }
+  15% { opacity: 0.4; }
+  30% { opacity: 0.9; }
+  45% { opacity: 0.5; }
+  60% { opacity: 1; }
+  75% { opacity: 0.6; }
+  90% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* Condition modifier: headlamp cone sway */
+.headlamp-cone {
+  animation: headlamp-sway 1.5s ease-in-out infinite;
+  transform-origin: 3px -14px;
+}
+
+@keyframes headlamp-sway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(2deg); }
+}
+
+/* Condition modifier: summit glow pulse */
+.summit-glow-ring {
+  transform-origin: center;
+}
+
 /* Lost state marker */
 .lost-marker {
   animation: lost-pulse 1s ease-in-out infinite;

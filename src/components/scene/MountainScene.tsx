@@ -7,6 +7,7 @@ import {
   type TerrainBandName,
   type TerrainProfile,
 } from "../../data/terrainProfiles";
+import SceneHiker from "./SceneHiker";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -81,6 +82,8 @@ interface BandLayersProps {
   timeOfDay: string;
   weather: string;
   opacity: number; // overall band opacity for crossfade
+  /** Which layers to render. Defaults to all [5,4,3,2,1]. */
+  layers?: readonly number[];
 }
 
 const BandLayers: React.FC<BandLayersProps> = ({
@@ -89,10 +92,11 @@ const BandLayers: React.FC<BandLayersProps> = ({
   timeOfDay,
   weather,
   opacity,
+  layers = [5, 4, 3, 2, 1] as const,
 }) => {
   const colors = getColorSet(profile, timeOfDay, weather);
 
-  // Render layers 5 (farthest) to 1 (nearest) so nearer layers paint over
+  // Render layers far-to-near so nearer layers paint over
   return (
     <g
       style={{
@@ -100,7 +104,7 @@ const BandLayers: React.FC<BandLayersProps> = ({
         transition: "opacity 1.5s ease",
       }}
     >
-      {([5, 4, 3, 2, 1] as const).map((layerNum) => {
+      {layers.map((layerNum) => {
         const offset =
           (waypointIndex / 12) * MAX_SHIFT * PARALLAX_FACTOR[layerNum];
         const layerOpacity = getLayerOpacity(layerNum, timeOfDay, weather);
@@ -175,13 +179,27 @@ const MountainScene: React.FC = () => {
           />
         )}
 
-        {/* Current band */}
+        {/* Current band: back layers (5-2) */}
         <BandLayers
           profile={currentProfile}
           waypointIndex={waypointIndex}
           timeOfDay={timeOfDay}
           weather={weather}
           opacity={1}
+          layers={[5, 4, 3, 2]}
+        />
+
+        {/* Tiny hiker figure on the near terrain, between layer 2 and 1 */}
+        <SceneHiker />
+
+        {/* Current band: foreground layer (1) */}
+        <BandLayers
+          profile={currentProfile}
+          waypointIndex={waypointIndex}
+          timeOfDay={timeOfDay}
+          weather={weather}
+          opacity={1}
+          layers={[1]}
         />
       </svg>
     </div>
