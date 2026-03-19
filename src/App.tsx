@@ -23,6 +23,8 @@ import { Header } from "./components/game/Header.tsx";
 import { GameOverlay } from "./components/game/GameOverlay.tsx";
 import { OllamaPoller } from "./components/game/OllamaPoller.tsx";
 import { TacticalMap } from "./components/map/TacticalMap.tsx";
+import SkyLayer from "./components/scene/SkyLayer.tsx";
+import MountainScene from "./components/scene/MountainScene.tsx";
 import { soundManager } from "./services/soundManager.ts";
 import { WAYPOINTS } from "./data/waypoints.ts";
 
@@ -69,10 +71,10 @@ function App() {
 
   return (
     <div className={`game-shell ${isShaking ? "shaking" : ""}`}>
-      {/* z:0 — Sky gradient (placeholder for Phase 3) */}
-      <div className="sky-layer" />
-      {/* z:1 — Mountain SVG (placeholder for Phase 3) */}
-      <div className="mountain-layer" />
+      {/* z:0 — Sky gradient */}
+      <SkyLayer />
+      {/* z:1 — Mountain ridgelines */}
+      <MountainScene />
       {/* z:2 — Atmosphere (existing ParticleCanvas) */}
       <ParticleCanvas />
       {/* z:3 — Danger overlays (existing Vignette) */}
