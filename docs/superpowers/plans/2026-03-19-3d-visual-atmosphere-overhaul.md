@@ -63,19 +63,19 @@
 **Files:**
 - Modify: `package.json`
 
-- [ ] **Step 1: Install @react-three/postprocessing**
+- [x] **Step 1: Install @react-three/postprocessing**
 
 ```bash
 npm install @react-three/postprocessing
 ```
 
-- [ ] **Step 2: Verify install**
+- [x] **Step 2: Verify install**
 
 ```bash
 npx tsc --noEmit
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add package.json package-lock.json
@@ -90,7 +90,7 @@ git commit -m "chore: add @react-three/postprocessing dependency"
 - Modify: `src/engine/types.ts`
 - Create: `src/store/visualState.ts`
 
-- [ ] **Step 1: Add VisualEvent type to engine types**
+- [x] **Step 1: Add VisualEvent type to engine types**
 
 Add to `src/engine/types.ts`:
 
@@ -101,7 +101,7 @@ export interface VisualEvent {
 }
 ```
 
-- [ ] **Step 2: Create visualState.ts with interface, band mapping, and derived selector**
+- [x] **Step 2: Create visualState.ts with interface, band mapping, and derived selector**
 
 Create `src/store/visualState.ts`:
 
@@ -227,13 +227,13 @@ export function deriveVisualState(
 }
 ```
 
-- [ ] **Step 3: Type check**
+- [x] **Step 3: Type check**
 
 ```bash
 npx tsc --noEmit
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/engine/types.ts src/store/visualState.ts
@@ -247,11 +247,11 @@ git commit -m "feat: add VisualState selector and VisualEvent type"
 **Files:**
 - Modify: `src/store/gameStore.ts`
 
-- [ ] **Step 1: Add lastVisualEvent to store state interface and initial state**
+- [x] **Step 1: Add lastVisualEvent to store state interface and initial state**
 
 Add `lastVisualEvent: VisualEvent | null` to the store state, initialized as `null`. Import `VisualEvent` from `../engine/types.ts`.
 
-- [ ] **Step 2: Dispatch visual events in performAction**
+- [x] **Step 2: Dispatch visual events in performAction**
 
 In the `performAction` method, after existing sound trigger logic, add:
 
@@ -276,17 +276,17 @@ if (currentState.weather.current !== result.newState.weather.current) {
 }
 ```
 
-- [ ] **Step 3: Reset in startGame**
+- [x] **Step 3: Reset in startGame**
 
 Set `lastVisualEvent: null` in the `startGame` action.
 
-- [ ] **Step 4: Type check**
+- [x] **Step 4: Type check**
 
 ```bash
 npx tsc --noEmit
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/store/gameStore.ts
@@ -300,7 +300,7 @@ git commit -m "feat: add lastVisualEvent dispatch to game store"
 **Files:**
 - Create: `src/components/map/VisualStateBridge.tsx`
 
-- [ ] **Step 1: Create VisualStateBridge with context + ref pattern**
+- [x] **Step 1: Create VisualStateBridge with context + ref pattern**
 
 ```typescript
 import { createContext, useContext, useRef } from 'react';
@@ -345,13 +345,13 @@ export function VisualStateBridge({ children }: { children: ReactNode }) {
 }
 ```
 
-- [ ] **Step 2: Type check**
+- [x] **Step 2: Type check**
 
 ```bash
 npx tsc --noEmit
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/map/VisualStateBridge.tsx
@@ -369,11 +369,11 @@ git commit -m "feat: add VisualStateBridge with context + ref pattern"
 
 This is the biggest migration task. The Canvas moves out of TacticalMap3D into App as a full-viewport element. TacticalMap3D becomes a "scene children" component without its own Canvas wrapper.
 
-- [ ] **Step 1: Extract TacticalMap3D scene content into a SceneContent component**
+- [x] **Step 1: Extract TacticalMap3D scene content into a SceneContent component**
 
 In `TacticalMap3D.tsx`, extract everything inside `<Canvas>` into a new `SceneContent` component that can be used as a child of an external Canvas. Keep `WebGLErrorBoundary` and the zoom controls. Export both `SceneContent` (for the full-bleed canvas) and `TacticalMap3D` (for fallback).
 
-- [ ] **Step 2: Modify App.tsx — full-bleed Canvas with floating panels**
+- [x] **Step 2: Modify App.tsx — full-bleed Canvas with floating panels**
 
 Replace the current layout:
 - Remove imports: `Skybox`, `ParticleCanvas`, `TerrainAtmosphere`, `Vignette`
@@ -382,15 +382,15 @@ Replace the current layout:
 - Panels become `position: fixed` overlays
 - Keep Scanlines as CSS overlay
 
-- [ ] **Step 3: Update App.css for floating panels**
+- [x] **Step 3: Update App.css for floating panels**
 
 Change `.game-shell` from CSS Grid to `position: fixed; inset: 0; pointer-events: none; z-index: 1;`. Individual panels get `pointer-events: auto; background: rgba(13,17,23,0.85); backdrop-filter: blur(8px); border: 1px solid rgba(61,139,55,0.15);`. Position panels with absolute positioning within the fixed container.
 
-- [ ] **Step 4: Handle WebGL fallback at app level**
+- [x] **Step 4: Handle WebGL fallback at app level**
 
 Wrap the Canvas in a `WebGLErrorBoundary` that falls back to: retired CSS effects (Skybox + ParticleCanvas) + TacticalMapLegacy centered + same floating panels.
 
-- [ ] **Step 5: Type check and verify dev server renders**
+- [x] **Step 5: Type check and verify dev server renders**
 
 ```bash
 npx tsc --noEmit
@@ -399,7 +399,7 @@ npm run dev
 
 Verify: Canvas fills viewport, panels float over it, existing terrain/hiker/trail visible.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/App.tsx src/App.css src/components/map/TacticalMap3D.tsx
@@ -413,7 +413,7 @@ git commit -m "feat: full-bleed Canvas layout with floating panels"
 **Files:**
 - Modify: `src/components/map/TacticalMap3D.tsx`
 
-- [ ] **Step 1: Remove CameraController and FogController components**
+- [x] **Step 1: Remove CameraController and FogController components**
 
 Delete the `CameraController` and `FogController` function components from TacticalMap3D.tsx. Remove their usage from SceneContent. The camera and fog will be handled by new dedicated components in later tasks.
 
@@ -431,13 +431,13 @@ function TempCamera() {
 }
 ```
 
-- [ ] **Step 2: Type check and verify**
+- [x] **Step 2: Type check and verify** (done as part of Task 5)
 
 ```bash
 npx tsc --noEmit
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit** (done as part of Task 5)
 
 ```bash
 git add src/components/map/TacticalMap3D.tsx

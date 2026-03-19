@@ -1,5 +1,32 @@
 # Changelog
 
+## [4.0] - 2026-03-19
+
+### Features
+- Full-bleed 3D Canvas fills viewport with floating translucent instrument panels
+- Skydome3D: in-scene gradient sky sphere with twinkling stars (replaces CSS Skybox)
+- SceneLighting: ambient + directional lights driven by time-of-day and weather
+- SceneFog: continuous FogExp2 with weather/band-driven density and color
+- WeatherParticles3D: 3D snow/blizzard (Points) + rain/wind (LineSegments) in camera-relative space
+- Terrain color compositor: band tinting + snow accumulation + rain darkening + lost-state red flicker
+- Band-aware terrain detail density (trees thin at altitude, rocks peak mid-range)
+- CameraDirector: action impulses (push dolly, camp lower, fall shake, summit crane) + state mods (heartbeat FOV, night tighten, blizzard jitter, lost wobble)
+- PostFXController: Bloom (threshold 0.9, earned glow), Vignette (vital-driven), DepthOfField (lost blur), ChromaticAberration (fall shock), Noise (critical vitals)
+- DangerOverlay: CSS frost edges (cold) + panel border color escalation
+- VisualStateBridge: single Zustand subscriber distributing derived visual state via context + ref
+- Visual event dispatch system (lastVisualEvent) for one-shot PostFX triggers
+
+### Design Rationale
+- "Unified Scene" approach: all atmosphere/weather/lighting inside R3F Canvas, perception effects in postprocessing, minimal CSS overlays. Replaces layered CSS/canvas stack.
+- Three-layer architecture: world-space (R3F), screen-space (postprocessing), UI-space (DOM)
+- Terrain details migrated from MeshBasicMaterial to MeshLambertMaterial for directional light response
+- Camera drama communicates action impact through physical motion, not UI overlays
+
+### Notes
+- Retired components kept for WebGL fallback: Skybox.tsx, ParticleCanvas.tsx, TerrainAtmosphere.tsx, Vignette.tsx
+- Reviewed by Codex (technical) and Gemini (art direction) at each checkpoint
+- Spec: docs/superpowers/specs/2026-03-19-3d-visual-atmosphere-overhaul-design.md
+
 ## [3.2] - 2026-03-18
 
 ### Features
