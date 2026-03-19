@@ -32,7 +32,7 @@ interface Impulse {
 const DEFAULT_RADIUS = 3.3;
 const MIN_RADIUS = 1.5;
 const MAX_RADIUS = 10.0;
-const DEFAULT_PITCH = 55 * (Math.PI / 180); // 55 degrees in radians
+const DEFAULT_PITCH = 65 * (Math.PI / 180); // 65 degrees — steeper look-down keeps hiker above log window
 const MIN_PITCH = 10 * (Math.PI / 180);
 const MAX_PITCH = 80 * (Math.PI / 180);
 const DRAG_SENSITIVITY = 0.005;
