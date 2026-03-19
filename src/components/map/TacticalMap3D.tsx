@@ -456,18 +456,6 @@ function TerrainDetailLayer() {
   );
 }
 
-// ── Zoom controls ──────────────────────────────
-
-function ZoomControls({ zoom, setZoom }: { zoom: number; setZoom: (z: number) => void }) {
-  return (
-    <div className="tactical-map__zoom-controls">
-      <button onClick={() => setZoom(Math.max(1, zoom - 1))}>-</button>
-      <span>{zoom}x</span>
-      <button onClick={() => setZoom(Math.min(3, zoom + 1))}>+</button>
-    </div>
-  );
-}
-
 // ── Scene content (used by full-bleed Canvas in App) ──
 
 export function SceneContent() {
@@ -495,22 +483,13 @@ export function SceneContent() {
 // ── Legacy panel-based component (for WebGL fallback) ──
 
 export function TacticalMap3D() {
-  const [zoom, setZoom] = useState(1);
-
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    if (e.deltaY < 0) setZoom((z) => Math.min(3, z + 1));
-    else setZoom((z) => Math.max(1, z - 1));
-  };
-
   return (
-    <div className="tactical-map" onWheel={handleWheel}>
-      <ZoomControls zoom={zoom} setZoom={setZoom} />
+    <div className="tactical-map">
       <WebGLErrorBoundary fallback={<TacticalMapLegacy />}>
         <Canvas
           style={{ width: "100%", height: "100%" }}
           gl={{ alpha: true, antialias: true }}
-          camera={{ fov: 45 + (zoom - 1) * -10, near: 0.1, far: 50, position: [2, 3, 4] }}
+          camera={{ fov: 45, near: 0.1, far: 50, position: [2, 3, 4] }}
           frameloop="always"
         >
           <SceneContent />
