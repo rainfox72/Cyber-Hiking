@@ -35,7 +35,16 @@ function VisualStateUpdater({ stateRef }: { stateRef: React.MutableRefObject<Vis
 }
 
 export function VisualStateBridge({ children }: { children: ReactNode }) {
-  const stateRef = useRef<VisualState>(defaultState);
+  // Initialize with real store values to avoid one-frame stale default
+  const store = useGameStore.getState();
+  const stateRef = useRef<VisualState>(
+    deriveVisualState(
+      store.player.currentWaypointIndex,
+      store.time.timeOfDay,
+      store.weather.current,
+      store.weather.intensity,
+    )
+  );
 
   return (
     <VisualStateContext.Provider value={stateRef}>

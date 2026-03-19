@@ -203,16 +203,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
 
       // Visual event dispatch for PostFXController
-      if (!wasLost && nowLost) {
-        set({ lastVisualEvent: { type: 'lost_start', timestamp: Date.now() } });
-      } else if (wasLost && !nowLost) {
-        set({ lastVisualEvent: { type: 'lost_resolve', timestamp: Date.now() } });
-      }
+      // Priority: fall > lost > weather (only highest-priority event dispatched)
+      let visualEvent: VisualEvent | null = null;
       if (!hadFallInjury && hasFallInjury) {
-        set({ lastVisualEvent: { type: 'fall', timestamp: Date.now() } });
+        visualEvent = { type: 'fall', timestamp: Date.now() };
+      } else if (!wasLost && nowLost) {
+        visualEvent = { type: 'lost_start', timestamp: Date.now() };
+      } else if (wasLost && !nowLost) {
+        visualEvent = { type: 'lost_resolve', timestamp: Date.now() };
+      } else if (currentState.weather.current !== result.newState.weather.current) {
+        visualEvent = { type: 'weather_change', timestamp: Date.now() };
       }
-      if (currentState.weather.current !== result.newState.weather.current) {
-        set({ lastVisualEvent: { type: 'weather_change', timestamp: Date.now() } });
+      if (visualEvent) {
+        set({ lastVisualEvent: visualEvent });
       }
 
       // Fog of war: jitter vitals display when morale is low
