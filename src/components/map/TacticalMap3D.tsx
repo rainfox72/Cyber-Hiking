@@ -18,6 +18,7 @@ import { TerrainVegetation } from "./terrain/TerrainVegetation.tsx";
 import { TerrainRocks } from "./terrain/TerrainRocks.tsx";
 import { TerrainWater } from "./terrain/TerrainWater.tsx";
 import { TerrainLandmarks } from "./terrain/TerrainLandmarks.tsx";
+import { useVisualState } from './VisualStateBridge.tsx';
 import { Skydome3D } from "./atmosphere/Skydome3D.tsx";
 import { SceneLighting } from "./atmosphere/SceneLighting.tsx";
 import { SceneFog } from "./atmosphere/SceneFog.tsx";
@@ -36,17 +37,35 @@ class WebGLErrorBoundary extends Component<{ children: ReactNode; fallback: Reac
   render() { return this.state.hasError ? this.props.fallback : this.props.children; }
 }
 
-// ── Terrain wireframe mesh ─────────────────────
+// ── Band palette targets for terrain tinting ──
+
+import type { BandId } from '../../store/visualState.ts';
+
+const BAND_TINT: Record<BandId, [number, number, number]> = {
+  forest:  [0.10, 0.29, 0.10],  // muted green
+  rocky:   [0.29, 0.29, 0.23],  // gray-amber
+  plateau: [0.23, 0.23, 0.29],  // desaturated gray-blue
+  storm:   [0.16, 0.16, 0.23],  // dark blue-gray
+  summit:  [0.35, 0.35, 0.35],  // stark white-gray
+};
+
+// ── Terrain wireframe mesh with color compositor ──
 
 function TerrainWireframe() {
   const meshData = MESH_DATA;
   const lineRef = useRef<THREE.LineSegments>(null);
-  const timeOfDay = useGameStore((s) => s.time.timeOfDay);
   const isLost = useGameStore((s) => s.player.isLost);
   const currentIndex = useGameStore((s) => s.player.currentWaypointIndex);
+  const vsRef = useVisualState();
   const prevIndexRef = useRef(0);
   const revealProgressRef = useRef(1);
-  const wasTintedRef = useRef(false);
+
+  // Band transition lerp progress (0→1 over 1.5s)
+  const bandLerpRef = useRef(1);
+  const prevBandRef = useRef<BandId>('forest');
+
+  // Snow accumulation level (0→1)
+  const snowLevelRef = useRef(0);
 
   const geometry = useMemo(() => {
     const geo = new THREE.BufferGeometry();
@@ -56,36 +75,86 @@ function TerrainWireframe() {
   }, [meshData]);
 
   useFrame(({ clock }, delta) => {
+    const vs = vsRef.current;
+
+    // Waypoint change reveal
     if (currentIndex !== prevIndexRef.current) {
       prevIndexRef.current = currentIndex;
-      revealProgressRef.current = 0.7; // subtle dim, not full blackout
+      revealProgressRef.current = 0.7;
     }
     if (revealProgressRef.current < 1) {
       revealProgressRef.current = Math.min(1, revealProgressRef.current + delta * 2);
     }
 
-    if (isLost && lineRef.current) {
-      const colors = geometry.getAttribute("color") as THREE.BufferAttribute;
-      const baseColors = meshData.edgeColors;
-      const arr = colors.array as Float32Array;
-      const flickerR = 0.9 + Math.sin(clock.elapsedTime * 20) * 0.1;
-      for (let i = 0; i < arr.length; i += 3) {
-        arr[i] = baseColors[i] * 0.5 + flickerR * 0.5;
-        arr[i + 1] = baseColors[i + 1] * 0.3;
-        arr[i + 2] = baseColors[i + 2] * 0.3;
-      }
-      colors.needsUpdate = true;
-      wasTintedRef.current = true;
-    } else if (wasTintedRef.current && lineRef.current) {
-      const colors = geometry.getAttribute("color") as THREE.BufferAttribute;
-      (colors.array as Float32Array).set(meshData.edgeColors);
-      colors.needsUpdate = true;
-      wasTintedRef.current = false;
+    // Band transition tracking
+    if (vs.bandId !== prevBandRef.current) {
+      prevBandRef.current = vs.bandId;
+      bandLerpRef.current = 0;
+    }
+    if (bandLerpRef.current < 1) {
+      bandLerpRef.current = Math.min(1, bandLerpRef.current + delta * 0.67); // ~1.5s
     }
 
+    // Snow accumulation
+    const isSnowing = vs.weather === 'snow' || vs.weather === 'blizzard';
+    if (isSnowing) {
+      snowLevelRef.current = Math.min(1, snowLevelRef.current + delta * 0.05);
+    } else {
+      snowLevelRef.current = Math.max(0, snowLevelRef.current - delta * 0.02); // gradual melt
+    }
+
+    // ── Color compositor: base → band → weather → lost ──
+    const colors = geometry.getAttribute("color") as THREE.BufferAttribute;
+    const baseColors = meshData.edgeColors;
+    const arr = colors.array as Float32Array;
+    const bandTint = BAND_TINT[vs.bandId];
+    const bandT = bandLerpRef.current * 0.35; // max 35% tint influence
+    const snow = snowLevelRef.current;
+    const isRaining = vs.weather === 'rain';
+    const rainDarken = isRaining ? 0.8 : 1.0;
+
+    // Lost-state flicker
+    const lostFlicker = isLost ? 0.9 + Math.sin(clock.elapsedTime * 20) * 0.1 : 0;
+
+    for (let i = 0; i < arr.length; i += 3) {
+      let r = baseColors[i];
+      let g = baseColors[i + 1];
+      let b = baseColors[i + 2];
+
+      // Step 2: Band tinting (lerp toward band palette)
+      r += (bandTint[0] - r) * bandT;
+      g += (bandTint[1] - g) * bandT;
+      b += (bandTint[2] - b) * bandT;
+
+      // Step 3a: Snow accumulation (blend toward white)
+      if (snow > 0) {
+        r += (1.0 - r) * snow * 0.4;
+        g += (1.0 - g) * snow * 0.4;
+        b += (1.0 - b) * snow * 0.4;
+      }
+
+      // Step 3b: Rain darkening
+      r *= rainDarken;
+      g *= rainDarken;
+      b *= rainDarken;
+
+      // Step 4: Lost-state red flicker (applied last)
+      if (isLost) {
+        r = r * 0.5 + lostFlicker * 0.5;
+        g *= 0.3;
+        b *= 0.3;
+      }
+
+      arr[i] = r;
+      arr[i + 1] = g;
+      arr[i + 2] = b;
+    }
+    colors.needsUpdate = true;
+
+    // Opacity: night dim + reveal
     if (lineRef.current) {
       const mat = lineRef.current.material as THREE.LineBasicMaterial;
-      const nightDim = timeOfDay === "night" ? 0.6 : timeOfDay === "dusk" ? 0.8 : 1.0;
+      const nightDim = vs.timeOfDay === "night" ? 0.6 : vs.timeOfDay === "dusk" ? 0.8 : 1.0;
       mat.opacity = nightDim * revealProgressRef.current;
     }
   });
