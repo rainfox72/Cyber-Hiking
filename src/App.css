@@ -14,7 +14,17 @@
   pointer-events: none;
 }
 
+/* Panel columns pass-through, only leaf panels capture events */
 .game-shell > * {
+  pointer-events: none;
+}
+
+.panel-left > *,
+.panel-center > *,
+.panel-center__bottom > *,
+.panel-right > *,
+.game-header,
+.sound-toggle {
   pointer-events: auto;
 }
 
