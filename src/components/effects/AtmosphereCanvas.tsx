@@ -106,8 +106,8 @@ function createParticles(
       create: () => ({
         x: Math.random() * w,
         y: Math.random() * h,
-        speed: 1 + Math.random() * 2,
-        speedX: (Math.random() - 0.5) * 0.5,
+        speed: 0.3 + Math.random() * 0.7,
+        speedX: (Math.random() - 0.5) * 0.2,
         size: 1 + Math.random() * 2,
         opacity: 0.5 + Math.random() * 0.3,
         phase: Math.random() * Math.PI * 2,
@@ -246,8 +246,8 @@ function updateAndDrawParticles(
         p.y += p.speed;
         break;
       case "snow":
-        p.phase += 0.02;
-        p.x += Math.sin(p.phase) * 0.6 + p.speedX;
+        p.phase += 0.008;
+        p.x += Math.sin(p.phase) * 0.3 + p.speedX;
         p.y += p.speed;
         break;
       case "wind":
