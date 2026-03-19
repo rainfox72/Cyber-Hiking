@@ -228,16 +228,51 @@
   margin-top: 2px;
 }
 
-/* Log window */
+/* Log window — "Radio Intercept Terminal" style */
 .log-window {
   max-height: 220px;
   overflow-y: auto;
   padding: var(--panel-padding);
-  background: var(--bg-panel);
-  border: 1px solid var(--bg-panel-border);
+  padding-top: 28px; /* space for header bar */
+  background:
+    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%),
+    var(--bg-panel);
+  background-size: 100% 4px, 100% 100%; /* scanline + base */
+  border: 1px solid rgba(61, 139, 55, 0.3);
+  border-top: 3px solid #3d8b37;
   border-radius: var(--border-radius);
+  box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.05), 0 0 15px rgba(0, 0, 0, 0.5);
   font-size: 13px;
   line-height: 1.5;
+  position: relative;
+}
+
+/* Status header label */
+.log-window::before {
+  content: "EXPEDITION LOG // SIGNAL RECV";
+  position: absolute;
+  top: 6px;
+  left: 12px;
+  font-size: 9px;
+  color: #3d8b37;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 0 0 5px rgba(61, 139, 55, 0.4);
+  pointer-events: none;
+}
+
+/* Signal strength indicator */
+.log-window::after {
+  content: "|||  || |";
+  position: absolute;
+  top: 5px;
+  right: 12px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: #d4a843;
+  letter-spacing: 1px;
+  animation: signal-blink 2.5s step-end infinite;
+  pointer-events: none;
 }
 
 .log-entry {
