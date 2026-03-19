@@ -23,6 +23,7 @@ import { Skydome3D } from "./atmosphere/Skydome3D.tsx";
 import { SceneLighting } from "./atmosphere/SceneLighting.tsx";
 import { SceneFog } from "./atmosphere/SceneFog.tsx";
 import { WeatherParticles3D } from "./atmosphere/WeatherParticles3D.tsx";
+import { FogPlanes } from "./atmosphere/FogPlanes.tsx";
 import { LightningController } from "./atmosphere/LightningController.tsx";
 import { CameraDirector } from "./CameraDirector.tsx";
 import { PostFXController } from "./PostFXController.tsx";
@@ -475,6 +476,7 @@ export function SceneContent() {
       <SceneLighting />
       <SceneFog />
       <WeatherParticles3D />
+      <FogPlanes />
       <LightningController />
       <CameraDirector hikerPosRef={hikerDisplayPos} />
       <PostFXController />
