@@ -554,8 +554,8 @@ export function HikerRig3D({
       </group>
 
       {/* ══ TENT PROP (ground level, beside hiker) ══ */}
-      <group ref={tentPropRef} position={[0.06, -0.02, 0]} visible={false}>
-        <mesh geometry={geos.tentProp} material={mats.tentWire} />
+      <group ref={tentPropRef} position={[0.08, -0.07, 0.02]} visible={false}>
+        <mesh geometry={geos.tentProp} material={mats.tentWire} position={[0, 0.05, 0]} />
       </group>
     </group>
   );
