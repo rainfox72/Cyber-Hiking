@@ -162,10 +162,10 @@ export function ParticleCanvas() {
     <canvas
       ref={canvasRef}
       style={{
-        position: "fixed",
+        position: "absolute",
         inset: 0,
         pointerEvents: "none",
-        zIndex: 9998,
+        zIndex: 2,
       }}
     />
   );

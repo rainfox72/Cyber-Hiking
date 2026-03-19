@@ -3,16 +3,16 @@
  */
 
 const scanlineStyle: React.CSSProperties = {
-  position: "fixed",
+  position: "absolute",
   inset: 0,
   pointerEvents: "none",
-  zIndex: 9999,
+  zIndex: 5,
   background: `repeating-linear-gradient(
     0deg,
     transparent,
     transparent 2px,
-    rgba(0, 0, 0, 0.06) 2px,
-    rgba(0, 0, 0, 0.06) 4px
+    rgba(0, 0, 0, 0.02) 2px,
+    rgba(0, 0, 0, 0.02) 4px
   )`,
 };
 
@@ -20,7 +20,7 @@ const sweepStyle: React.CSSProperties = {
   position: "absolute",
   width: "100%",
   height: "3px",
-  background: "rgba(61, 139, 55, 0.04)",
+  background: "rgba(61, 139, 55, 0.015)",
   animation: "scanline-sweep 8s linear infinite",
 };
 

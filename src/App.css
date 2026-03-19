@@ -1,17 +1,44 @@
-/* Game Shell - 3-panel CSS Grid layout */
+/* Game Shell - Full-bleed layered viewport */
 .game-shell {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-abyss);
+}
+
+/* Scene layers (z:0-3) — rendered by dedicated components */
+.sky-layer { position: absolute; inset: 0; z-index: 0; }
+.mountain-layer { position: absolute; inset: 0; z-index: 1; }
+.atmosphere-layer { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.danger-layer { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+
+/* Floating panel grid (z:4) */
+.panel-grid {
+  position: absolute;
+  inset: 0;
   display: grid;
   grid-template-columns: 240px 1fr 220px;
   grid-template-rows: auto 1fr;
   gap: var(--panel-gap);
-  height: 100vh;
-  width: 100vw;
   padding: var(--panel-gap);
-  background: var(--bg-abyss);
+  pointer-events: none;
+  z-index: 4;
 }
 
+.panel-grid > .panel {
+  pointer-events: auto;
+  backdrop-filter: blur(var(--panel-blur));
+  -webkit-backdrop-filter: blur(var(--panel-blur));
+  transition: border-color 0.5s ease;
+}
+
+.panel--header { grid-column: 1 / -1; grid-row: 1; }
+.panel--left { grid-column: 1; grid-row: 2; }
+.panel--center { grid-column: 2; grid-row: 2; }
+.panel--right { grid-column: 3; grid-row: 2; }
+
 .game-header {
-  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -61,22 +88,22 @@
   box-shadow: 0 0 10px rgba(201, 56, 56, 0.3);
 }
 
-/* Panel areas */
-.panel-left {
+/* Panel inner content areas */
+.panel--left {
   display: flex;
   flex-direction: column;
   gap: var(--panel-gap);
   overflow-y: auto;
 }
 
-.panel-center {
+.panel--center {
   display: flex;
   flex-direction: column;
   gap: var(--panel-gap);
   overflow: hidden;
 }
 
-.panel-right {
+.panel--right {
   display: flex;
   flex-direction: column;
   gap: var(--panel-gap);
@@ -748,19 +775,19 @@
 
 /* ── Vignette overlay ──────────────────────── */
 .vignette {
-  position: fixed;
+  position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 9990;
+  z-index: 3;
   transition: background 2s ease;
 }
 
 /* ── Sound toggle button ───────────────────── */
 .sound-toggle {
-  position: fixed;
+  position: absolute;
   top: 4px;
   right: 4px;
-  z-index: 9999;
+  z-index: 10;
   background: var(--bg-panel);
   border: 1px solid var(--bg-storm);
   color: var(--tactical-green);
