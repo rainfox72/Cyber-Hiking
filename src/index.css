@@ -1,41 +1,62 @@
 :root {
-  /* Neon tactical palette */
-  --neon-green: #00ff41;
-  --neon-green-dim: #00aa2a;
-  --neon-green-glow: rgba(0, 255, 65, 0.3);
-  --amber: #ffb000;
-  --amber-dim: #aa7500;
-  --amber-glow: rgba(255, 176, 0, 0.3);
-  --danger: #ff2222;
-  --danger-dim: #aa1111;
-  --danger-glow: rgba(255, 34, 34, 0.3);
-  --cyan: #00aaff;
-  --magenta: #ff00ff;
+  /* Base layer */
+  --bg-abyss: #08090c;
+  --bg-panel: #0d1117;
+  --bg-panel-raised: #151b26;
+  --bg-storm: #1c2333;
 
-  /* Backgrounds */
-  --bg-dark: #0a0a0a;
-  --bg-panel: #0d0d0d;
-  --bg-panel-hover: #141414;
-  --bg-panel-border: #1a1a1a;
-  --bg-input: #080808;
+  /* Instrumentation (nominal) */
+  --tactical-green: #3d8b37;
+  --tactical-green-bright: #5ca854;
+  --amber: #d4a843;
+  --teal-muted: #1e5c6b;
 
-  /* Text */
-  --text-primary: #00ff41;
-  --text-secondary: #ffb000;
-  --text-dim: #335533;
-  --text-muted: #444444;
+  /* Danger states */
+  --warning-orange: #c97a2e;
+  --hazard-red: #c93838;
+  --critical-red: #ff4444;
+  --ice-blue: #6cb4d4;
 
-  /* Typography */
+  /* Environmental accents */
+  --dawn-gold: #e8dcc0;
+  --moonlight: #c4d6e8;
+  --lightning-white: #f0f0ff;
+  --night-purple: #2a1a2e;
+
+  /* Legacy aliases (remove after migration) */
+  --neon-green: var(--tactical-green);
+  --neon-green-dim: var(--tactical-green);
+  --danger: var(--hazard-red);
+  --cyan: var(--teal-muted);
+  --magenta: var(--warning-orange);
+  --bg-dark: var(--bg-abyss);
+  --bg-input: var(--bg-panel);
+  --text-dim: rgba(61, 139, 55, 0.4);
+  --text-muted: rgba(61, 139, 55, 0.5);
+
+  /* Panel treatment */
+  --panel-bg: rgba(13, 17, 23, 0.85);
+  --panel-border: rgba(61, 139, 55, 0.15);
+  --panel-border-alert: rgba(201, 168, 67, 0.4);
+  --panel-border-danger: rgba(201, 56, 56, 0.5);
+  --panel-blur: 8px;
+  --panel-gap: 4px;
+
+  /* Legacy aliases — additional (remove after migration) */
+  --neon-green-glow: rgba(61, 139, 55, 0.3);
+  --amber-dim: var(--amber);
+  --amber-glow: rgba(212, 168, 67, 0.3);
+  --danger-dim: var(--hazard-red);
+  --danger-glow: rgba(201, 56, 56, 0.3);
+  --bg-panel-hover: var(--bg-panel-raised);
+  --bg-panel-border: var(--bg-storm);
+  --text-primary: var(--tactical-green);
+  --text-secondary: var(--amber);
   --font-mono: 'Courier New', 'Consolas', 'Monaco', monospace;
-
-  /* Glows */
   --glow-green: 0 0 10px var(--neon-green-glow);
   --glow-amber: 0 0 10px var(--amber-glow);
   --glow-danger: 0 0 10px var(--danger-glow);
-
-  /* Sizes */
   --panel-padding: 12px;
-  --panel-gap: 2px;
   --border-radius: 2px;
 
   font-family: var(--font-mono);
@@ -43,8 +64,8 @@
   font-weight: 400;
   font-size: 13px;
 
-  color: var(--text-primary);
-  background-color: var(--bg-dark);
+  color: var(--tactical-green);
+  background-color: var(--bg-abyss);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -62,7 +83,7 @@ body {
   margin: 0;
   min-height: 100vh;
   overflow: hidden;
-  background: var(--bg-dark);
+  background: var(--bg-abyss);
 }
 
 #root {
@@ -77,7 +98,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-dark);
+  background: var(--bg-abyss);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -202,5 +223,13 @@ body {
   50% {
     opacity: 0.6;
     text-shadow: 0 0 4px var(--amber-glow);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
