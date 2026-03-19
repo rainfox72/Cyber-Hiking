@@ -433,6 +433,16 @@ Old variables to replace throughout all components:
 | `--bg-input` | `--bg-panel` (consolidated) |
 | `--text-dim` | `--tactical-green` at reduced opacity |
 
+### Implementation Guardrails
+
+- **Scanlines:** Keep subtle. May be reduced or masked (lower opacity / `mix-blend-mode` adjustment) over text-heavy regions (log window, vitals, action buttons) if they hurt readability. Scanlines are atmosphere, not an obstacle.
+- **Danger overlay hierarchy:** Strictly dominant-state. Never stack multiple equal-strength full-screen treatments. One dominant, others as accent only. Priority order: the vital closest to zero wins dominant treatment.
+- **Hiker posture conflicts:** When multiple posture-level modifiers compete, favor the most immediately dangerous condition for silhouette clarity. Secondary conditions appear through color/timing/accessories, not competing posture shifts.
+- **Map terrain accents:** Terrain-colored tactical map overlays (hazard zones, route tinting) must remain subtle and subordinate to the core instrument palette. They inform, not distract.
+- **Visual checkpoint after Scene MVP:** After Phase 3 (Scene MVP), perform a critical review before starting Atmosphere. The mountain + layout restructure alone should already feel like a major upgrade. If it doesn't, iterate on scene composition before layering atmosphere on top.
+- **Lightning discipline:** Infrequent but dramatic. During severe storms, use occasional clustered flashes (2-3 in quick succession) rather than constant regular flashing. Most turns during storms should have zero lightning. When it hits, it should be startling.
+- **Summit validation targets:** 5–9% heuristic bot win rate. Median run depth around waypoint 5–7. Deaths should cluster in the Storm Ridge band (waypoints 9-11) as the primary kill zone, with some earlier deaths from bad weather luck and some late deaths from resource exhaustion near the summit.
+
 ### Accessibility
 
 - Support `prefers-reduced-motion`: disable jitter, flicker, pulse, parallax motion. Use static indicators (color/border changes) instead of animations for danger states.
