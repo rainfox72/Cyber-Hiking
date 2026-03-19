@@ -1010,6 +1010,29 @@
   50% { opacity: 0.3; }
 }
 
+/* Segment pulse animations for danger-scaled route lines */
+.segment-pulse-slow {
+  animation: segment-opacity-pulse 3s ease-in-out infinite;
+}
+.segment-pulse-fast {
+  animation: segment-opacity-pulse 1.5s ease-in-out infinite;
+}
+@keyframes segment-opacity-pulse {
+  0%, 100% { stroke-opacity: 1; }
+  50% { stroke-opacity: 0.4; }
+}
+
+/* Current waypoint breathing ring */
+.waypoint-breathe {
+  animation: waypoint-breathe-anim 2s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+@keyframes waypoint-breathe-anim {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 0.3; }
+}
+
 /* Legacy dying-flash removed — dying is now handled by game-overlay--dying */
 
 @keyframes dying-pulse {
