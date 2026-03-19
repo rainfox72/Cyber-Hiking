@@ -24,6 +24,7 @@ import { SceneLighting } from "./atmosphere/SceneLighting.tsx";
 import { SceneFog } from "./atmosphere/SceneFog.tsx";
 import { WeatherParticles3D } from "./atmosphere/WeatherParticles3D.tsx";
 import { CameraDirector } from "./CameraDirector.tsx";
+import { PostFXController } from "./PostFXController.tsx";
 
 // Compute terrain mesh once at module load (WAYPOINTS is static)
 const MESH_DATA = generateTerrainMesh(WAYPOINTS);
@@ -474,6 +475,7 @@ export function SceneContent() {
       <SceneFog />
       <WeatherParticles3D />
       <CameraDirector hikerPosRef={hikerDisplayPos} />
+      <PostFXController />
       <GridFloor />
       <TerrainWireframe />
       <TrailLine />
