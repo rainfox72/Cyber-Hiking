@@ -127,7 +127,7 @@ function CampingPose({ color }: { color: string }) {
       <circle cx="0" cy="4.5" r="1.2" fill="var(--amber)" opacity="0.7">
         <animate attributeName="opacity" values="0.7;0.3;0.7" dur="0.6s" repeatCount="indefinite" />
       </circle>
-      <circle cx="0.5" cy="4" r="0.8" fill="var(--danger)" opacity="0.5">
+      <circle cx="0.5" cy="4" r="0.8" fill="var(--hazard-red)" opacity="0.5">
         <animate attributeName="opacity" values="0.5;0.2;0.5" dur="0.8s" repeatCount="indefinite" />
       </circle>
     </g>
@@ -154,7 +154,7 @@ function DrinkingPose({ color }: { color: string }) {
       <polygon points="-2.5,-12 2.5,-12 3.5,-3 -3.5,-3" fill={color} opacity="0.9" />
       <rect x="2.5" y="-11" width="2.5" height="7" fill={color} opacity="0.6" />
       <line x1="-2.5" y1="-10" x2="-3.5" y2="-14" stroke={color} strokeWidth="1.5" />
-      <rect x="-5" y="-15.5" width="2" height="2.5" rx="0.5" fill="var(--cyan)" opacity="0.7" />
+      <rect x="-5" y="-15.5" width="2" height="2.5" rx="0.5" fill="var(--teal-muted)" opacity="0.7" />
       <line x1="2.5" y1="-10" x2="5" y2="-5" stroke={color} strokeWidth="1.5" />
       <polygon points="-3.5,-3 -1,-3 -1.5,5 -4,5" fill={color} opacity="0.85" />
       <polygon points="1,-3 3.5,-3 4,5 1.5,5" fill={color} opacity="0.85" />
@@ -200,8 +200,8 @@ function MedicinePose({ color }: { color: string }) {
       <polygon points="-2.5,-6.5 2.5,-6.5 3,0 -3,0" fill={color} opacity="0.9" />
       <polygon points="-3,0 3,0 2,4 -2,4" fill={color} opacity="0.85" />
       <line x1="-2.5" y1="-5" x2="-5" y2="-6" stroke={color} strokeWidth="1.5" />
-      <line x1="-6" y1="-6" x2="-4" y2="-6" stroke="var(--danger)" strokeWidth="1" />
-      <line x1="-5" y1="-7" x2="-5" y2="-5" stroke="var(--danger)" strokeWidth="1" />
+      <line x1="-6" y1="-6" x2="-4" y2="-6" stroke="var(--hazard-red)" strokeWidth="1" />
+      <line x1="-5" y1="-7" x2="-5" y2="-5" stroke="var(--hazard-red)" strokeWidth="1" />
       <line x1="2.5" y1="-5" x2="4" y2="-2" stroke={color} strokeWidth="1.5" />
       <rect x="4" y="-5" width="2.5" height="5" fill={color} opacity="0.5" />
     </g>
@@ -210,9 +210,9 @@ function MedicinePose({ color }: { color: string }) {
 
 export function HumanMarker({ healthPercent, lastAction, isLost }: HumanMarkerProps) {
   const color =
-    healthPercent > 60 ? "var(--neon-green)" :
+    healthPercent > 60 ? "var(--tactical-green)" :
     healthPercent > 30 ? "var(--amber)" :
-    "var(--danger)";
+    "var(--hazard-red)";
 
   const pose = actionToPose(lastAction);
   const facing = actionToFacing(lastAction);
@@ -239,7 +239,7 @@ export function HumanMarker({ healthPercent, lastAction, isLost }: HumanMarkerPr
       {/* Lost label */}
       {isLost && (
         <g className="lost-marker">
-          <text x="0" y="12" textAnchor="middle" fill="var(--danger)"
+          <text x="0" y="12" textAnchor="middle" fill="var(--hazard-red)"
             fontSize="5" fontFamily="monospace" fontWeight="bold"
             stroke="rgba(0,0,0,0.6)" strokeWidth="0.3">LOST</text>
         </g>

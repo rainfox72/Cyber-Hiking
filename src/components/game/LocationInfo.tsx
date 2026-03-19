@@ -15,7 +15,7 @@ export function LocationInfo() {
           <span style={{ color: "var(--amber)", fontSize: "12px", letterSpacing: "1px" }}>{wp.name}</span>
           <span style={{ color: "var(--text-dim)", fontSize: "10px", marginLeft: "6px" }}>{wp.nameCN}</span>
         </div>
-        <div style={{ color: "var(--neon-green)", fontSize: "14px", letterSpacing: "2px" }}>{wp.elevation}m</div>
+        <div style={{ color: "var(--tactical-green)", fontSize: "14px", letterSpacing: "2px" }}>{wp.elevation}m</div>
       </div>
       <div style={{ color: "var(--text-dim)", fontSize: "9px", marginTop: "2px", letterSpacing: "0.5px" }}>
         {wp.terrain.replace("_", " ").toUpperCase()} | {wp.distanceFromStart}km from start

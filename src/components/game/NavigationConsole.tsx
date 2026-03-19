@@ -42,11 +42,11 @@ export function NavigationConsole() {
       )}
       {isLost && (
         <div style={{
-          color: "var(--danger)",
+          color: "var(--hazard-red)",
           textAlign: "center",
           padding: "4px",
           fontSize: "11px",
-          borderBottom: "1px solid var(--danger)",
+          borderBottom: "1px solid var(--hazard-red)",
           marginBottom: "4px",
           animation: "lost-pulse 1s ease-in-out infinite",
         }}>

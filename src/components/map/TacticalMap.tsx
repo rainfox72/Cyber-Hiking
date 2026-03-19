@@ -138,7 +138,7 @@ export function TacticalMap() {
                 rx={c.rx}
                 ry={c.ry}
                 fill="none"
-                stroke="var(--neon-green)"
+                stroke="var(--tactical-green)"
                 strokeWidth="0.5"
                 opacity={c.opacity}
               />
@@ -161,7 +161,7 @@ export function TacticalMap() {
             <polyline
               points={traversedPoints}
               fill="none"
-              stroke="var(--neon-green)"
+              stroke="var(--tactical-green)"
               strokeWidth="1.5"
               filter="url(#topo-glow)"
             />
@@ -172,7 +172,7 @@ export function TacticalMap() {
             const x = toMapX(wp.distanceFromStart);
             const y = toMapY(wp.elevation);
             const fill =
-              i < currentIndex ? "var(--neon-green)" :
+              i < currentIndex ? "var(--tactical-green)" :
               i === currentIndex ? "var(--amber)" :
               "var(--text-muted)";
             return (
@@ -214,7 +214,7 @@ export function TacticalMap() {
               cy={hikerY + lostOffsetY - 3}
               r="20"
               fill="none"
-              stroke="var(--danger)"
+              stroke="var(--hazard-red)"
               strokeWidth="0.8"
               strokeDasharray="4,3"
               opacity="0.5"

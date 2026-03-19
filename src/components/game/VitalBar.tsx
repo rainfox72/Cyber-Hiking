@@ -8,9 +8,9 @@ export function clamp(v: number, min: number, max: number) {
 }
 
 export function vitalColor(value: number): string {
-  if (value > 60) return "var(--neon-green)";
+  if (value > 60) return "var(--tactical-green)";
   if (value > 30) return "var(--amber)";
-  return "var(--danger)";
+  return "var(--hazard-red)";
 }
 
 export function VitalBar({ label, value, color }: { label: string; value: number; color?: string }) {

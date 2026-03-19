@@ -20,7 +20,7 @@ const sweepStyle: React.CSSProperties = {
   position: "absolute",
   width: "100%",
   height: "3px",
-  background: "rgba(0, 255, 65, 0.04)",
+  background: "rgba(61, 139, 55, 0.04)",
   animation: "scanline-sweep 8s linear infinite",
 };
 

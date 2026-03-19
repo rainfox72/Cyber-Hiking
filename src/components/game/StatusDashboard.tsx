@@ -27,10 +27,10 @@ export function StatusDashboard() {
   return (
     <>
       <VitalBar label="Energy" value={displayEnergy} />
-      <VitalBar label="Hydration" value={displayHydration} color="var(--cyan)" />
-      <VitalBar label="Body Temp" value={displayBodyTemp} color={displayBodyTemp < 30 ? "var(--danger)" : displayBodyTemp > 70 ? "var(--danger)" : "var(--amber)"} />
+      <VitalBar label="Hydration" value={displayHydration} color="var(--teal-muted)" />
+      <VitalBar label="Body Temp" value={displayBodyTemp} color={displayBodyTemp < 30 ? "var(--hazard-red)" : displayBodyTemp > 70 ? "var(--hazard-red)" : "var(--amber)"} />
       <VitalBar label="O2 Sat" value={displayO2} color="var(--amber)" />
-      <VitalBar label="Morale" value={displayMorale} color="var(--magenta)" />
+      <VitalBar label="Morale" value={displayMorale} color="var(--warning-orange)" />
     </>
   );
 }
