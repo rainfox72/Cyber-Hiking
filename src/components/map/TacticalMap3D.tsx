@@ -27,6 +27,7 @@ import { FogPlanes } from "./atmosphere/FogPlanes.tsx";
 import { LightningController } from "./atmosphere/LightningController.tsx";
 import { CameraDirector } from "./CameraDirector.tsx";
 import { PostFXController } from "./PostFXController.tsx";
+import { SceneAlerts } from "./SceneAlerts.tsx";
 
 // Compute terrain mesh once at module load (WAYPOINTS is static)
 const MESH_DATA = generateTerrainMesh(WAYPOINTS);
@@ -485,6 +486,7 @@ export function SceneContent() {
       <TrailLine />
       <WaypointMarkers />
       <HikerMarker />
+      <SceneAlerts hikerPosRef={hikerDisplayPos} />
       <TerrainDetailLayer />
     </>
   );

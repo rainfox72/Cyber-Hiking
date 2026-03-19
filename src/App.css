@@ -220,12 +220,14 @@
 
 /* Log window */
 .log-window {
-  max-height: 160px;
+  max-height: 220px;
   overflow-y: auto;
   padding: var(--panel-padding);
   background: var(--bg-panel);
   border: 1px solid var(--bg-panel-border);
   border-radius: var(--border-radius);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .log-entry {
