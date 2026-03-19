@@ -15,6 +15,11 @@
 - DangerOverlay: CSS frost edges (cold) + panel border color escalation
 - VisualStateBridge: single Zustand subscriber distributing derived visual state via context + ref
 - Visual event dispatch system (lastVisualEvent) for one-shot PostFX triggers
+- FogPlanes: rolling fog bank noise planes for fog/blizzard weather
+- LightningController: event-driven storm lightning (0-2 flashes per weather change)
+- SceneAlerts: 3D event warnings near hiker (OFF TRAIL, BLIZZARD, FALL, NIGHT TRAVEL, critical events)
+- Map drag & zoom: left-click drag to orbit, scroll/pinch to zoom (1.5-10x), auto-resumes orbit after 4s
+- prefers-reduced-motion CSS support
 
 ### Design Rationale
 - "Unified Scene" approach: all atmosphere/weather/lighting inside R3F Canvas, perception effects in postprocessing, minimal CSS overlays. Replaces layered CSS/canvas stack.

@@ -10,8 +10,8 @@ A turn-based survival simulation of the dangerous Ao Tai Line (鳌太线) — an
 
 - **Turn-based survival** — Manage energy, hydration, body temperature, O2 saturation, and morale
 - **Real Ao Tai route** — 13 waypoints based on the actual trail (officially banned since 2018)
-- **Tactical topo map** — Isometric contour lines with 1-3x zoom and diamond waypoint markers
-- **Cyberpunk hiker figure** — 8 geometric SVG poses with glitch scanlines and diamond scan field
+- **Full-bleed 3D tactical map** — Three.js wireframe terrain with drag/zoom, dynamic sky, fog, weather particles, lightning, and postprocessing effects (bloom, depth-of-field blur when lost, chromatic aberration on falls)
+- **Animated 3D hiker** — 11-joint skeleton with 9 poses, CRT glitch transitions, trail afterimages, and health-driven visual degradation
 - **AI Auto-Play** — Watch Ollama hike the Ao Tai Line, with heuristic fallback when offline
 - **AI Intent Visualization** — Selection glow on buttons, 3-phase thought ticker, formatted AI log entries
 - **Resource drain economy** — Camp costs food, rest costs water; food caches and water resupply at key waypoints
