@@ -56,6 +56,15 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Reduced motion: disable animations that could cause discomfort */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
