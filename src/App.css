@@ -1,4 +1,4 @@
-/* Game Shell - 3-panel CSS Grid layout */
+/* Game Shell - floating panels over full-bleed 3D canvas */
 .game-shell {
   display: grid;
   grid-template-columns: 240px 1fr 220px;
@@ -7,9 +7,25 @@
   height: 100vh;
   width: 100vw;
   padding: var(--panel-gap);
-  position: relative;
-  z-index: 2;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
   background: transparent;
+  pointer-events: none;
+}
+
+.game-shell > * {
+  pointer-events: auto;
+}
+
+/* Fallback map container for WebGL failure */
+.fallback-map-container {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .game-header {
@@ -84,6 +100,14 @@
   flex-direction: column;
   gap: var(--panel-gap);
   overflow-y: auto;
+}
+
+/* Floating panel backdrop for 3D scene visibility */
+.panel-left > *,
+.panel-center > *,
+.panel-right > * {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* Vital bar */

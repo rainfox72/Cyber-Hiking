@@ -12,12 +12,12 @@
   --cyan: #00aaff;
   --magenta: #ff00ff;
 
-  /* Backgrounds */
+  /* Backgrounds — semi-transparent for floating over 3D scene */
   --bg-dark: #0a0a0a;
-  --bg-panel: #0d0d0d;
-  --bg-panel-hover: #141414;
-  --bg-panel-border: #1a1a1a;
-  --bg-input: #080808;
+  --bg-panel: rgba(13, 17, 23, 0.85);
+  --bg-panel-hover: rgba(21, 27, 38, 0.9);
+  --bg-panel-border: rgba(61, 139, 55, 0.15);
+  --bg-input: rgba(8, 8, 8, 0.9);
 
   /* Text */
   --text-primary: #00ff41;

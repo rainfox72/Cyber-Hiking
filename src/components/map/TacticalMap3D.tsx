@@ -370,54 +370,6 @@ function TerrainDetailLayer() {
   );
 }
 
-// ── Camera controller (follows displaced hiker) ─
-
-function CameraController() {
-  const isLost = useGameStore((s) => s.player.isLost);
-  const { camera } = useThree();
-  const orbitAngleRef = useRef(0);
-
-  useFrame((_, delta) => {
-    const target = hikerDisplayPos.current;
-
-    orbitAngleRef.current += delta * 0.5 * (Math.PI / 180);
-    const orbitRadius = 3.3;
-    const orbitX = Math.sin(orbitAngleRef.current) * orbitRadius;
-    const orbitZ = Math.cos(orbitAngleRef.current) * orbitRadius;
-
-    const camPos = new THREE.Vector3(target.x + orbitX, target.y + 2, target.z + orbitZ);
-
-    if (isLost) {
-      camPos.x += (Math.random() - 0.5) * 0.05;
-      camPos.y += (Math.random() - 0.5) * 0.03;
-    }
-
-    camera.position.lerp(camPos, 0.03);
-    camera.lookAt(target);
-  });
-
-  return null;
-}
-
-// ── Fog controller ─────────────────────────────
-
-function FogController() {
-  const weather = useGameStore((s) => s.weather.current);
-  const { scene } = useThree();
-
-  useEffect(() => {
-    if (weather === "fog") {
-      scene.fog = new THREE.Fog("#0a0a0a", 3, 6);
-    } else if (weather === "blizzard") {
-      scene.fog = new THREE.Fog("#1a1a1a", 4, 8);
-    } else {
-      scene.fog = null;
-    }
-  }, [weather, scene]);
-
-  return null;
-}
-
 // ── Zoom controls ──────────────────────────────
 
 function ZoomControls({ zoom, setZoom }: { zoom: number; setZoom: (z: number) => void }) {
@@ -430,7 +382,43 @@ function ZoomControls({ zoom, setZoom }: { zoom: number; setZoom: (z: number) =>
   );
 }
 
-// ── Main component ─────────────────────────────
+// ── Temporary camera (will be replaced by CameraDirector) ──
+
+function TempCamera() {
+  const { camera } = useThree();
+  const orbitAngleRef = useRef(0);
+
+  useFrame((_, delta) => {
+    const target = hikerDisplayPos.current;
+    orbitAngleRef.current += delta * 0.5 * (Math.PI / 180);
+    const orbitRadius = 3.3;
+    const orbitX = Math.sin(orbitAngleRef.current) * orbitRadius;
+    const orbitZ = Math.cos(orbitAngleRef.current) * orbitRadius;
+    const camPos = new THREE.Vector3(target.x + orbitX, target.y + 2, target.z + orbitZ);
+    camera.position.lerp(camPos, 0.03);
+    camera.lookAt(target);
+  });
+
+  return null;
+}
+
+// ── Scene content (used by full-bleed Canvas in App) ──
+
+export function SceneContent() {
+  return (
+    <>
+      <TempCamera />
+      <GridFloor />
+      <TerrainWireframe />
+      <TrailLine />
+      <WaypointMarkers />
+      <HikerMarker />
+      <TerrainDetailLayer />
+    </>
+  );
+}
+
+// ── Legacy panel-based component (for WebGL fallback) ──
 
 export function TacticalMap3D() {
   const [zoom, setZoom] = useState(1);
@@ -451,14 +439,7 @@ export function TacticalMap3D() {
           camera={{ fov: 45 + (zoom - 1) * -10, near: 0.1, far: 50, position: [2, 3, 4] }}
           frameloop="always"
         >
-          <CameraController />
-          <FogController />
-          <GridFloor />
-          <TerrainWireframe />
-          <TrailLine />
-          <WaypointMarkers />
-          <HikerMarker />
-          <TerrainDetailLayer />
+          <SceneContent />
         </Canvas>
       </WebGLErrorBoundary>
     </div>
