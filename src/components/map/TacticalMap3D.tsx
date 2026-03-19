@@ -22,6 +22,7 @@ import { useVisualState } from './VisualStateBridge.tsx';
 import { Skydome3D } from "./atmosphere/Skydome3D.tsx";
 import { SceneLighting } from "./atmosphere/SceneLighting.tsx";
 import { SceneFog } from "./atmosphere/SceneFog.tsx";
+import { WeatherParticles3D } from "./atmosphere/WeatherParticles3D.tsx";
 
 // Compute terrain mesh once at module load (WAYPOINTS is static)
 const MESH_DATA = generateTerrainMesh(WAYPOINTS);
@@ -490,6 +491,7 @@ export function SceneContent() {
       <Skydome3D />
       <SceneLighting />
       <SceneFog />
+      <WeatherParticles3D />
       <TempCamera />
       <GridFloor />
       <TerrainWireframe />
