@@ -81,6 +81,17 @@ z:4     Screen overlays (title, death, victory)
 
 The `<Canvas>` moves from inside `panel-center` to a direct child of `App`, filling the viewport. Panels become `position: fixed` overlays with `pointer-events: none` on the container, `pointer-events: auto` on individual panels. Panel style: `background: rgba(13, 17, 23, 0.85)`, `backdrop-filter: blur(8px)`, `border: 1px solid rgba(61, 139, 55, 0.15)`.
 
+### Canvas Configuration
+
+- `alpha: false` — scene owns the full viewport, no CSS behind it. Skydome3D provides the background.
+- `gl={{ alpha: false, antialias: false }}` — antialias disabled when EffectComposer is active (SMAA pass handles AA instead)
+- `dpr={Math.min(window.devicePixelRatio, 1.5)}` — cap at 1.5x to keep postprocessing affordable on Retina
+- Clear color: `#050510` (matches darkest sky gradient, prevents flash on load)
+
+### WebGL Fallback
+
+If WebGL fails, `WebGLErrorBoundary` renders a full-viewport fallback: the retired CSS atmosphere stack (Skybox + ParticleCanvas) plus `TacticalMapLegacy` centered in the viewport. Panels overlay the same way. This is a degraded but functional experience.
+
 ---
 
 ## 2. Atmosphere System
@@ -164,7 +175,7 @@ Band mapping:
 - Waypoints 9–11: `storm`
 - Waypoint 12: `summit`
 
-All atmosphere components read this derived state via refs, not individual store subscriptions.
+**Ref distribution pattern:** A single `VisualStateBridge` component subscribes to the Zustand selector and writes the derived `VisualState` into a shared `useRef<VisualState>`. This ref is passed via React context (`VisualStateContext`) to all atmosphere children. Scene components read `ctx.current.fogDensity` etc. in their `useFrame` callbacks — zero additional subscriptions, zero re-renders. The bridge is the sole owner of the store subscription.
 
 ---
 
@@ -195,8 +206,14 @@ Implementation: `TerrainDetailLayer` components receive `bandVisibility` multipl
 
 ### Band Transition
 
-- `terrainMesh.ts` base elevation colors remain
-- New `applyBandTinting(edgeColors, bandId)` blends wireframe vertex colors toward band palette over ~1.5s (lerp in useFrame)
+- `terrainMesh.ts` base elevation colors remain as the immutable source-of-truth
+- **Terrain color compositor** (single pipeline, applied once per frame in `TerrainWireframe.useFrame`):
+  1. Start from `baseElevationColors` (immutable Float32Array from `terrainMesh.ts`)
+  2. Apply band tinting: blend toward band palette (lerp factor 0→1 over 1.5s)
+  3. Apply weather tinting: snow accumulation (blend toward white), rain darkening (multiply 0.8)
+  4. Apply transient effects: lost-state red flicker (existing logic, applied last)
+  5. Write final colors to GPU buffer once
+  This prevents multiple systems stomping the same vertex color buffer.
 - Terrain detail visibility fades in/out over 1s on band change
 
 ### Band-Specific Ambient Effects (in-scene)
@@ -205,7 +222,7 @@ Implementation: `TerrainDetailLayer` components receive `bandVisibility` multipl
 - **Rocky/Plateau**: 20-40 wind streak line segments, speed scales with weather
 - **Storm Ridge**: Permanent wind streaks + terrain vertex flicker (random vertices pulse 0.8–1.0 at 2Hz)
 - **Summit (clear)**: 2-3 additive billboard quads angled from sun = golden light rays
-- **Summit (storm)**: Nothing. Pure void.
+- **Summit (storm)**: Summit beacon persists as a distorted red strobe — high-frequency flicker (8Hz), position jitters ±0.05 units. The goal exists but the environment is actively trying to erase it.
 
 ---
 
@@ -213,22 +230,27 @@ Implementation: `TerrainDetailLayer` components receive `bandVisibility` multipl
 
 ### 4a. WeatherParticles3D
 
-Replaces `ParticleCanvas.tsx`. Single component using `THREE.Points` + `BufferGeometry`.
+Replaces `ParticleCanvas.tsx`. Uses two render primitives:
+- **`THREE.Points`** for round particles: snow, dust, blizzard, stars
+- **`THREE.LineSegments`** for directional streaks: rain, wind
 
-| Weather | Count | Behavior | Color |
-|---------|-------|----------|-------|
-| Clear | 0 | — | — |
-| Cloudy | 0 | Fog density only | — |
-| Rain | 400–600 | Fast down + wind angle, stretched points | `rgba(150,200,255)` |
-| Snow | 300–800 | Slow drift, sine wobble X/Z | `rgba(255,255,255)` |
-| Fog | 0 | FogExp2 + fog planes only | — |
-| Wind | 60–120 | Fast horizontal streaks | `rgba(180,180,150, 0.3)` |
-| Blizzard | 600–1200 | High-speed directional + turbulence | `rgba(255,255,255, 0.6-0.9)` |
+Stock `Points` cannot render elongated streaks — rain and wind require `LineSegments` with per-segment start/end positions updated in `useFrame`.
 
-- Particles spawn in a box around the camera, wrap on exit
+| Weather | Primitive | Count | Behavior | Color |
+|---------|-----------|-------|----------|-------|
+| Clear | — | 0 | — | — |
+| Cloudy | — | 0 | Fog density only | — |
+| Rain | `LineSegments` | 400–600 segments | Fast down + wind angle, segment length ~0.15 | `rgba(150,200,255)` |
+| Snow | `Points` | 300–800 | Slow drift, sine wobble X/Z | `rgba(255,255,255)` |
+| Fog | — | 0 | FogExp2 + fog planes only | — |
+| Wind | `LineSegments` | 60–120 segments | Fast horizontal, segment length ~0.3 | `rgba(180,180,150, 0.3)` |
+| Blizzard | `Points` | 600–1200 | High-speed directional + turbulence | `rgba(255,255,255, 0.6-0.9)` |
+
+- Particles/segments spawn in a box around the camera, wrap on exit
 - Updated via direct buffer writes in `useFrame`
 - `depthWrite: false`, `AdditiveBlending` for snow/wind, `NormalBlending` for rain
 - Weather transitions: target count lerps over 1s
+- Both geometries pre-allocated at max count, unused entries set to zero-length / invisible
 
 ### 4b. Fog Planes
 
@@ -262,17 +284,35 @@ Event-driven, not per-frame.
 ### 5a. Postprocessing Stack
 
 **Always-on (cheap):**
-- `Bloom`: threshold 0.8, intensity 0.3, radius 0.4
+- `Bloom`: threshold **0.9**, intensity 0.3, radius 0.4. At 0.9 threshold, the unlit wireframe terrain does NOT bloom — only hiker joint glow spheres, lightning flashes, and summit beacon earn bloom. This enforces the "Earned Glow" philosophy.
 - `Vignette`: darkness 0.0 (healthy) → 0.6 (critical), vital-driven
 
 **Event-triggered:**
 
 | Effect | Trigger | Parameters | Duration |
 |--------|---------|------------|----------|
-| DepthOfField | `isLost = true` | bokehScale 4→6 (scales with lostTurns), focus on hiker | Sustained while lost |
+| DepthOfField | `isLost = true` | bokehScale 4→6 (scales with lostTurns), focus distance updated per-frame from camera-to-hiker depth | Sustained while lost |
 | ChromaticAberration | Fall/injury event | offset [0.008, 0.008] → [0,0] | 400ms ease-out |
 | Noise | Any vital < 15 | premultiply: true, opacity: 0.08 | Sustained while critical |
 | Glitch | Morale < 20 | dtSize: 32, columns: 0.05 | 200ms bursts every 2–3s |
+
+### 5a-ii. Visual Events API
+
+Event-triggered postprocessing needs a stable trigger source. The store currently has durable state (`lastAction`, `isLost`) but no transient edge-detection tokens. Add to `gameStore.ts`:
+
+```typescript
+interface VisualEvent {
+  type: 'fall' | 'lost_start' | 'lost_resolve' | 'injury' | 'weather_change';
+  timestamp: number; // Date.now()
+}
+
+// In store state:
+lastVisualEvent: VisualEvent | null;
+```
+
+`PostFXController` watches `lastVisualEvent` via a Zustand selector. On each new event (detected by timestamp change), it fires the corresponding one-shot effect and ignores stale events (timestamp older than effect duration). The store sets `lastVisualEvent` in `performAction()` alongside existing sound triggers.
+
+Sustained effects (DOF while lost, Noise while critical) still read durable state (`isLost`, vitals) directly.
 
 ### 5b. CameraDirector
 
@@ -316,7 +356,7 @@ Implementation: `baseOrbit` + `impulseStack` (array of active impulses blended a
 3. **100–200ms**: Camera freeze (lerp → 0)
 4. **200–600ms**: Camera settles with heavy damping
 5. **Hiker**: existing stumble animation
-6. **Postprocessing**: Noise burst (opacity 0.15, 200ms)
+6. **Postprocessing**: Noise burst (opacity 0.15, 200ms) + brief world desaturation (saturation 1.0→0.3→1.0 over 300ms) to simulate impact "blacking out"
 
 ### 5e. DangerOverlay (DOM, minimal)
 
@@ -342,6 +382,7 @@ No full-screen CSS overlays. Perception effects are all in postprocessing.
 | `CameraDirector` | `src/components/map/CameraDirector.tsx` | Action/state-aware camera |
 | `PostFXController` | `src/components/map/PostFXController.tsx` | EffectComposer + event triggers |
 | `VisualStateSelector` | `src/store/visualState.ts` | Derived visual state from game store |
+| `VisualStateBridge` | `src/components/map/VisualStateBridge.tsx` | Sole store subscriber, writes to shared ref via context |
 | `DangerOverlay` | `src/components/effects/DangerOverlay.tsx` | CSS frost edges + panel borders |
 
 ## Dependencies
@@ -373,7 +414,7 @@ Snow accumulation on terrain resets gradually over 3 turns of clear weather (not
 ## Constraints
 
 - Engine stays pure TS, zero visual dependencies
-- Hiker hologram aesthetic stays unlit
+- Hiker hologram aesthetic stays unlit. Note: hiker currently uses `depthWrite: false` which makes it visible through terrain, reducing the mountain's perceived scale. Consider adding weighted occlusion in a future pass (dim to 5-10% when behind ridges) — not in scope for this spec but flagged as a known visual issue.
 - Text readability non-negotiable — panels maintain WCAG AA contrast
 - Desktop-only, minimum viewport 1024x768
 - `prefers-reduced-motion`: disable FOV pulse, shake, jitter. Use static indicators.
