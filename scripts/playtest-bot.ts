@@ -8,7 +8,7 @@ import { WAYPOINTS } from "../src/data/waypoints.ts";
 import { createRNG } from "../src/utils/random.ts";
 import type { GameState, GameAction } from "../src/engine/types.ts";
 
-const NUM_GAMES = 20;
+const NUM_GAMES = 220;
 const MAX_TURNS = 120; // safety cap
 
 interface GameResult {
@@ -228,12 +228,14 @@ console.log(`  AO TAI CYBER-HIKE — AUTOMATED PLAYTEST (${NUM_GAMES} games)`);
 console.log(`${"=".repeat(70)}\n`);
 
 const results: GameResult[] = [];
-const styles: BotStyle[] = [
-  // 7 aggressive, 7 cautious, 6 escape
-  "aggressive", "aggressive", "aggressive", "aggressive", "aggressive", "aggressive", "aggressive",
-  "cautious", "cautious", "cautious", "cautious", "cautious", "cautious", "cautious",
-  "escape", "escape", "escape", "escape", "escape", "escape",
-];
+// Distribute bot styles: ~35% aggressive, ~35% cautious, ~30% escape
+const styles: BotStyle[] = [];
+for (let i = 0; i < NUM_GAMES; i++) {
+  const mod = i % 10;
+  if (mod < 4) styles.push("aggressive");
+  else if (mod < 7) styles.push("cautious");
+  else styles.push("escape");
+}
 for (let i = 0; i < NUM_GAMES; i++) {
   results.push(playGame(i + 1, styles[i]));
 }
@@ -342,7 +344,9 @@ console.log(`  Avg distance: ${avgDist.toFixed(1)}km`);
 console.log(`  Max distance: ${maxDist}km`);
 
 // Waypoint reach distribution
-console.log(`\nFurthest Waypoint Reached:`);
+const sortedWPs = results.map(r => r.maxWaypoint).sort((a, b) => a - b);
+const medianWP = sortedWPs[Math.floor(sortedWPs.length / 2)];
+console.log(`\nFurthest Waypoint Reached (median: WP${medianWP} ${WAYPOINTS[medianWP].nameCN}):`);
 const wpCounts: Record<string, number> = {};
 for (const r of results) {
   const key = `WP${r.maxWaypoint} ${r.maxWaypointName}`;
@@ -350,6 +354,19 @@ for (const r of results) {
 }
 for (const [wp, count] of Object.entries(wpCounts).sort()) {
   console.log(`  ${wp}: ${count} games`);
+}
+
+// Death waypoint distribution
+if (defeats.length > 0) {
+  console.log(`\nDeath Waypoint Distribution:`);
+  const deathWPCounts: Record<string, number> = {};
+  for (const r of defeats) {
+    const key = `WP${r.maxWaypoint} ${r.maxWaypointName}`;
+    deathWPCounts[key] = (deathWPCounts[key] || 0) + 1;
+  }
+  for (const [wp, count] of Object.entries(deathWPCounts).sort()) {
+    console.log(`  ${wp}: ${count} (${(count/defeats.length*100).toFixed(0)}%)`);
+  }
 }
 
 // Final vitals of defeats (to check if dying breath is reasonable)

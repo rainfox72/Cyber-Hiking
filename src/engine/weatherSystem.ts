@@ -114,13 +114,15 @@ export function rollWeather(
     probabilities = applyAltitudeShift(probabilities);
   }
 
-  // Day 4+ weather escalation
-  if (day >= 4) {
+  // Day 3+ weather escalation (shifted from Day 4)
+  if (day >= 3) {
+    // Mild escalation on Day 3, full escalation on Day 4+
+    const escalationFactor = day === 3 ? 0.5 : 1.0;
     for (const condition of HIGH_ALTITUDE_REDUCED) {
-      probabilities[condition] = Math.max(0, probabilities[condition] - 0.075);
+      probabilities[condition] = Math.max(0, probabilities[condition] - 0.085 * escalationFactor);
     }
     for (const condition of HIGH_ALTITUDE_FAVORED) {
-      probabilities[condition] += 0.05;
+      probabilities[condition] += 0.06 * escalationFactor;
     }
     // Renormalize
     const escalationTotal = Object.values(probabilities).reduce((s, p) => s + p, 0);

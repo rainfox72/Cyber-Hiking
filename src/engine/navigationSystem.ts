@@ -38,10 +38,10 @@ const WEATHER_FINDBACK_MULT: Record<WeatherCondition, number> = {
   blizzard: 0.7,
 };
 
-const BASE_LOST_CHANCE = 0.04;
+const BASE_LOST_CHANCE = 0.05;
 const NO_MAP_CHECK_PENALTY = 0.06;
 const MAP_CHECK_BONUS = -0.04;
-const NIGHT_LOST_MULTIPLIER = 1.5;
+const NIGHT_LOST_MULTIPLIER = 1.875; // 1.5 * 1.25 = +25% multiplicative increase
 const BASE_FIND_WAY_BACK = 0.15;
 const NIGHT_FINDBACK_MULTIPLIER = 0.5;
 

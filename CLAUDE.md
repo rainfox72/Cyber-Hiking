@@ -44,13 +44,17 @@ Internal development docs (task tracker, design plans, legacy instructions) live
 - 13 waypoints: 塘口 (1740m) → 拔仙台 (3767m)
 - Starting supplies: 14 food, 5L water, 80% gear, 2 medicine
 - Food caches at shelter waypoints (+2 each), water resupply at stream valleys (refill to 6L)
-- ~15% AI summit rate (calibrated from 220+ Ollama playtest games)
+- ~5% heuristic bot summit rate (calibrated from 500-game playtest)
 
 ## Gotchas
 
-- Weather uses Markov chain with Day 4+ escalation shift toward snow/blizzard/wind
-- Camp fatigue has diminishing returns (100%/35%/10% recovery on repeated camps)
+- Weather uses Markov chain with Day 3+ escalation (half-strength Day 3, full Day 4+) toward snow/blizzard/wind
+- Camp fatigue has diminishing returns (95%/30%/8% recovery on repeated camps)
 - Rest shares camp fatigue counter — prevents 4x rest replacing 1x camp
-- Getting lost: 6% base chance per push, modified by terrain/weather/night/map-checking
+- Getting lost: 5% base chance per push, modified by terrain/weather/night/map-checking
+- Night penalties: +15% energy drain on push, -1 morale per action, +25% lost multiplier, +5% additive fall risk
+- O2 baseline drops steeply above 3500m (1 per 25m vs 1 per 40m below)
+- Altitude energy drain compounds with bad weather above 3500m
+- Exposure accumulation rate increases above 3500m (proportional to elevation)
 - No retreat past waypoint 10 (point of no return)
 - Background music is gitignored (unattributed MP3) — game has full procedural audio fallback via Web Audio API
