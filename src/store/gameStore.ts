@@ -13,6 +13,7 @@ import type {
   WeatherState,
   GameTime,
   CriticalEvent,
+  VisualEvent,
 } from "../engine/types.ts";
 import {
   createInitialState,
@@ -48,6 +49,7 @@ interface GameStore {
   isShaking: boolean;
   vitalsJitter: Record<string, number>;
   lastAction: GameAction | null;
+  lastVisualEvent: VisualEvent | null;
 
   // Auto-play
   autoPlayEnabled: boolean;
@@ -113,6 +115,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   isShaking: false,
   vitalsJitter: {},
   lastAction: null,
+  lastVisualEvent: null,
   autoPlayEnabled: false,
   isAIThinking: false,
   lastAIAction: null,
@@ -131,6 +134,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       isShaking: false,
       vitalsJitter: {},
       lastAction: null,
+      lastVisualEvent: null,
       autoPlayEnabled: false,
       isAIThinking: false,
       lastAIAction: null,
@@ -196,6 +200,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const hasFallInjury = result.newState.player.statusEffects.some(e => e.id === "fall_injury");
       if (!hadFallInjury && hasFallInjury) {
         soundManager.injury();
+      }
+
+      // Visual event dispatch for PostFXController
+      // Priority: fall > lost > weather (only highest-priority event dispatched)
+      let visualEvent: VisualEvent | null = null;
+      if (!hadFallInjury && hasFallInjury) {
+        visualEvent = { type: 'fall', timestamp: Date.now() };
+      } else if (!wasLost && nowLost) {
+        visualEvent = { type: 'lost_start', timestamp: Date.now() };
+      } else if (wasLost && !nowLost) {
+        visualEvent = { type: 'lost_resolve', timestamp: Date.now() };
+      } else if (currentState.weather.current !== result.newState.weather.current) {
+        visualEvent = { type: 'weather_change', timestamp: Date.now() };
+      }
+      if (visualEvent) {
+        set({ lastVisualEvent: visualEvent });
       }
 
       // Fog of war: jitter vitals display when morale is low

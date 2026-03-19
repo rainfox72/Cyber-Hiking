@@ -142,3 +142,8 @@ export interface GameState {
   endingType: "escape" | "summit" | null;
   mapRevealed: boolean;
 }
+
+export interface VisualEvent {
+  type: 'fall' | 'lost_start' | 'lost_resolve' | 'injury' | 'weather_change';
+  timestamp: number;
+}

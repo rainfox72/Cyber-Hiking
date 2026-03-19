@@ -15,6 +15,15 @@ dist-ssr
 # Claude Code local files
 .claude/
 
+# Superpowers brainstorm sessions (local only)
+.superpowers/
+
+# Playwright MCP artifacts
+.playwright-mcp/
+
+# Development screenshots (local verification only)
+screenshots/
+
 # Background music (unattributed, local only)
 public/music/
 

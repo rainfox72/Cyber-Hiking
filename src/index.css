@@ -12,12 +12,12 @@
   --cyan: #00aaff;
   --magenta: #ff00ff;
 
-  /* Backgrounds */
+  /* Backgrounds — semi-transparent for floating over 3D scene */
   --bg-dark: #0a0a0a;
-  --bg-panel: #0d0d0d;
-  --bg-panel-hover: #141414;
-  --bg-panel-border: #1a1a1a;
-  --bg-input: #080808;
+  --bg-panel: rgba(13, 17, 23, 0.85);
+  --bg-panel-hover: rgba(21, 27, 38, 0.9);
+  --bg-panel-border: rgba(61, 139, 55, 0.15);
+  --bg-input: rgba(8, 8, 8, 0.9);
 
   /* Text */
   --text-primary: #00ff41;
@@ -38,6 +38,10 @@
   --panel-gap: 2px;
   --border-radius: 2px;
 
+  /* Atmosphere tinting (set by Skybox.tsx and TerrainAtmosphere.tsx) */
+  --sky-tint: rgba(0, 0, 0, 0);
+  --terrain-tint: rgba(0, 0, 0, 0);
+
   font-family: var(--font-mono);
   line-height: 1.4;
   font-weight: 400;
@@ -50,6 +54,26 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scene alert animations */
+@keyframes pulse-alert {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+@keyframes fade-up-alert {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Reduced motion: disable animations that could cause discomfort */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 * {
@@ -91,7 +115,7 @@ body {
 
 /* Panel base class */
 .panel {
-  background: var(--bg-panel);
+  background: rgba(13, 13, 13, 0.85);
   border: 1px solid var(--bg-panel-border);
   border-radius: var(--border-radius);
   padding: var(--panel-padding);
