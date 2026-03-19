@@ -23,6 +23,7 @@ import { Skydome3D } from "./atmosphere/Skydome3D.tsx";
 import { SceneLighting } from "./atmosphere/SceneLighting.tsx";
 import { SceneFog } from "./atmosphere/SceneFog.tsx";
 import { WeatherParticles3D } from "./atmosphere/WeatherParticles3D.tsx";
+import { CameraDirector } from "./CameraDirector.tsx";
 
 // Compute terrain mesh once at module load (WAYPOINTS is static)
 const MESH_DATA = generateTerrainMesh(WAYPOINTS);
@@ -463,26 +464,6 @@ function ZoomControls({ zoom, setZoom }: { zoom: number; setZoom: (z: number) =>
   );
 }
 
-// ── Temporary camera (will be replaced by CameraDirector) ──
-
-function TempCamera() {
-  const { camera } = useThree();
-  const orbitAngleRef = useRef(0);
-
-  useFrame((_, delta) => {
-    const target = hikerDisplayPos.current;
-    orbitAngleRef.current += delta * 0.5 * (Math.PI / 180);
-    const orbitRadius = 3.3;
-    const orbitX = Math.sin(orbitAngleRef.current) * orbitRadius;
-    const orbitZ = Math.cos(orbitAngleRef.current) * orbitRadius;
-    const camPos = new THREE.Vector3(target.x + orbitX, target.y + 2, target.z + orbitZ);
-    camera.position.lerp(camPos, 0.03);
-    camera.lookAt(target);
-  });
-
-  return null;
-}
-
 // ── Scene content (used by full-bleed Canvas in App) ──
 
 export function SceneContent() {
@@ -492,7 +473,7 @@ export function SceneContent() {
       <SceneLighting />
       <SceneFog />
       <WeatherParticles3D />
-      <TempCamera />
+      <CameraDirector hikerPosRef={hikerDisplayPos} />
       <GridFloor />
       <TerrainWireframe />
       <TrailLine />
