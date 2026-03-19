@@ -298,8 +298,8 @@ export function CameraDirector({ hikerPosRef }: { hikerPosRef: { current: THREE.
     );
 
     camera.position.lerp(camTarget, lookAtDelay);
-    // Look below the hiker so the hiker sits in the upper-third of the screen
-    const lookAtTarget = new THREE.Vector3(target.x, target.y - 1.2, target.z);
+    // Look slightly below the hiker so it sits in upper-40% of screen
+    const lookAtTarget = new THREE.Vector3(target.x, target.y - 0.6, target.z);
     camera.lookAt(lookAtTarget);
 
     // FOV
