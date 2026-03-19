@@ -41,7 +41,7 @@ export function SceneAlerts({ hikerPosRef }: { hikerPosRef: { current: THREE.Vec
   // Push a new alert
   function pushAlert(text: string, color: string, duration = 3) {
     setAlerts((prev) => [
-      ...prev.slice(-3), // keep max 4 alerts
+      ...prev.slice(-1), // keep max 2 alerts
       { id: ++alertIdCounter, text, color, born: performance.now() / 1000, duration },
     ]);
   }
@@ -113,10 +113,10 @@ export function SceneAlerts({ hikerPosRef }: { hikerPosRef: { current: THREE.Vec
 
   return (
     <>
-      {/* Sustained lost indicator */}
+      {/* Sustained lost indicator — highest position */}
       {showLostIndicator && (
         <Html
-          position={[pos.x, pos.y + 0.8, pos.z]}
+          position={[pos.x, pos.y + 1.0, pos.z]}
           center
           style={{ pointerEvents: 'none', whiteSpace: 'nowrap' }}
         >
@@ -134,28 +134,31 @@ export function SceneAlerts({ hikerPosRef }: { hikerPosRef: { current: THREE.Vec
         </Html>
       )}
 
-      {/* Transient alerts stack */}
-      {alerts.map((alert, i) => (
-        <Html
-          key={alert.id}
-          position={[pos.x, pos.y + 0.5 + i * 0.15, pos.z]}
-          center
-          style={{ pointerEvents: 'none', whiteSpace: 'nowrap' }}
-        >
-          <div style={{
-            color: alert.color,
-            fontSize: '12px',
-            fontFamily: "'Courier New', monospace",
-            fontWeight: 'bold',
-            letterSpacing: '2px',
-            textShadow: `0 0 6px ${alert.color}40`,
-            opacity: 1,
-            animation: 'fade-up-alert 0.5s ease-out',
-          }}>
-            {alert.text}
-          </div>
-        </Html>
-      ))}
+      {/* Transient alerts — below sustained, stacked downward */}
+      {alerts.map((alert, i) => {
+        const baseY = showLostIndicator ? 0.7 : 0.9;
+        return (
+          <Html
+            key={alert.id}
+            position={[pos.x, pos.y + baseY - i * 0.2, pos.z]}
+            center
+            style={{ pointerEvents: 'none', whiteSpace: 'nowrap' }}
+          >
+            <div style={{
+              color: alert.color,
+              fontSize: '12px',
+              fontFamily: "'Courier New', monospace",
+              fontWeight: 'bold',
+              letterSpacing: '2px',
+              textShadow: `0 0 6px ${alert.color}40`,
+              opacity: 1,
+              animation: 'fade-up-alert 0.5s ease-out',
+            }}>
+              {alert.text}
+            </div>
+          </Html>
+        );
+      })}
     </>
   );
 }
