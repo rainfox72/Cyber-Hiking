@@ -18,7 +18,11 @@
 - FogPlanes: rolling fog bank noise planes for fog/blizzard weather
 - LightningController: event-driven storm lightning (0-2 flashes per weather change)
 - SceneAlerts: 3D event warnings near hiker (OFF TRAIL, BLIZZARD, FALL, NIGHT TRAVEL, critical events)
-- Map drag & zoom: left-click drag to orbit, scroll/pinch to zoom (1.5-10x), auto-resumes orbit after 4s
+- Map drag & zoom: left-click drag to orbit, scroll/pinch to zoom (1.5-10x), auto-resumes orbit from current position after 4s
+- CRT monitor log terminal: physical bezel frame, scanline overlay, phosphor glow, SIGNAL RECV header with amber signal bars
+- Hiker faces travel direction along the trail with smooth rotation
+- Walking animation plays during waypoint-to-waypoint movement
+- Camera lookAt offset keeps hiker in upper viewport, clear of log terminal
 - prefers-reduced-motion CSS support
 
 ### Design Rationale
