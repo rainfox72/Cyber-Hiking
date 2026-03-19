@@ -116,7 +116,7 @@ body {
   border: 1px solid var(--bg-panel-border);
   border-radius: var(--border-radius);
   padding: var(--panel-padding);
-  box-shadow: inset 0 0 30px rgba(0, 255, 65, 0.01);
+  box-shadow: inset 0 0 30px rgba(61, 139, 55, 0.03);
 }
 
 .panel-header {
@@ -166,7 +166,7 @@ body {
 /* Glow pulse for active elements */
 @keyframes glow-pulse {
   0%, 100% { box-shadow: 0 0 5px var(--neon-green-glow); }
-  50% { box-shadow: 0 0 15px var(--neon-green-glow), 0 0 30px rgba(0, 255, 65, 0.1); }
+  50% { box-shadow: 0 0 15px var(--neon-green-glow), 0 0 30px var(--neon-green-glow); }
 }
 
 /* Static noise flicker for defeat screen */
