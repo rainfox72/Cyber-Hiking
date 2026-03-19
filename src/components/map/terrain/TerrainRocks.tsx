@@ -13,6 +13,7 @@ interface Props {
   details: TerrainDetailData;
   timeOfDay: TimeOfDay;
   weather: WeatherCondition;
+  bandRockDensity?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -30,7 +31,7 @@ function resolveOpacity(timeOfDay: TimeOfDay, weather: WeatherCondition): number
 // TerrainRocks
 // ---------------------------------------------------------------------------
 
-export function TerrainRocks({ details, timeOfDay, weather }: Props) {
+export function TerrainRocks({ details, timeOfDay, weather, bandRockDensity = 1.0 }: Props) {
   const { count } = details.rocks;
 
   // Split: first 60% octahedra (larger boulders), rest tetrahedra (debris)
@@ -105,12 +106,14 @@ export function TerrainRocks({ details, timeOfDay, weather }: Props) {
 
   // ── Per-frame opacity update ─────────────────────────────────────────────
   useFrame(() => {
-    const opacity = resolveOpacity(timeOfDay, weather);
+    const opacity = resolveOpacity(timeOfDay, weather) * bandRockDensity;
     if (octaRef.current) {
       (octaRef.current.material as THREE.MeshLambertMaterial).opacity = opacity;
+      octaRef.current.count = Math.floor(octaCount * bandRockDensity);
     }
     if (tetraRef.current) {
       (tetraRef.current.material as THREE.MeshLambertMaterial).opacity = opacity;
+      tetraRef.current.count = Math.floor(tetraCount * bandRockDensity);
     }
   });
 

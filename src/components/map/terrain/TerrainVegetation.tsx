@@ -14,6 +14,7 @@ interface Props {
   details: TerrainDetailData;
   timeOfDay: TimeOfDay;
   weather: WeatherCondition;
+  bandTreeDensity?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -34,7 +35,7 @@ function resolveOpacity(
 // TerrainVegetation
 // ---------------------------------------------------------------------------
 
-export function TerrainVegetation({ details, timeOfDay, weather }: Props) {
+export function TerrainVegetation({ details, timeOfDay, weather, bandTreeDensity = 1.0 }: Props) {
   // ── Tree instanced mesh ──────────────────────────────────────────────────
   const treeRef = useRef<THREE.InstancedMesh>(null);
 
@@ -133,14 +134,15 @@ export function TerrainVegetation({ details, timeOfDay, weather }: Props) {
     const elapsed = clock.getElapsedTime();
     const { tree: treeOpacity, grass: grassOpacity } = resolveOpacity(timeOfDay, weather);
 
-    // Tree opacity
+    // Tree opacity (scaled by band density)
     if (treeRef.current) {
-      (treeRef.current.material as THREE.MeshLambertMaterial).opacity = treeOpacity;
+      (treeRef.current.material as THREE.MeshLambertMaterial).opacity = treeOpacity * bandTreeDensity;
+      treeRef.current.count = Math.floor(details.trees.count * bandTreeDensity);
     }
 
-    // Grass sway + opacity
+    // Grass sway + opacity (scaled by band density)
     if (grassRef.current && grassGeo && baseTipY && grassBaseX) {
-      (grassRef.current.material as THREE.LineBasicMaterial).opacity = grassOpacity;
+      (grassRef.current.material as THREE.LineBasicMaterial).opacity = grassOpacity * bandTreeDensity;
 
       const posAttr = grassGeo.getAttribute("position") as THREE.BufferAttribute;
       const arr = posAttr.array as Float32Array;

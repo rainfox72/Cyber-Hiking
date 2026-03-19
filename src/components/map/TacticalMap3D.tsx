@@ -432,10 +432,18 @@ function TerrainDetailLayer() {
   const timeOfDay = useGameStore((s) => s.time.timeOfDay);
   const weather = useGameStore((s) => s.weather.current);
   const currentIndex = useGameStore((s) => s.player.currentWaypointIndex);
+  const vs = useVisualState();
+  const bandId = vs.current.bandId;
+
+  // Band density multipliers — trees thin out at altitude, rocks dominate mid-range
+  const treeDensity = bandId === 'forest' ? 1.0 : bandId === 'rocky' ? 0.3 : 0;
+  const rockDensity = bandId === 'forest' ? 0.3 : bandId === 'rocky' ? 1.0
+    : bandId === 'plateau' ? 0.7 : bandId === 'storm' ? 0.5 : 0.3;
+
   return (
     <>
-      <TerrainVegetation details={DETAIL_DATA} timeOfDay={timeOfDay} weather={weather} />
-      <TerrainRocks details={DETAIL_DATA} timeOfDay={timeOfDay} weather={weather} />
+      <TerrainVegetation details={DETAIL_DATA} timeOfDay={timeOfDay} weather={weather} bandTreeDensity={treeDensity} />
+      <TerrainRocks details={DETAIL_DATA} timeOfDay={timeOfDay} weather={weather} bandRockDensity={rockDensity} />
       <TerrainWater details={DETAIL_DATA} timeOfDay={timeOfDay} />
       <TerrainLandmarks details={DETAIL_DATA} timeOfDay={timeOfDay} weather={weather} currentIndex={currentIndex} />
     </>
