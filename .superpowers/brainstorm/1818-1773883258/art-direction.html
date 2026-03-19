@@ -1,0 +1,43 @@
+<h2>Art Direction: Mountain Scene Rendering Approach</h2>
+<p class="subtitle">The mountain scene (Phase B) is the single biggest visual addition. How should we render it?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Layered SVG Silhouettes (Recommended)</h3>
+      <p><strong>Technique:</strong> 4-6 SVG mountain ridge layers with parallax CSS transforms, animated cloud/fog layers, CSS gradient skies that shift with time-of-day and weather. Waypoint terrain changes swap layer shapes and colors.</p>
+      <p><strong>Pros:</strong> Crisp at any resolution. Lightweight. Easy to animate with CSS transforms. Natural fit with existing SVG map. Strong shape language. Can be dramatic with good composition.</p>
+      <p><strong>Cons:</strong> Limited organic detail. Must rely on silhouette design skill rather than texture.</p>
+      <p><strong>Vibe:</strong> Alto's Adventure meets tactical command screen. Clean, stark, atmospheric.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Canvas 2D Painted Scene</h3>
+      <p><strong>Technique:</strong> Dedicated &lt;canvas&gt; element rendering layered terrain with gradient fills, procedural texture, and particle integration. All painting happens in a render loop alongside existing particle canvas.</p>
+      <p><strong>Pros:</strong> More painterly atmosphere. Can do dynamic lighting, glow, and texture effects. Particles and scene in one unified rendering context.</p>
+      <p><strong>Cons:</strong> Heavier rendering budget. More complex code. Harder to maintain. Risk of looking muddled at wrong scale.</p>
+      <p><strong>Vibe:</strong> Darkest Dungeon background meets radar screen. Moody, textured, immersive.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Hybrid: SVG Silhouettes + Canvas Atmosphere</h3>
+      <p><strong>Technique:</strong> SVG layers for mountain shapes and structure, canvas overlay for atmospheric effects (fog banks, lightning, blowing snow, light rays). Best of both worlds but more complex integration.</p>
+      <p><strong>Pros:</strong> Sharp geometry + rich atmosphere. Flexible. Can progressively enhance.</p>
+      <p><strong>Cons:</strong> Two rendering systems to coordinate. More code. Potential z-index headaches.</p>
+      <p><strong>Vibe:</strong> Expedition terminal with a living viewport. The mountain breathes through the instruments.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 2rem; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(255,255,255,0.02);">
+  <h3>Context: Where the scene goes</h3>
+  <p>Currently the center panel holds: location info → tactical map → log window → weather/day-night. The mountain scene would sit <strong>behind or above the tactical map</strong> as a backdrop, making the map feel like it's overlaid on the actual mountain landscape. The hiker marker would visually connect both layers.</p>
+  <p>All three approaches support waypoint-specific terrain variation, time-of-day sky changes, and weather-reactive visuals. The question is about rendering fidelity and production cost.</p>
+</div>

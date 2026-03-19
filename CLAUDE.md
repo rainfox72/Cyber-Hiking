@@ -11,13 +11,21 @@ npx tsc --noEmit     # Type check (zero errors policy)
 
 ## Architecture
 
+**Art direction:** "Tactical Alpine Nightmare" — muted military-green instrumentation over layered mountain vistas with atmospheric weather effects and danger overlays.
+
+**Scene layer stack** (back to front): sky gradient → SVG mountain ridgelines → atmosphere canvas → danger overlays → floating panels → scanlines → modals
+
 - `src/engine/` — Pure TS game logic (12-step turn pipeline, vitals, risk, weather, navigation, falls). Zero React deps.
-- `src/data/` — Static data: waypoints (13 real Ao Tai stops), events (25), weather transitions (7x7 Markov chain)
+- `src/data/` — Static data: waypoints (13 real Ao Tai stops), events (25), weather transitions (7x7 Markov chain), terrainProfiles (5 terrain bands, ridge profiles, sky gradients)
 - `src/store/gameStore.ts` — Zustand: wraps engine, async Ollama narration, auto-play loop
 - `src/services/` — Ollama HTTP client, fallback narrator, SoundManager (Web Audio API synthesis)
-- `src/components/` — React UI (game panels, map, effects, screens)
-- `src/hooks/` — useTypewriter (character-by-character text reveal)
-- `src/utils/random.ts` — Seeded PRNG (mulberry32)
+- `src/components/scene/` — MountainScene (5-layer SVG ridgelines), SkyLayer (terrain-driven gradients), SceneHiker (condition-reactive figure with headlamp/breath/summit pose)
+- `src/components/effects/` — Scanlines, AtmosphereCanvas (7 weather modes, lightning), DangerOverlay (dominant-state hierarchy with frost/vignette/desaturation)
+- `src/components/game/` — Status panels, navigation console, log, map, RunSummary (post-game stats), GameOverlay (action feedback)
+- `src/components/screens/` — TitleScreen (mountain backdrop boot sequence)
+- `src/components/map/` — TacticalMap (danger-scaled route, hazard zones, point-of-no-return marker)
+- `src/hooks/` — useTypewriter (character-by-character text reveal), useActionFeedback (scene + UI action juice)
+- `src/utils/` — random.ts (seeded PRNG), hikerPose.ts (condition-driven pose selection), runSummary.ts (post-game statistics)
 - `scripts/` — Playtest bots (Ollama AI + heuristic)
 - `configs/` — YAML configuration (if present)
 
@@ -44,7 +52,7 @@ Internal development docs (task tracker, design plans, legacy instructions) live
 - 13 waypoints: 塘口 (1740m) → 拔仙台 (3767m)
 - Starting supplies: 14 food, 5L water, 80% gear, 2 medicine
 - Food caches at shelter waypoints (+2 each), water resupply at stream valleys (refill to 6L)
-- ~5% heuristic bot summit rate (calibrated from 500-game playtest)
+- ~5% heuristic bot summit rate (validated from 500 simulations)
 
 ## Gotchas
 

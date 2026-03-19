@@ -1,0 +1,53 @@
+<h2>Implementation Approach: Two Strategies</h2>
+<p class="subtitle">Given the scale (11 phases, ~30+ files), how should we sequence and structure this overhaul?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Foundation-First: Art Direction → Layout → Scene → Polish (Recommended)</h3>
+      <p><strong>Sequence:</strong></p>
+      <ol style="margin: 0.5rem 0; padding-left: 1.2rem; font-size: 0.9rem; line-height: 1.6;">
+        <li><strong>Art direction core</strong> — new CSS variables, palette, typography, panel styling (Phase A + I merged)</li>
+        <li><strong>Layout restructure</strong> — full-bleed mountain layer, floating panels, z-index stack refactor</li>
+        <li><strong>Mountain scene system</strong> — SVG ridgelines, terrain bands, sky gradients, time-of-day (Phase B)</li>
+        <li><strong>Atmosphere canvas</strong> — fog, snow, rain, lightning, blizzard over the scene (Phase E upgrade)</li>
+        <li><strong>Hiker upgrade</strong> — expressive poses, condition-reactive animations (Phase C)</li>
+        <li><strong>Action juice + danger telegraphing</strong> — micro-feedback, crisis visuals (Phase D + F)</li>
+        <li><strong>Screens overhaul</strong> — title, death, victory, run summary (Phase G + J)</li>
+        <li><strong>Route identity</strong> — waypoint visual differentiation on map (Phase H)</li>
+        <li><strong>Difficulty retune</strong> — engine balance to &lt;10% (Phase K)</li>
+      </ol>
+      <p><strong>Philosophy:</strong> Build the visual foundation first, then layer expressiveness on top. Each phase builds on the previous one's infrastructure. The mountain scene exists before we add weather drama to it. The palette exists before we add danger telegraphing.</p>
+      <p><strong>Risk:</strong> Later phases depend on earlier ones being solid. If the foundation needs iteration, downstream work shifts.</p>
+      <p><strong>Strength:</strong> Coherent visual system from the start. No orphaned effects. Each phase has a stable base to build on.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Impact-First: Scene → Weather → Hiker → Then Polish Everything</h3>
+      <p><strong>Sequence:</strong></p>
+      <ol style="margin: 0.5rem 0; padding-left: 1.2rem; font-size: 0.9rem; line-height: 1.6;">
+        <li><strong>Mountain scene + layout</strong> — biggest visual change first, prove the concept (Phase B + layout)</li>
+        <li><strong>Weather drama</strong> — make weather threatening and experiential (Phase E)</li>
+        <li><strong>Hiker expressiveness</strong> — bring the character to life (Phase C)</li>
+        <li><strong>Art direction + UI premium pass</strong> — unify everything after the big pieces exist (Phase A + I)</li>
+        <li><strong>Action juice + danger telegraphing</strong> — layer on feedback (Phase D + F)</li>
+        <li><strong>Screens + route identity + replay</strong> — polish sequences (Phase G + H + J)</li>
+        <li><strong>Difficulty retune</strong> — final balance pass (Phase K)</li>
+      </ol>
+      <p><strong>Philosophy:</strong> Ship the most dramatic changes first. See the mountain scene working, get excited, then refine everything around it. Delay systematic palette/UI work until the big pieces are in place.</p>
+      <p><strong>Risk:</strong> Early work may use ad-hoc styling that needs cleanup later. Possible rework when the unified art direction lands.</p>
+      <p><strong>Strength:</strong> Fastest path to "wow." Can evaluate the mountain scene early and course-correct.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 2rem; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(255,255,255,0.02);">
+  <h3>My recommendation: Option A</h3>
+  <p>Foundation-first avoids rework. With this scope, building on sand means rebuilding later. If we establish the palette, typography, and panel system first, every subsequent component automatically inherits the visual language. The mountain scene renders with the right colors from day one. Weather effects use the right opacity/contrast hierarchy immediately. Danger telegraphing plugs into existing CSS variable states.</p>
+  <p>The risk of "later phases shifting" is low because your brief is specific enough that the foundation design is clear — we're not guessing.</p>
+  <p><strong>Estimated scope:</strong> ~25-35 files modified/created across 9 implementation phases. New components: MountainScene, AtmosphereCanvas, terrain profile data, danger overlay system, run summary screen. Major refactors: App layout, all panel components, HumanMarker, ParticleCanvas, GameOverlay, TitleScreen, CSS variables.</p>
+</div>

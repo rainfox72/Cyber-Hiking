@@ -1,0 +1,201 @@
+<h2>Design Section 3: Hiker + Action Feedback + Danger Telegraphing</h2>
+<p class="subtitle">Making the hiker feel human, actions feel consequential, and danger feel readable.</p>
+
+<div class="section">
+  <h3>Hiker Upgrade — From Marker to Person</h3>
+  <div class="mockup" style="margin: 1rem 0;">
+    <div class="mockup-header">Expressive Hiker System</div>
+    <div class="mockup-body" style="font-size: 0.85rem;">
+      <p>The hiker stays as a geometric SVG figure (current style works), but gains <strong>condition-reactive modifiers</strong> layered on top of the 8 action poses.</p>
+
+      <p style="margin-top: 0.8rem;"><strong>Condition Modifiers (additive, stack on any pose):</strong></p>
+      <table style="width:100%; border-collapse: collapse; font-size: 0.85rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.15);">
+            <th style="text-align:left; padding: 6px;">Condition</th>
+            <th style="text-align:left; padding: 6px;">Visual Modifier</th>
+            <th style="text-align:left; padding: 6px;">Trigger</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #6cb4d4;">Cold</td>
+            <td style="padding:6px;">Hunched shoulders (polygon shift), breath vapor particles (2-3 small circles animating upward from head, fade out). Blue tint on figure outline.</td>
+            <td style="padding:6px;">bodyTemp < 50</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #c97a2e;">Wind</td>
+            <td style="padding:6px;">Figure leans into wind direction (slight rotate transform). Backpack strap / jacket edge flutter (small animated line segment). Hair/hood motion.</td>
+            <td style="padding:6px;">weather = wind | blizzard</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #c93838;">Exhaustion</td>
+            <td style="padding:6px;">Lowered head position, slower bob animation (1.2s instead of 0.6s), slight forward lean. Walking stride shortens.</td>
+            <td style="padding:6px;">energy < 35</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #c93838;">Injury</td>
+            <td style="padding:6px;">Visible limp in walk cycle (asymmetric bob). One arm held closer to body. Movement stutter.</td>
+            <td style="padding:6px;">statusEffects includes fall_injury</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #e8dcc0;">Night</td>
+            <td style="padding:6px;">Headlamp cone: small triangular gradient projecting forward from head position. Warm amber glow. Cone sways slightly with movement.</td>
+            <td style="padding:6px;">timeOfDay = night | dusk</td>
+          </tr>
+          <tr>
+            <td style="padding:6px; color: #ff4444;">Critical</td>
+            <td style="padding:6px;">Figure flickers (opacity stutter 0.4-1.0, irregular timing). Scan field distorts. Color shifts to desaturated. The "signal" is breaking up.</td>
+            <td style="padding:6px;">any vital < 15</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top: 0.8rem;"><strong>Special Moment Poses:</strong></p>
+      <ul style="padding-left: 1.2rem; line-height: 1.8;">
+        <li><strong>Summit pose:</strong> Arms raised, figure stands tall, brief golden glow pulse. Only appears on reaching waypoint 12. Should feel earned and rare.</li>
+        <li><strong>Stumble recovery:</strong> Brief 300ms animation when a fall event occurs — figure drops, catches self, pauses. Plays before the injury modifier kicks in.</li>
+        <li><strong>Lost wandering:</strong> Figure drifts off the trail path with uncertain micro-movements. Facing direction becomes inconsistent. Headlamp sweeps wider at night.</li>
+      </ul>
+
+      <p style="margin-top: 0.8rem;"><strong>Implementation:</strong> Condition modifiers are SVG sub-elements toggled by state. Breath particles are 2-3 <code>&lt;circle&gt;</code> elements with CSS animation. Wind lean is a <code>transform: rotate()</code> on the figure group. Headlamp is an SVG <code>&lt;polygon&gt;</code> with gradient fill. No new rendering context needed — everything stays in the existing SVG layer.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Action Feedback — Every Decision Feels Consequential</h3>
+  <div class="mockup" style="margin: 1rem 0;">
+    <div class="mockup-header">Action Juice System</div>
+    <div class="mockup-body" style="font-size: 0.85rem;">
+      <p>A new <code>&lt;ActionFeedback&gt;</code> component + CSS classes triggered by <code>lastAction</code> state changes. Each action gets a brief, punchy visual response.</p>
+
+      <table style="width:100%; border-collapse: collapse; font-size: 0.85rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.15);">
+            <th style="text-align:left; padding: 6px;">Action</th>
+            <th style="text-align:left; padding: 6px;">Scene Response</th>
+            <th style="text-align:left; padding: 6px;">UI Response</th>
+            <th style="text-align:left; padding: 6px;">Feel</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #5ca854;">Push Forward</td>
+            <td style="padding:6px;">Parallax layers shift (terrain traversal). Dust/snow puff from hiker feet. Brief directional motion streak.</td>
+            <td style="padding:6px;">Route line pulses forward. Map micro-pans. Location text transitions.</td>
+            <td style="padding:6px;">Commitment, momentum</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #d4a843;">Set Camp</td>
+            <td style="padding:6px;">Scene dims slightly (settling in). Warm amber glow appears at hiker position (campfire). Particles slow.</td>
+            <td style="padding:6px;">Panel borders soften briefly. Action area contracts to camp-relevant options. Amber wash on panels.</td>
+            <td style="padding:6px;">Fragile safety, relief</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #d4a843;">Check Map</td>
+            <td style="padding:6px;">Brief tactical grid overlay flashes on mountain scene (thin lines, fast fade). Map zooms slightly.</td>
+            <td style="padding:6px;">Map panel border brightens. "Certainty" indicator pulses green. Route line refreshes with sweep animation.</td>
+            <td style="padding:6px;">Tactical clarity</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #c93838;">Fall / Injury</td>
+            <td style="padding:6px;">Sharp screen shake (200ms, high intensity). Hiker stumble animation. Brief red flash on mountain layer.</td>
+            <td style="padding:6px;">All panel borders flash red. Risk meter spikes. Vitals that dropped pulse danger. Impact sound.</td>
+            <td style="padding:6px;">Shock, cost</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #c97a2e;">Get Lost</td>
+            <td style="padding:6px;">Scene blurs momentarily (200ms). Mountain layers shift in conflicting directions (disorientation). Fog thickens briefly.</td>
+            <td style="padding:6px;">Map flickers. Waypoint markers jitter. Route line becomes uncertain (dashed/faded). Compass spin on location info.</td>
+            <td style="padding:6px;">Disorientation, dread</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px;">Rest</td>
+            <td style="padding:6px;">Scene breathing — very subtle zoom pulse (0.5%). Particles drift lazily. Calm.</td>
+            <td style="padding:6px;">Vitals bars animate recovery smoothly. Panel glow dims to minimum.</td>
+            <td style="padding:6px;">Brief respite</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px;">Eat / Drink</td>
+            <td style="padding:6px;">Minimal scene change. Hiker pose animation.</td>
+            <td style="padding:6px;">Relevant vital bar pulses green on recovery. Inventory counter decrements with brief flash. Satisfying tick.</td>
+            <td style="padding:6px;">Resource spent wisely</td>
+          </tr>
+          <tr>
+            <td style="padding:6px;">Use Medicine</td>
+            <td style="padding:6px;">Brief warm pulse around hiker (healing indicator).</td>
+            <td style="padding:6px;">Status effect indicator fades with relief animation. Affected vitals pulse positive.</td>
+            <td style="padding:6px;">Costly relief</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top: 0.8rem;"><strong>Implementation:</strong> A <code>useActionFeedback</code> hook watches <code>lastAction</code> and <code>lastEvents</code>, then sets CSS classes and triggers brief animations. Most effects are CSS transitions/animations with JS-controlled class toggling. Screen shake reuses the existing <code>isShaking</code> mechanism but with configurable intensity.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Danger Telegraphing — Visual Crisis Language</h3>
+  <div class="mockup" style="margin: 1rem 0;">
+    <div class="mockup-header">Condition-Specific Visual Overlays</div>
+    <div class="mockup-body" style="font-size: 0.85rem;">
+      <p>Upgrades the current Vignette into a <code>&lt;DangerOverlay&gt;</code> system with condition-specific visual treatments. Multiple overlays can stack.</p>
+
+      <table style="width:100%; border-collapse: collapse; font-size: 0.85rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.15);">
+            <th style="text-align:left; padding: 6px;">Danger</th>
+            <th style="text-align:left; padding: 6px;">Screen Treatment</th>
+            <th style="text-align:left; padding: 6px;">UI Treatment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #6cb4d4;">Hypothermia</td>
+            <td style="padding:6px;">Blue-white frost creep from screen edges (CSS radial gradient). Breath emphasis on hiker. Scene desaturates toward cold blue. Frost crystal overlay at corners.</td>
+            <td style="padding:6px;">Body temp bar ice-blue glow. Panel borders tint blue. Text gets slightly colder color temperature.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #c93838;">Altitude Sickness</td>
+            <td style="padding:6px;">Subtle tunnel vision (vignette tightens). Slight pulsing desaturation synced to a slow "heartbeat" rhythm (1.2s). Peripheral darkening.</td>
+            <td style="padding:6px;">O2 bar pulses with heartbeat. Risk meter text slightly blurs on pulse peaks. Faint reddish tint on vignette.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #c97a2e;">Dehydration</td>
+            <td style="padding:6px;">Scene contrast harshens — blacks get blacker, highlights get harsher. Faint static/grain overlay. Dry, brittle visual feel.</td>
+            <td style="padding:6px;">Hydration bar flickers. Panel borders get thin hairline cracks (SVG overlay). Text rendering feels slightly degraded (letter-spacing jitter).</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #c97a2e;">Starvation</td>
+            <td style="padding:6px;">Scene dims progressively. Colors drain. Movement feels heavier (slower parallax response).</td>
+            <td style="padding:6px;">Energy bar dims. All panel text slightly reduced contrast. Action buttons feel heavier (opacity reduction on non-essential actions).</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #ff4444;">Morale Collapse</td>
+            <td style="padding:6px;">Micro-jitter on scene layers (1-2px random displacement, intermittent). Scene feels unstable.</td>
+            <td style="padding:6px;">Existing vitals jitter intensifies. Log text occasionally glitches (brief character substitution effect via CSS). Panel borders flicker inconsistently. The instruments feel unreliable.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <td style="padding:6px; color: #d4a843;">Navigation Uncertainty</td>
+            <td style="padding:6px;">Mountain layers shift subtly in conflicting directions. Fog thickens. Depth cues degrade.</td>
+            <td style="padding:6px;">Waypoint markers on map pulse with uncertainty. Route line ahead becomes dashed/faded. "UNCERTAIN" label on location display.</td>
+          </tr>
+          <tr>
+            <td style="padding:6px; color: #c93838;">High Fall Risk</td>
+            <td style="padding:6px;">Foreground ridge layer shows steep drop-off detail. Vertigo — very subtle downward drift on near layers.</td>
+            <td style="padding:6px;">Route segment ahead pulses red on map. Risk meter border glows. Terrain hazard icon appears near location info.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top: 0.8rem;"><strong>Stacking:</strong> Multiple conditions combine. A cold, exhausted, lost hiker at night shows frost edges + dimmed scene + navigation uncertainty + headlamp. The visual story compounds — the player sees the run collapsing through layered visual degradation.</p>
+      <p><strong>Implementation:</strong> <code>&lt;DangerOverlay&gt;</code> component reads all player vitals and status effects, renders appropriate CSS overlays (positioned absolute, pointer-events: none). Each overlay is a separate div with its own animation. Component memoizes on relevant vital thresholds to avoid unnecessary re-renders.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="padding: 1rem; border: 1px solid rgba(100, 180, 212, 0.3); border-radius: 6px; background: rgba(100, 180, 212, 0.05);">
+  <p style="margin: 0; font-size: 0.9rem;"><strong>Does the hiker expressiveness, action juice, and danger telegraphing feel right?</strong> The hiker gains condition modifiers that stack on poses. Actions get scene + UI responses. Danger creates layered visual degradation that tells the story of a collapsing run. Next: title/death/victory screens, route identity, replay drama, and difficulty tuning.</p>
+</div>

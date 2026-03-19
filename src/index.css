@@ -23,14 +23,8 @@
   --lightning-white: #f0f0ff;
   --night-purple: #2a1a2e;
 
-  /* Legacy aliases (remove after migration) */
-  --neon-green: var(--tactical-green);
+  /* Subdued text */
   --neon-green-dim: var(--tactical-green);
-  --danger: var(--hazard-red);
-  --cyan: var(--teal-muted);
-  --magenta: var(--warning-orange);
-  --bg-dark: var(--bg-abyss);
-  --bg-input: var(--bg-panel);
   --text-dim: rgba(61, 139, 55, 0.4);
   --text-muted: rgba(61, 139, 55, 0.5);
 
@@ -42,20 +36,11 @@
   --panel-blur: 8px;
   --panel-gap: 4px;
 
-  /* Legacy aliases — additional (remove after migration) */
+  /* Glow values (used in keyframes) */
   --neon-green-glow: rgba(61, 139, 55, 0.3);
-  --amber-dim: var(--amber);
   --amber-glow: rgba(212, 168, 67, 0.3);
-  --danger-dim: var(--hazard-red);
-  --danger-glow: rgba(201, 56, 56, 0.3);
-  --bg-panel-hover: var(--bg-panel-raised);
   --bg-panel-border: var(--bg-storm);
-  --text-primary: var(--tactical-green);
-  --text-secondary: var(--amber);
   --font-mono: 'Courier New', 'Consolas', 'Monaco', monospace;
-  --glow-green: 0 0 10px var(--neon-green-glow);
-  --glow-amber: 0 0 10px var(--amber-glow);
-  --glow-danger: 0 0 10px var(--danger-glow);
   --panel-padding: 12px;
   --border-radius: 2px;
 

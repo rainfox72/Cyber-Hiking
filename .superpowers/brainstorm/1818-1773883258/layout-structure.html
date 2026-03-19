@@ -1,0 +1,40 @@
+<h2>Layout Structure: Where does the mountain scene live?</h2>
+<p class="subtitle">Currently: 3-column grid (240px | flex | 220px). The center panel holds location, map, log, weather. Adding a mountain scene backdrop changes the spatial hierarchy.</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Full-Bleed Mountain Viewport (Recommended)</h3>
+      <p>The mountain scene becomes a <strong>full-width background layer</strong> spanning the entire game area behind all panels. Side panels become semi-transparent overlays floating on the mountain. The tactical map stays in the center but becomes a floating HUD element over the scene.</p>
+      <p><strong>Effect:</strong> The mountain is the stage. UI is instrumentation overlaid on the expedition viewport. Maximum scenic presence. The game feels like looking through a window at the mountain with instruments around the edges.</p>
+      <p><strong>Trade-off:</strong> Requires careful panel opacity/contrast tuning to keep readability. More dramatic visual restructure.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Center Viewport with Solid Side Panels</h3>
+      <p>Keep the 3-column structure. The mountain scene fills only the <strong>center column background</strong>, behind the map and log. Side panels remain opaque instrument panels with their current dark backgrounds.</p>
+      <p><strong>Effect:</strong> Clear separation between "the mountain" (center) and "the instruments" (sides). Easier to maintain readability. Feels more like a command console with a viewport window in the middle.</p>
+      <p><strong>Trade-off:</strong> Less immersive. Mountain scene is constrained to center width. Still an upgrade but not as dramatic.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Stacked: Mountain Scene on Top, Panels Below</h3>
+      <p>Restructure to a <strong>top/bottom split</strong>: mountain scene + hiker in the upper 40-50%, tactical instruments in the lower portion. The scene becomes a dedicated cinematic viewport, not a background layer.</p>
+      <p><strong>Effect:</strong> Clean separation. Mountain gets full scenic composition space. HUD below is purely functional. Feels like a split between "the view" and "the console."</p>
+      <p><strong>Trade-off:</strong> Biggest layout change. Reduces vertical space for logs/panels. May feel disconnected — mountain and instruments are separate zones rather than one integrated experience.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 2rem; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(255,255,255,0.02);">
+  <h3>What I'm recommending and why</h3>
+  <p><strong>Option A</strong> creates the strongest "hostile expedition console" feeling you described. The mountain becomes the world you're peering into, and the UI panels become instruments floating over the view. This matches your target: "operating a hostile expedition console while watching a tiny vulnerable hiker cross a giant cursed mountain spine."</p>
+  <p>The readability concern is solvable with proper panel backdrop blur/tint and contrast tuning. The Vignette and weather effects already exist as full-screen overlays, so the infrastructure for layering is proven.</p>
+</div>
