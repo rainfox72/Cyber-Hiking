@@ -146,10 +146,12 @@ function App() {
         </div>
         <div className="panel-center">
           <LocationInfo />
-          <LogWindow />
-          <div style={{ display: "flex", gap: "2px" }}>
-            <WeatherDisplay />
-            <DayNightIndicator />
+          <div className="panel-center__bottom">
+            <LogWindow />
+            <div style={{ display: "flex", gap: "2px" }}>
+              <WeatherDisplay />
+              <DayNightIndicator />
+            </div>
           </div>
         </div>
         <div className="panel-right">

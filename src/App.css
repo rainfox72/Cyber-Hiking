@@ -91,8 +91,15 @@
 .panel-center {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: var(--panel-gap);
-  overflow: hidden;
+  overflow: visible;
+}
+
+.panel-center__bottom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-gap);
 }
 
 .panel-right {
@@ -105,12 +112,21 @@
 /* Floating panel backdrop for 3D scene visibility */
 .panel-left > *,
 .panel-center > *,
-.panel-right > * {
+.panel-right > *,
+.panel-center__bottom > * {
   background: var(--bg-panel);
   border: 1px solid var(--bg-panel-border);
   border-radius: var(--border-radius);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+}
+
+/* The bottom wrapper itself should be transparent — only its children get backgrounds */
+.panel-center__bottom {
+  background: transparent !important;
+  border: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* Game header also needs background when floating */
@@ -204,8 +220,7 @@
 
 /* Log window */
 .log-window {
-  flex: 3;
-  min-height: 100px;
+  max-height: 160px;
   overflow-y: auto;
   padding: var(--panel-padding);
   background: var(--bg-panel);
