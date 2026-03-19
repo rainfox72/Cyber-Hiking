@@ -9,7 +9,7 @@
 - **Rendering:** Hybrid — SVG silhouettes for mountain structure, canvas for atmospheric effects
 - **Layout:** Full-bleed mountain viewport with floating instrument panels
 - **Sequencing:** Foundation → Layout → Scene MVP → Atmosphere → Hiker → Feedback → Screens/Replay/Route → Difficulty → Cleanup
-- **Iteration:** Ralph Loop, 20+ cycles
+- **Iteration:** Iterative implementation with critical review after each phase (20+ review cycles)
 
 ---
 
@@ -96,9 +96,42 @@ Full-viewport SVG component `<MountainScene>` with 5 parallax ridge layers:
 
 Each layer is a single SVG `<path>` polygon. Shapes defined as data arrays in `terrainProfiles.ts`. Layers 3/2/1 change most across terrain bands; layers 4/5 remain more stable for continuity.
 
-**Parallax:** Layers shift horizontally via `transform: translateX(offset)` based on waypoint progress. Farther layers move less. Creates traversal sensation without scrolling.
+**Data format (`terrainProfiles.ts`):**
+```typescript
+type RidgePoints = [number, number][] // normalized [x, y] pairs, x: 0-1, y: 0-1
+interface TerrainProfile {
+  band: 'forest' | 'rocky' | 'plateau' | 'storm' | 'summit'
+  layers: {
+    1: RidgePoints  // foreground, ~20-30 vertices
+    2: RidgePoints  // near terrain, ~15-25 vertices
+    3: RidgePoints  // primary spine, ~15-20 vertices
+    4: RidgePoints  // secondary ridge, ~10-15 vertices
+    5: RidgePoints  // distant range, ~8-12 vertices
+  }
+  colors: {
+    base: string[]      // 5 fill colors per layer (indexed by layer)
+    dawn: string[]      // dawn-tinted variants
+    night: string[]     // night-darkened variants
+    storm: string[]     // storm-flattened variants
+  }
+}
+```
+Points are normalized 0-1 and scaled to viewport at render time. Layer 1 (foreground) has more vertices for detail; layer 5 (far) is simpler.
+
+**Parallax:** `offset = (waypointIndex / 12) * maxShift * parallaxFactor[layer]` where `parallaxFactor = { 1: 1.0, 2: 0.7, 3: 0.45, 4: 0.25, 5: 0.1 }` and `maxShift` is ~15% of viewport width. During terrain band transitions, parallax continues smoothly while profile shapes crossfade.
 
 **Transitions:** Terrain band changes blend via color interpolation, opacity crossfade, or limited profile morphing — not hard cuts.
+
+**Terrain band mapping from engine TerrainType:**
+| Visual Band | Engine TerrainType values | Waypoint indices |
+|-------------|-------------------------|-----------------|
+| Forest Approach | forest, meadow, stream_valley | 0–2 |
+| Rocky Spine | stone_sea, scree | 3–5 |
+| Exposed Plateau | ridge | 6–8 |
+| Storm Ridge | ridge (high elevation) | 9–11 |
+| Summit Approach | summit | 12 |
+
+Visual bands are determined by waypoint index, not TerrainType. The mapping above documents the correspondence but the scene system keys off `currentWaypointIndex`.
 
 ### 5 Terrain Bands
 
@@ -152,6 +185,8 @@ Replaces `ParticleCanvas`. Full viewport, `pointer-events: none`, positioned bet
 
 Keep the stylized geometric SVG figure. Evolve from marker to readable person under stress. Default hiker should feel small, burdened, and exposed even in calm conditions.
 
+**Scene placement:** The hiker renders in the mountain scene SVG, positioned at a fixed vertical position on layer 2 (near terrain, roughly 65-70% from top of viewport). Horizontal position interpolates between left (waypoint 0) and right (waypoint 12) of the viewport, matching parallax layer 2 offset. Size: approximately 2-3% of viewport height — small enough to feel exposed against the mountain, large enough to read pose and condition. The TacticalMap retains its own separate smaller hiker marker for the instrument panel.
+
 ### 8 Action Poses (existing, refined)
 
 Idle, walking, camping, eating, drinking, resting, mapping, medicine. Current pose system preserved and polished.
@@ -163,7 +198,7 @@ Idle, walking, camping, eating, drinking, resting, mapping, medicine. Current po
 | Cold | Hunched shoulders, breath vapor (2–3 animated circles), blue outline tint | bodyTemp < 50 |
 | Wind | Lean into wind (rotate transform), jacket flutter, hood motion | weather = wind/blizzard |
 | Exhaustion | Lowered head, slower bob (1.2s), forward lean, shorter stride | energy < 35 |
-| Injury | Asymmetric limp, arm held close, movement stutter | fall_injury status |
+| Injury | Asymmetric limp, arm held close, movement stutter | statusEffects includes entry with id containing "injury" or "sprain" |
 | Night | Headlamp cone (amber SVG gradient triangle), sways with movement | timeOfDay = night/dusk |
 | Critical | Opacity flicker (0.4–1.0 irregular), scan field distorts, desaturated | any vital < 15 |
 
@@ -284,7 +319,15 @@ Shown on death/victory screen below expedition report. Turns each run into a sto
 - **Expedition epitaph:** Template-generated summary line from run data. E.g.: "Lost to hypothermia on the storm ridge after 6 days. The blizzard on Day 4 was the turning point."
 - **Run codename:** Auto-generated from run characteristics. "[Weather]-[Terrain]-[Fate]" combinations. E.g.: "Operation Frozen Ridge," "The Stone Sea Retreat," "Whiteout Protocol."
 
-**Data source:** Existing game log entries filtered by severity/type. No engine changes needed — pure presentation on existing data.
+**Data source:** Existing game log entries filtered by type. Events of type `event` correspond to `CriticalEvent` entries stored in `lastEvents` — select those with severity `major` or `critical`, take the most recent 3-5. For the epitaph, use the final log entry's action + the defeat cause + weather at death. No engine changes needed — pure presentation on existing data.
+
+**Run codename generation:** Template patterns drawing from word pools:
+- Pattern: `"Operation [Weather] [Terrain]"` — e.g., "Operation Frozen Ridge"
+- Pattern: `"The [Terrain] [Fate]"` — e.g., "The Stone Sea Retreat"
+- Pattern: `"[Weather] Protocol"` — e.g., "Whiteout Protocol"
+- Weather pool: Frozen, Storm, Whiteout, Thunder, Ice, Bitter, Gale, Silent
+- Terrain pool: Ridge, Peak, Spine, Stone Sea, Plateau, Summit, Valley, Traverse
+- Fate pool: Retreat, Collapse, Crossing, Descent, Stand, March, Vigil, Protocol
 
 ---
 
@@ -314,6 +357,17 @@ Tactical map stays isometric SVG, gains richer visual language:
 | Getting lost | 6% base | 8% base, stronger weather/night modifiers | Navigation as real concern |
 | Altitude drain | Above 3000m | Steeper O2 above 3500m, energy compounds with altitude + weather | Punishing final approach |
 
+### Engine Files Affected
+
+| Lever | Primary file(s) |
+|-------|----------------|
+| Weather escalation | `src/engine/weatherSystem.ts` (Markov transition matrix, escalation day threshold) |
+| Night travel | `src/engine/vitalCalculator.ts` (night drain multipliers), `src/engine/navigationSystem.ts` (lost chance), `src/engine/fallSystem.ts` (fall risk) |
+| Camp recovery | `src/engine/gameEngine.ts` (camp/rest recovery constants) |
+| Morale decay | `src/engine/vitalCalculator.ts` (morale drain per-action, weather/night modifiers) |
+| Getting lost | `src/engine/navigationSystem.ts` (base lost chance, weather/night modifiers) |
+| Altitude drain | `src/engine/vitalCalculator.ts` (O2 drain curve above 3500m), `src/engine/exposureSystem.ts` |
+
 ### Validation
 
 - Run 200+ simulations with heuristic playtest bot
@@ -340,7 +394,7 @@ Difficulty from environmental pressure (weather, night, altitude) and resource t
 8. **Difficulty** — Engine tuning, playtest validation, balance documentation
 9. **Cleanup** — Final polish, docs update, consistency pass
 
-Each phase iterated via Ralph Loop (20+ cycles total).
+Each phase iterated with critical self-review after implementation. 20+ review cycles total across all phases.
 
 ---
 
@@ -354,6 +408,36 @@ Each phase iterated via Ralph Loop (20+ cycles total).
 - Danger overlays communicate collapse, never become noise
 - Text readability non-negotiable at all times
 - The game stays hard, oppressive, and challengeable — never cute, cozy, or forgiving
+- Desktop-only, minimum viewport 1024×768. No mobile/responsive layout required.
+- Audio integration: out of scope for this spec. Existing SoundManager continues to function; new visual events (lightning, stumble, etc.) may trigger existing sound hooks but no new audio design is specified here.
+
+### Performance Budget
+
+- AtmosphereCanvas: target <4ms/frame. Max particle counts: clear 10, cloudy 30, fog 25, rain 120, snow 100, wind 80, blizzard 180. Cloud bank shapes rendered as gradient fills, not individual particles.
+- `backdrop-filter: blur(8px)`: monitor for frame drops. Fallback: replace with `background: rgba(13, 17, 23, 0.92)` (solid, slightly more opaque) if compositing cost exceeds budget. Only apply blur to panels that overlay active scene areas.
+- SVG mountain scene: 5 static path elements + CSS transforms. Negligible render cost. Profile swaps on terrain band changes, not per-frame.
+- Danger overlays: CSS-only (gradients, opacity, filters). No canvas rendering.
+
+### CSS Variable Migration
+
+Old variables to replace throughout all components:
+| Old | New |
+|-----|-----|
+| `--neon-green` / `--neon-green-dim` | `--tactical-green` / `--tactical-green-bright` |
+| `--amber` | `--amber` (same name, adjusted value) |
+| `--danger` | `--hazard-red` |
+| `--cyan` | `--teal-muted` |
+| `--magenta` | removed (morale uses `--warning-orange` or context-specific) |
+| `--bg-dark` | `--bg-abyss` |
+| `--bg-panel` | `--bg-panel` (same name, adjusted value) |
+| `--bg-input` | `--bg-panel` (consolidated) |
+| `--text-dim` | `--tactical-green` at reduced opacity |
+
+### Accessibility
+
+- Support `prefers-reduced-motion`: disable jitter, flicker, pulse, parallax motion. Use static indicators (color/border changes) instead of animations for danger states.
+- All text maintains WCAG AA contrast (4.5:1 minimum) against panel backplates at all times, including during crisis states.
+- Danger states use shape + color (not color alone): frost pattern for cold, pulse rhythm for altitude, static texture for dehydration. Colorblind users can distinguish states by pattern.
 
 ---
 
