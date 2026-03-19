@@ -9,6 +9,7 @@ import type { ReactNode } from "react";
 import { Canvas } from "@react-three/fiber";
 import { useGameStore } from "./store/gameStore.ts";
 import { Scanlines } from "./components/effects/Scanlines.tsx";
+import { DangerOverlay } from "./components/effects/DangerOverlay.tsx";
 import { Skybox } from "./components/effects/Skybox.tsx";
 import { ParticleCanvas } from "./components/effects/ParticleCanvas.tsx";
 import TitleScreen from "./components/screens/TitleScreen.tsx";
@@ -123,6 +124,7 @@ function App() {
 
       {/* Floating DOM panels */}
       <Scanlines />
+      <DangerOverlay />
       <OllamaPoller />
       <SoundAmbience />
       <div className={`game-shell ${isShaking ? "shaking" : ""}`}>
