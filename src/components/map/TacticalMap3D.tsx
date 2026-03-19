@@ -309,6 +309,9 @@ function HikerMarker() {
   const timeOfDay = useGameStore((s) => s.time.timeOfDay);
   const gamePhase = useGameStore((s) => s.gamePhase);
 
+  // Track movement as React state so HikerRig3D gets re-rendered with correct isMoving
+  const [isMoving, setIsMoving] = useState(false);
+
   // Health vitals for HikerEffects ping color
   const energy = useGameStore((s) => s.player.energy);
   const hydration = useGameStore((s) => s.player.hydration);
@@ -353,6 +356,7 @@ function HikerMarker() {
       active: true, progress: 0, duration: dur,
       startPos: startPos.clone(), endPos: endPos.clone(),
     };
+    setIsMoving(true);
 
     // Compute facing angle toward destination
     const dx = endPos.x - startPos.x;
@@ -367,7 +371,7 @@ function HikerMarker() {
     // Movement animation
     if (anim.active) {
       anim.progress += delta / anim.duration;
-      if (anim.progress >= 1) { anim.active = false; anim.progress = 1; }
+      if (anim.progress >= 1) { anim.active = false; anim.progress = 1; setIsMoving(false); }
 
       const t = anim.progress < 0.5
         ? 2 * anim.progress * anim.progress
@@ -434,7 +438,7 @@ function HikerMarker() {
           lastAction={lastAction}
           turnNumber={turnNumber}
           currentWaypointIndex={currentIndex}
-          isMoving={animRef.current.active}
+          isMoving={isMoving}
           movementDuration={animRef.current.duration}
           isLost={isLost}
           weather={weather}
@@ -444,7 +448,7 @@ function HikerMarker() {
       </group>
       <HikerEffects
         hikerPosRef={hikerDisplayPos}
-        isMoving={animRef.current.active}
+        isMoving={isMoving}
         currentWaypointIndex={currentIndex}
         healthPercent={healthPercent}
         isLost={isLost}
