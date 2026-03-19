@@ -580,192 +580,49 @@
   letter-spacing: 0.08em;
 }
 
-/* Game screens */
-.screen-overlay {
+/* ── Title Overlay (over mountain scene) ──── */
+
+.title-overlay {
   position: fixed;
   inset: 0;
+  z-index: 100;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--bg-abyss);
-  z-index: 100;
 }
 
-.screen-overlay__title {
-  font-size: 28px;
-  letter-spacing: 8px;
-  text-transform: uppercase;
-  color: var(--tactical-green);
-  margin-bottom: 16px;
-  z-index: 2;
-}
-
-.screen-overlay__subtitle {
-  font-size: 12px;
-  color: var(--text-dim);
-  letter-spacing: 2px;
-  margin-bottom: 32px;
-  z-index: 2;
-}
-
-.screen-overlay__prompt {
-  font-size: 12px;
-  color: var(--amber);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-/* Defeat screen enhancements */
-.screen-overlay--defeat {
-  overflow: hidden;
-}
-
-.screen-overlay--defeat .screen-overlay__title {
-  color: var(--hazard-red);
-  text-shadow: 0 0 10px rgba(201, 56, 56, 0.3);
-  font-size: 32px;
-  letter-spacing: 10px;
-}
-
-.screen-overlay__static-noise {
+.title-overlay__fade {
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
-  background-size: 256px 256px;
-  opacity: 0.5;
-  animation: static-flicker 0.15s infinite;
+  background: var(--bg-abyss);
   z-index: 1;
   pointer-events: none;
+  transition: opacity 2s ease;
 }
 
-.screen-overlay__transmission {
+.title-overlay__fade--fading {
+  opacity: 0;
+}
+
+.title-overlay__fade--done {
+  opacity: 0;
+  display: none;
+}
+
+.title-overlay__console {
+  position: relative;
+  z-index: 2;
+  max-width: 580px;
+  width: 90%;
+  padding: 32px 36px;
+  max-height: 85vh;
+  overflow-y: auto;
+  backdrop-filter: blur(var(--panel-blur));
+  -webkit-backdrop-filter: blur(var(--panel-blur));
+}
+
+.title-overlay__boot-line {
   font-size: 11px;
-  letter-spacing: 3px;
-  color: var(--hazard-red);
-  margin-bottom: 12px;
-  z-index: 2;
-  animation: pulse-danger 2s infinite;
-}
-
-/* Victory screen enhancements */
-.screen-overlay--victory .screen-overlay__title {
-  color: var(--tactical-green-bright);
-  text-shadow: 0 0 20px rgba(61, 139, 55, 0.3), 0 0 40px rgba(61, 139, 55, 0.3);
-  font-size: 32px;
-  letter-spacing: 10px;
-}
-
-.screen-overlay__glow-pulse {
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(61, 139, 55, 0.3) 0%, transparent 70%);
-  animation: victory-glow 3s ease-in-out infinite;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.screen-overlay__roof-subtitle {
-  font-size: 13px;
-  letter-spacing: 4px;
-  color: var(--tactical-green);
-  margin-bottom: 8px;
-  z-index: 2;
-}
-
-.screen-overlay__flavor-text {
-  font-size: 11px;
-  color: var(--text-dim);
-  letter-spacing: 1px;
-  margin-bottom: 32px;
-  text-align: center;
-  max-width: 400px;
-  line-height: 1.6;
-  z-index: 2;
-}
-
-/* Shared stat display for defeat/victory */
-.screen-overlay__stats {
-  display: flex;
-  gap: 32px;
-  margin-bottom: 28px;
-  z-index: 2;
-}
-
-.screen-overlay__stat-row {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.screen-overlay__stat-label {
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-
-.screen-overlay__stat-value {
-  font-size: 20px;
-  font-weight: bold;
-  color: var(--hazard-red);
-  letter-spacing: 2px;
-  text-shadow: 0 0 10px rgba(201, 56, 56, 0.3);
-}
-
-.screen-overlay__stat-value--victory {
-  color: var(--tactical-green-bright);
-  text-shadow: 0 0 10px rgba(61, 139, 55, 0.3);
-}
-
-/* Escape ending (Ending 1) — amber/bittersweet tone */
-.screen-overlay--escape {
-  background: radial-gradient(ellipse at center, rgba(40, 25, 0, 0.95) 0%, rgba(5, 5, 5, 0.98) 70%);
-}
-
-.screen-overlay--escape .screen-overlay__title {
-  color: var(--amber);
-  text-shadow: 0 0 20px rgba(212, 168, 67, 0.3), 0 0 40px rgba(212, 168, 67, 0.3);
-  font-size: 32px;
-  letter-spacing: 10px;
-}
-
-.screen-overlay--escape .screen-overlay__roof-subtitle {
-  color: var(--amber);
-}
-
-.screen-overlay__glow-pulse--amber {
-  background: radial-gradient(circle, rgba(212, 168, 67, 0.3) 0%, transparent 70%);
-}
-
-.screen-overlay__stat-value--escape {
-  color: var(--amber);
-  text-shadow: 0 0 10px rgba(212, 168, 67, 0.3);
-}
-
-/* ── Title Screen ───────────────────────────── */
-
-.title-screen {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-abyss);
-  z-index: 100;
-}
-
-.title-screen__terminal {
-  max-width: 600px;
-  width: 100%;
-  padding: 40px;
-}
-
-.title-screen__boot-line {
-  font-size: 12px;
   letter-spacing: 1px;
   color: var(--tactical-green);
   line-height: 1.8;
@@ -773,49 +630,280 @@
   animation: line-fade-in 0.2s ease-out;
 }
 
-.title-screen__boot-line--complete {
+.title-overlay__boot-line--complete {
   color: var(--tactical-green-bright);
   font-weight: bold;
 }
 
-.title-screen__title-block {
-  margin-top: 32px;
+.title-overlay__route-container {
+  margin: 16px 0;
+  animation: title-fade-in 0.5s ease-out;
+}
+
+.title-overlay__route-svg {
+  display: block;
+}
+
+.title-overlay__route-line--tracing {
+  transition: stroke-dashoffset 2s linear;
+}
+
+.title-overlay__waypoint-dot {
+  animation: line-fade-in 0.3s ease-out;
+}
+
+.title-overlay__title-block {
   text-align: center;
+  margin: 20px 0 12px;
   animation: title-fade-in 0.8s ease-out;
 }
 
-.title-screen__mountain {
-  font-size: 10px;
-  line-height: 1.3;
-  color: var(--tactical-green);
-  margin-bottom: 24px;
-  text-align: center;
-  font-family: var(--font-mono);
-  opacity: 0.6;
-}
-
-.title-screen__title {
-  font-size: 28px;
-  letter-spacing: 10px;
+.title-overlay__title {
+  font-size: 26px;
+  letter-spacing: 8px;
   text-transform: uppercase;
   color: var(--tactical-green-bright);
-  text-shadow: 0 0 20px rgba(61, 139, 55, 0.3), 0 0 40px rgba(61, 139, 55, 0.3);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
-.title-screen__subtitle {
-  font-size: 14px;
-  letter-spacing: 6px;
+.title-overlay__subtitle {
+  font-size: 13px;
+  letter-spacing: 5px;
   color: var(--tactical-green);
-  margin-bottom: 40px;
+  margin-bottom: 10px;
 }
 
-.title-screen__prompt {
+.title-overlay__route-stats {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.title-overlay__dossier {
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--hazard-red);
+  margin: 16px 0;
+  min-height: 18px;
+  opacity: 0.8;
+  animation: dossier-fade 4s ease-in-out;
+}
+
+@keyframes dossier-fade {
+  0% { opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { opacity: 0; }
+}
+
+.title-overlay__prompt {
+  text-align: center;
   font-size: 12px;
   letter-spacing: 3px;
   color: var(--amber);
-  text-shadow: 0 0 10px rgba(212, 168, 67, 0.3);
+  margin-top: 12px;
   animation: prompt-pulse 2s ease-in-out infinite;
+}
+
+/* ── Game Overlay (death/victory) ───────────── */
+
+.game-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+/* Phase 1: Dying — transparent overlay letting desaturated scene show through */
+.game-overlay--dying {
+  background: transparent;
+  pointer-events: none;
+}
+
+.game-overlay__dying-cause {
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--hazard-red);
+  text-shadow: 0 0 30px rgba(201, 56, 56, 0.5);
+  text-align: center;
+  animation: dying-pulse 0.5s ease-in-out infinite;
+}
+
+.game-overlay__static-burst {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.3'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Desaturation class applied to .game-shell during dying/defeat */
+.game-shell--desaturated {
+  filter: grayscale(0.9);
+  transition: filter 0.5s ease;
+}
+
+/* Phase 2: Defeat/victory report — semi-transparent background */
+.game-overlay--defeat,
+.game-overlay--victory-summit,
+.game-overlay--victory-escape {
+  background: rgba(8, 9, 12, 0.7);
+}
+
+.game-overlay__report-panel {
+  max-width: 520px;
+  width: 90%;
+  padding: 28px 32px;
+  max-height: 85vh;
+  overflow-y: auto;
+  backdrop-filter: blur(var(--panel-blur));
+  -webkit-backdrop-filter: blur(var(--panel-blur));
+  animation: title-fade-in 0.6s ease-out;
+}
+
+.game-overlay__report-header {
+  font-size: 18px;
+  letter-spacing: 6px;
+  color: var(--hazard-red);
+  text-shadow: 0 0 10px rgba(201, 56, 56, 0.3);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.game-overlay__report-lines {
+  margin-bottom: 20px;
+}
+
+.game-overlay__report-line {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  line-height: 2;
+  font-family: var(--font-mono);
+}
+
+.game-overlay__report-line--cause {
+  color: var(--hazard-red);
+}
+
+.game-overlay__restart {
+  width: 200px;
+  margin: 16px auto 0;
+  display: block;
+  text-align: center;
+}
+
+.game-overlay__loading {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  animation: prompt-pulse 1.5s ease-in-out infinite;
+}
+
+/* Summit victory title */
+.game-overlay__summit-title {
+  font-size: 24px;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  color: var(--tactical-green-bright);
+  text-shadow: 0 0 30px rgba(61, 139, 55, 0.4);
+  margin-bottom: 8px;
+}
+
+.game-overlay__summit-subtitle {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--tactical-green);
+  margin-bottom: 20px;
+}
+
+/* Escape victory title */
+.game-overlay__escape-title {
+  font-size: 24px;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 8px;
+}
+
+.game-overlay__escape-subtitle {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+/* ── Run Summary ────────────────────────────── */
+
+.run-summary {
+  margin: 16px 0 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--panel-border);
+}
+
+.run-summary__route {
+  display: block;
+  margin: 0 auto 12px;
+}
+
+.run-summary__timeline {
+  margin-bottom: 12px;
+}
+
+.run-summary__event {
+  font-size: 10px;
+  letter-spacing: 1px;
+  line-height: 1.8;
+  color: var(--text-dim);
+}
+
+.run-summary__event--critical {
+  color: var(--hazard-red);
+}
+
+.run-summary__event--major {
+  color: var(--warning-orange);
+}
+
+.run-summary__event-day {
+  color: var(--amber);
+  font-variant-numeric: tabular-nums;
+}
+
+.run-summary__event-sep {
+  margin: 0 4px;
+  color: var(--text-muted);
+}
+
+.run-summary__event-text {
+  color: inherit;
+}
+
+.run-summary__epitaph {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.run-summary__codename {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  opacity: 0.6;
+  text-transform: uppercase;
 }
 
 /* ── Danger overlay (replaces vignette) ────── */
@@ -922,31 +1010,7 @@
   50% { opacity: 0.3; }
 }
 
-/* Dying breath overlay — 2s red flash before defeat screen */
-.screen-overlay--dying {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(80, 0, 0, 0.92);
-  animation: dying-flash 2s ease-out forwards;
-}
-
-.screen-overlay__dying-cause {
-  font-size: 28px;
-  font-weight: bold;
-  letter-spacing: 6px;
-  text-transform: uppercase;
-  color: var(--hazard-red);
-  text-shadow: 0 0 30px rgba(201, 56, 56, 0.3), 0 0 60px rgba(201, 56, 56, 0.3);
-  text-align: center;
-  animation: dying-pulse 0.5s ease-in-out infinite;
-}
-
-@keyframes dying-flash {
-  0% { background: rgba(120, 0, 0, 0.95); }
-  30% { background: rgba(80, 0, 0, 0.92); }
-  100% { background: rgba(0, 0, 0, 1); }
-}
+/* Legacy dying-flash removed — dying is now handled by game-overlay--dying */
 
 @keyframes dying-pulse {
   0%, 100% { opacity: 1; }
