@@ -139,6 +139,12 @@
   -webkit-backdrop-filter: none !important;
 }
 
+/* CRT monitor has its own bezel — override panel defaults */
+.crt-monitor {
+  background: transparent !important;
+  border: none !important;
+}
+
 /* Game header also needs background when floating */
 .game-header {
   background: var(--bg-panel) !important;
@@ -228,51 +234,88 @@
   margin-top: 2px;
 }
 
-/* Log window — "Radio Intercept Terminal" style */
-.log-window {
-  max-height: 200px;
-  overflow-y: auto;
-  padding: 16px;
-  padding-top: 36px; /* space for header bar */
-  background:
-    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%),
-    var(--bg-panel);
-  background-size: 100% 4px, 100% 100%; /* scanline + base */
-  border: 1px solid rgba(61, 139, 55, 0.3);
-  border-top: 3px solid #3d8b37;
-  border-radius: var(--border-radius);
-  box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.05), 0 0 15px rgba(0, 0, 0, 0.5);
-  font-size: 15px;
-  line-height: 1.6;
+/* ── CRT Monitor — physical bezel frame with phosphor screen ── */
+
+.crt-monitor {
   position: relative;
 }
 
-/* Status header label */
-.log-window::before {
-  content: "EXPEDITION LOG // SIGNAL RECV";
-  position: absolute;
-  top: 10px;
-  left: 16px;
-  font-size: 11px;
-  color: #3d8b37;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  text-shadow: 0 0 5px rgba(61, 139, 55, 0.4);
-  pointer-events: none;
+/* Outer bezel — thick dark frame with metallic edge */
+.crt-monitor__bezel {
+  background: linear-gradient(145deg, #1a1a1a 0%, #0a0a0a 40%, #151515 100%);
+  border: 2px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow:
+    0 0 20px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.5);
 }
 
-/* Signal strength indicator */
-.log-window::after {
-  content: "|||  || |";
-  position: absolute;
-  top: 8px;
-  right: 16px;
-  font-size: 13px;
+/* Header bar — SIGNAL RECV label */
+.crt-monitor__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 12px;
+  border-bottom: 1px solid #222;
+}
+
+.crt-monitor__title {
+  font-size: 11px;
+  color: #3d8b37;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-shadow: 0 0 6px rgba(61, 139, 55, 0.5);
+}
+
+.crt-monitor__signal {
+  font-size: 12px;
   font-family: var(--font-mono);
   color: #d4a843;
   letter-spacing: 2px;
   animation: signal-blink 2.5s step-end infinite;
+}
+
+/* Screen area — rounded CRT glass with phosphor glow */
+.crt-monitor__screen {
+  background: #020504;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    inset 0 0 30px rgba(0, 255, 65, 0.06),
+    inset 0 0 80px rgba(0, 0, 0, 0.5);
+}
+
+/* Scanline overlay on screen */
+.crt-monitor__screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.12) 2px,
+    rgba(0, 0, 0, 0.12) 4px
+  );
+  border-radius: 6px;
   pointer-events: none;
+  z-index: 1;
+}
+
+/* Log window — scrollable text inside the CRT screen */
+.log-window {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  position: relative;
 }
 
 .log-entry {
