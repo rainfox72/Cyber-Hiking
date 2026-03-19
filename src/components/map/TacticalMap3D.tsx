@@ -318,6 +318,7 @@ function HikerMarker() {
   const healthPercent = (energy + hydration + bodyTemp + o2 + morale) / 5;
   const markerRef = useRef<THREE.Group>(null);
   const prevIndexRef = useRef(0);
+  const facingAngleRef = useRef(0); // Y-axis rotation to face travel direction
 
   const driftRef = useRef({
     offset: new THREE.Vector3(),
@@ -352,6 +353,11 @@ function HikerMarker() {
       active: true, progress: 0, duration: dur,
       startPos: startPos.clone(), endPos: endPos.clone(),
     };
+
+    // Compute facing angle toward destination
+    const dx = endPos.x - startPos.x;
+    const dz = endPos.z - startPos.z;
+    facingAngleRef.current = Math.atan2(dx, dz);
   }, [currentIndex, lastAction, meshData]);
 
   useFrame(({ clock }, delta) => {
@@ -371,6 +377,7 @@ function HikerMarker() {
       if (markerRef.current) {
         markerRef.current.position.copy(pos);
         markerRef.current.position.y += 0.15;
+        markerRef.current.rotation.y = facingAngleRef.current;
       }
       hikerDisplayPos.current.copy(pos);
       hikerDisplayPos.current.y += 0.5;
@@ -396,10 +403,25 @@ function HikerMarker() {
       if (d.offset.length() < 0.01) { d.offset.set(0, 0, 0); d.prevLost = false; }
     }
 
+    // Compute facing direction toward next waypoint when idle
+    const nextIdx = Math.min(currentIndex + 1, meshData.waypointPositions.length - 1);
+    if (nextIdx !== currentIndex) {
+      const nextPos = meshData.waypointPositions[nextIdx];
+      const dx = nextPos.x - truePos.x;
+      const dz = nextPos.z - truePos.z;
+      const targetAngle = Math.atan2(dx, dz);
+      // Smooth lerp toward target facing
+      let angleDiff = targetAngle - facingAngleRef.current;
+      while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+      while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+      facingAngleRef.current += angleDiff * delta * 3;
+    }
+
     const displayPos = truePos.clone().add(d.offset);
     if (markerRef.current) {
       markerRef.current.position.copy(displayPos);
       markerRef.current.position.y += 0.15;
+      markerRef.current.rotation.y = facingAngleRef.current;
     }
     hikerDisplayPos.current.copy(displayPos);
     hikerDisplayPos.current.y += 0.5;
