@@ -8,7 +8,7 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import { useGameStore } from "./store/gameStore.ts";
 import { Scanlines } from "./components/effects/Scanlines.tsx";
-import { ParticleCanvas } from "./components/effects/ParticleCanvas.tsx";
+import { AtmosphereCanvas } from "./components/effects/AtmosphereCanvas.tsx";
 import { Vignette } from "./components/effects/Vignette.tsx";
 import TitleScreen from "./components/screens/TitleScreen.tsx";
 import { StatusDashboard } from "./components/game/StatusDashboard.tsx";
@@ -75,8 +75,8 @@ function App() {
       <SkyLayer />
       {/* z:1 — Mountain ridgelines */}
       <MountainScene />
-      {/* z:2 — Atmosphere (existing ParticleCanvas) */}
-      <ParticleCanvas />
+      {/* z:2 — Atmosphere */}
+      <AtmosphereCanvas />
       {/* z:3 — Danger overlays (existing Vignette) */}
       <Vignette />
 
