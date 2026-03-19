@@ -198,31 +198,12 @@ export function CameraDirector({ hikerPosRef }: { hikerPosRef: { current: THREE.
     const lostSpeedMult = isLost ? 2.0 : 1.0;
     autoOrbitAngleRef.current += delta * 0.5 * (Math.PI / 180) * lostSpeedMult;
 
-    // ── Auto-return: if user hasn't interacted for 4s, lerp back ──
+    // ── Auto-return: after 4s inactivity, resume orbit from current position ──
     const timeSinceInteraction = now - lastInteractionRef.current;
     if (userControllingRef.current && timeSinceInteraction > AUTO_RETURN_DELAY) {
-      const returnLerp = delta * AUTO_RETURN_SPEED;
-
-      // Lerp orbit angle toward auto-orbit angle
-      let angleDiff = autoOrbitAngleRef.current - orbitAngleRef.current;
-      // Normalize to [-PI, PI] for shortest path
-      while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
-      while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
-      orbitAngleRef.current += angleDiff * returnLerp;
-
-      // Lerp pitch back to default
-      orbitPitchRef.current += (DEFAULT_PITCH - orbitPitchRef.current) * returnLerp;
-
-      // Lerp radius back to default
-      orbitRadiusRef.current += (DEFAULT_RADIUS - orbitRadiusRef.current) * returnLerp;
-
-      // If close enough, release user control
-      if (Math.abs(angleDiff) < 0.01 &&
-          Math.abs(orbitPitchRef.current - DEFAULT_PITCH) < 0.01 &&
-          Math.abs(orbitRadiusRef.current - DEFAULT_RADIUS) < 0.05) {
-        userControllingRef.current = false;
-        orbitAngleRef.current = autoOrbitAngleRef.current;
-      }
+      // Sync auto-orbit to user's current angle and resume from there
+      autoOrbitAngleRef.current = orbitAngleRef.current;
+      userControllingRef.current = false;
     }
 
     // ── If not user-controlling, sync to auto-orbit ──
