@@ -358,6 +358,17 @@ No full-screen CSS overlays. Perception effects are all in postprocessing.
 - No shadow maps. No per-fragment raymarching.
 - All animation via refs + useFrame. No React state in render loops.
 - Target: <4ms/frame for all atmosphere systems combined.
+- `frameloop="always"` retained. If postprocessing pushes budget, disable event-triggered effects first before considering `frameloop="demand"`.
+
+## Graceful Degradation
+
+If postprocessing degrades performance below budget:
+1. Disable event-triggered effects (DOF, ChromaticAberration, Noise, Glitch) first
+2. If still over budget, disable Bloom (keep only Vignette)
+3. If EffectComposer itself is the bottleneck, remove it entirely and fall back to CSS Vignette (re-enable retired `Vignette.tsx`)
+4. Weather particles: reduce count by 50% as first mitigation step
+
+Snow accumulation on terrain resets gradually over 3 turns of clear weather (not instant).
 
 ## Constraints
 
