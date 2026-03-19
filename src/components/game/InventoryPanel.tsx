@@ -17,7 +17,9 @@ export function InventoryPanel() {
   const waterColor = water <= 0 ? "var(--hazard-red)" : water <= 1 ? "var(--amber)" : undefined;
 
   return (
-    <div className="inventory-grid">
+    <div>
+      <div className="section-label">SUPPLIES</div>
+      <div className="inventory-grid">
       {isLost && (
         <div className="inventory-item" style={{
           gridColumn: "1 / -1",
@@ -60,6 +62,7 @@ export function InventoryPanel() {
         <span className="inventory-item__label">Medicine</span>
         <span className="inventory-item__value">{medicine}</span>
       </div>
+    </div>
     </div>
   );
 }

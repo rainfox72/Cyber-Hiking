@@ -49,15 +49,15 @@
 
 .game-header__title {
   font-size: 14px;
-  letter-spacing: 4px;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--tactical-green);
 }
 
 .game-header__subtitle {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-dim);
-  letter-spacing: 1px;
+  letter-spacing: 0.08em;
 }
 
 .game-header__status {
@@ -69,6 +69,8 @@
 
 .game-header__turn {
   color: var(--amber);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
 }
 
 .game-header__ollama-dot {
@@ -92,22 +94,35 @@
 .panel--left {
   display: flex;
   flex-direction: column;
-  gap: var(--panel-gap);
+  gap: 6px;
   overflow-y: auto;
+  padding: 8px;
 }
 
 .panel--center {
   display: flex;
   flex-direction: column;
-  gap: var(--panel-gap);
+  gap: 6px;
   overflow: hidden;
+  padding: 8px;
 }
 
 .panel--right {
   display: flex;
   flex-direction: column;
-  gap: var(--panel-gap);
+  gap: 6px;
   overflow-y: auto;
+  padding: 8px;
+}
+
+/* Section label — premium typography for panel headers */
+.section-label {
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: var(--tactical-green);
+  opacity: 0.6;
+  margin-bottom: 8px;
 }
 
 /* Vital bar */
@@ -115,7 +130,8 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  padding: 2px 0;
 }
 
 .vital-bar__label {
@@ -132,13 +148,15 @@
 
 .vital-bar__label-value {
   color: var(--tactical-green);
+  font-variant-numeric: tabular-nums;
 }
 
 .vital-bar__track {
   height: 4px;
-  background: var(--bg-panel);
+  background: rgba(13, 17, 23, 0.6);
   border-radius: 1px;
   overflow: hidden;
+  border: 1px solid rgba(61, 139, 55, 0.06);
 }
 
 .vital-bar__fill {
@@ -151,13 +169,22 @@
   animation: pulse-danger 1s infinite;
 }
 
+.vital-bar--critical-intense .vital-bar__fill {
+  animation: pulse-danger 0.7s infinite;
+}
+
+.vital-bar--critical-intense {
+  box-shadow: 0 0 6px var(--critical-red);
+  border-radius: 2px;
+}
+
 /* Action button */
 .action-button {
   width: 100%;
   padding: 8px 10px;
   margin-bottom: 4px;
-  background: var(--bg-panel);
-  border: 1px solid var(--bg-storm);
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--panel-border);
   border-radius: var(--border-radius);
   color: var(--tactical-green);
   font-family: var(--font-mono);
@@ -166,23 +193,24 @@
   text-transform: uppercase;
   text-align: left;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, transform 0.08s ease;
 }
 
 .action-button:hover:not(:disabled) {
   border-color: var(--tactical-green);
-  box-shadow: 0 0 10px rgba(61, 139, 55, 0.3);
+  box-shadow: 0 0 4px rgba(61, 139, 55, 0.2);
   background: var(--bg-panel-raised);
 }
 
 .action-button:active:not(:disabled) {
   transform: scale(0.98);
+  filter: brightness(1.3);
 }
 
 .action-button:disabled {
   color: var(--text-muted);
   cursor: not-allowed;
-  opacity: 0.4;
+  opacity: 0.3;
 }
 
 .action-button__cost {
@@ -198,13 +226,13 @@
   min-height: 100px;
   overflow-y: auto;
   padding: var(--panel-padding);
-  background: var(--bg-panel);
-  border: 1px solid var(--bg-storm);
+  background: rgba(13, 17, 23, 0.6);
+  border: 1px solid var(--panel-border);
   border-radius: var(--border-radius);
 }
 
 .log-entry {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   line-height: 1.5;
   font-size: 12px;
 }
@@ -278,11 +306,11 @@
 }
 
 /* AI selection glow on action button */
-.action-button--ai-selected {
-  border-color: var(--amber) !important;
-  box-shadow: 0 0 12px rgba(212, 168, 67, 0.3), 0 0 24px rgba(212, 168, 67, 0.15) !important;
-  background: rgba(212, 168, 67, 0.08) !important;
-  color: var(--amber) !important;
+.action-button.action-button--ai-selected {
+  border-color: var(--amber);
+  box-shadow: 0 0 12px rgba(212, 168, 67, 0.3), 0 0 24px rgba(212, 168, 67, 0.15);
+  background: rgba(212, 168, 67, 0.08);
+  color: var(--amber);
   animation: ai-select-glow 1.5s ease-in-out;
 }
 
@@ -358,13 +386,13 @@
 .inventory-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px;
+  gap: 6px;
 }
 
 .inventory-item {
-  padding: 4px 6px;
-  background: var(--bg-panel);
-  border: 1px solid var(--bg-storm);
+  padding: 5px 6px;
+  background: rgba(13, 17, 23, 0.5);
+  border: 1px solid rgba(61, 139, 55, 0.06);
   border-radius: var(--border-radius);
   font-size: 10px;
   text-transform: uppercase;
@@ -374,44 +402,59 @@
 .inventory-item__label {
   color: var(--text-dim);
   display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
 }
 
 .inventory-item__value {
   color: var(--amber);
   font-size: 14px;
   font-weight: bold;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Risk meter */
 .risk-meter {
   text-align: center;
-  padding: 8px;
+  padding: 10px 8px;
+  transition: box-shadow 0.5s ease;
 }
 
 .risk-meter__value {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: bold;
   letter-spacing: 2px;
+  font-variant-numeric: tabular-nums;
 }
 
 .risk-meter__label {
-  font-size: 9px;
-  letter-spacing: 2px;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-dim);
+  color: var(--tactical-green);
+  opacity: 0.6;
+  margin-top: 4px;
 }
 
 .risk-meter--low .risk-meter__value {
-  color: var(--tactical-green);
+  color: var(--tactical-green-bright);
 }
 
 .risk-meter--medium .risk-meter__value {
   color: var(--amber);
 }
 
+.risk-meter--medium {
+  box-shadow: inset 0 0 12px rgba(212, 168, 67, 0.08);
+}
+
 .risk-meter--high .risk-meter__value {
-  color: var(--hazard-red);
-  text-shadow: 0 0 10px rgba(201, 56, 56, 0.3);
+  color: var(--critical-red);
+  animation: pulse-danger 1s infinite;
+}
+
+.risk-meter--high {
+  box-shadow: 0 0 8px rgba(255, 68, 68, 0.15), inset 0 0 12px rgba(255, 68, 68, 0.06);
 }
 
 /* Weather display */
@@ -419,7 +462,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px;
+  padding: 8px;
   font-size: 11px;
 }
 
@@ -430,19 +473,20 @@
 .weather-display__info {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 
 .weather-display__condition {
   color: var(--tactical-green);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.08em;
   font-size: 10px;
 }
 
 .weather-display__detail {
   color: var(--text-dim);
   font-size: 9px;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Tactical Topo Map */
@@ -515,7 +559,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 8px;
+  padding: 6px 8px;
   font-size: 11px;
 }
 
@@ -526,13 +570,14 @@
 .day-night__time {
   color: var(--amber);
   letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
 }
 
 .day-night__period {
   color: var(--text-dim);
   text-transform: uppercase;
-  font-size: 9px;
-  letter-spacing: 1px;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
 }
 
 /* Game screens */

@@ -27,7 +27,7 @@ export function NavigationConsole() {
 
   return (
     <div className="panel">
-      <div className="panel-header">NAVIGATION CONSOLE</div>
+      <div className="section-label">NAVIGATION CONSOLE</div>
       <button
         className={`auto-play-button${autoPlayEnabled ? " auto-play-button--active" : ""}`}
         onClick={toggleAutoPlay}

@@ -22,7 +22,7 @@ export function RiskMeter() {
   }, [player, weather, time, turnNumber, gamePhase, defeatCause, mapRevealed]);
 
   const pct = Math.round(risk * 100);
-  const level = pct < 25 ? "low" : pct < 50 ? "medium" : "high";
+  const level = pct < 30 ? "low" : pct < 60 ? "medium" : "high";
   return (
     <div className={`risk-meter risk-meter--${level}`}>
       <div className="risk-meter__value">{pct}%</div>

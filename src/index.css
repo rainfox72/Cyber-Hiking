@@ -120,13 +120,14 @@ body {
 }
 
 .panel-header {
-  font-size: 10px;
-  letter-spacing: 2px;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--bg-panel-border);
-  padding-bottom: 6px;
-  margin-bottom: 8px;
+  color: var(--tactical-green);
+  opacity: 0.6;
+  border-bottom: none;
+  padding-bottom: 4px;
+  margin-bottom: 10px;
 }
 
 /* Pulsing danger animation */
