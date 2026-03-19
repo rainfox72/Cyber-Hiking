@@ -818,14 +818,8 @@
   animation: prompt-pulse 2s ease-in-out infinite;
 }
 
-/* ── Vignette overlay ──────────────────────── */
-.vignette {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 3;
-  transition: background 2s ease;
-}
+/* ── Danger overlay (replaces vignette) ────── */
+/* Styles in index.css under .danger-overlay */
 
 /* ── Sound toggle button ───────────────────── */
 .sound-toggle {

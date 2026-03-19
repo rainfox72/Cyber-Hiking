@@ -231,6 +231,108 @@ body {
 .panel-grid[data-weather="fog"] .panel { box-shadow: inset 0 0 20px rgba(150, 150, 150, 0.05); }
 .panel-grid[data-weather="blizzard"] .panel { box-shadow: inset 0 0 30px rgba(200, 200, 220, 0.08); }
 
+/* ── Action feedback — scene responses ──────── */
+.scene-push .mountain-layer { transition: transform 0.4s ease; }
+.scene-camp .sky-layer { filter: brightness(0.9); transition: filter 0.6s ease; }
+.scene-rest .mountain-layer { transform: scale(1.005); transition: transform 0.5s ease; }
+.scene-medicine .mountain-layer { filter: brightness(1.05); transition: filter 0.4s ease; }
+.scene-injury { animation: screen-shake 0.2s ease-in-out; }
+.scene-lost .mountain-layer { filter: blur(2px); transition: filter 0.3s ease; }
+
+/* ── Action feedback — UI responses ──────────── */
+.ui-push .panel--center { border-color: var(--tactical-green) !important; transition: border-color 0.4s ease; }
+.ui-camp .panel { border-color: var(--amber) !important; transition: border-color 0.6s ease; }
+.ui-map .panel--center { border-color: var(--tactical-green-bright) !important; transition: border-color 0.3s ease; }
+.ui-rest .panel { opacity: 0.92; transition: opacity 0.5s ease; }
+.ui-consume .panel--left { border-color: var(--amber) !important; transition: border-color 0.3s ease; }
+.ui-medicine .panel--left { border-color: var(--tactical-green-bright) !important; transition: border-color 0.4s ease; }
+.ui-injury .panel { border-color: var(--critical-red) !important; transition: border-color 0.15s ease; }
+.ui-lost .panel--center { animation: panel-flicker 0.5s ease; }
+
+@keyframes panel-flicker {
+  0%, 100% { opacity: 1; }
+  25% { opacity: 0.7; }
+  50% { opacity: 0.9; }
+  75% { opacity: 0.75; }
+}
+
+/* ── Danger overlay system ─────────────────── */
+.danger-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.danger-overlay__layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 1.5s ease;
+}
+
+.danger-overlay__frost-corner {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.danger-overlay__frost-corner--tl {
+  top: 0; left: 0;
+  background: radial-gradient(ellipse at 0% 0%, rgba(108, 180, 212, 0.25) 0%, transparent 70%);
+}
+.danger-overlay__frost-corner--tr {
+  top: 0; right: 0;
+  background: radial-gradient(ellipse at 100% 0%, rgba(108, 180, 212, 0.25) 0%, transparent 70%);
+}
+.danger-overlay__frost-corner--bl {
+  bottom: 0; left: 0;
+  background: radial-gradient(ellipse at 0% 100%, rgba(108, 180, 212, 0.25) 0%, transparent 70%);
+}
+.danger-overlay__frost-corner--br {
+  bottom: 0; right: 0;
+  background: radial-gradient(ellipse at 100% 100%, rgba(108, 180, 212, 0.25) 0%, transparent 70%);
+}
+
+/* Altitude heartbeat pulse */
+@keyframes heartbeat-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+/* Morale scene jitter */
+@keyframes scene-jitter {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(1px, -1px); }
+  50% { transform: translate(-1px, 1px); }
+  75% { transform: translate(1px, 1px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Fall risk vertigo drift */
+@keyframes vertigo-drift {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(1px) rotate(0.3deg); }
+  50% { transform: translateY(-1px) rotate(-0.2deg); }
+  75% { transform: translateY(0.5px) rotate(0.1deg); }
+}
+
+/* Danger filter classes applied to .game-shell */
+.danger-dehydration { filter: contrast(1.2) saturate(0.8); }
+.danger-starvation { filter: brightness(0.85) saturate(0.7); }
+.danger-morale .mountain-layer { animation: scene-jitter 0.15s steps(2) infinite; }
+.danger-lost .tactical-map { filter: blur(1px); opacity: 0.85; }
+.danger-fall-risk .mountain-layer { animation: vertigo-drift 3s ease-in-out infinite; }
+
+/* Accent border tints for non-dominant conditions */
+.danger-accent-cold { border-top: 2px solid rgba(108, 180, 212, 0.2); }
+.danger-accent-altitude { border-top: 2px solid rgba(0, 0, 0, 0.3); }
+.danger-accent-dehydration { border-top: 2px solid rgba(212, 168, 67, 0.2); }
+.danger-accent-starvation { border-top: 2px solid rgba(201, 56, 56, 0.15); }
+.danger-accent-morale { border-top: 2px solid rgba(100, 60, 120, 0.2); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

@@ -9,7 +9,8 @@ import { useState, useEffect } from "react";
 import { useGameStore } from "./store/gameStore.ts";
 import { Scanlines } from "./components/effects/Scanlines.tsx";
 import { AtmosphereCanvas } from "./components/effects/AtmosphereCanvas.tsx";
-import { Vignette } from "./components/effects/Vignette.tsx";
+import { DangerOverlay } from "./components/effects/DangerOverlay.tsx";
+import { useActionFeedback } from "./hooks/useActionFeedback.ts";
 import TitleScreen from "./components/screens/TitleScreen.tsx";
 import { StatusDashboard } from "./components/game/StatusDashboard.tsx";
 import { InventoryPanel } from "./components/game/InventoryPanel.tsx";
@@ -69,6 +70,9 @@ function App() {
   const isShaking = useGameStore((s) => s.isShaking);
   const gamePhase = useGameStore((s) => s.gamePhase);
 
+  // Action feedback — transient CSS classes on scene/UI elements
+  useActionFeedback();
+
   return (
     <div className={`game-shell ${isShaking ? "shaking" : ""}`}>
       {/* z:0 — Sky gradient */}
@@ -77,8 +81,8 @@ function App() {
       <MountainScene />
       {/* z:2 — Atmosphere */}
       <AtmosphereCanvas />
-      {/* z:3 — Danger overlays (existing Vignette) */}
-      <Vignette />
+      {/* z:3 — Danger overlays (condition-specific treatments) */}
+      <DangerOverlay />
 
       {/* z:4 — Floating panel grid */}
       {gamePhase !== "title" && (
