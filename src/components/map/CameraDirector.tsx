@@ -32,7 +32,7 @@ interface Impulse {
 const DEFAULT_RADIUS = 3.3;
 const MIN_RADIUS = 1.5;
 const MAX_RADIUS = 10.0;
-const DEFAULT_PITCH = 55 * (Math.PI / 180); // 55 degrees in radians
+const DEFAULT_PITCH = 55 * (Math.PI / 180); // 55 degrees from horizontal
 const MIN_PITCH = 10 * (Math.PI / 180);
 const MAX_PITCH = 80 * (Math.PI / 180);
 const DRAG_SENSITIVITY = 0.005;
@@ -298,7 +298,9 @@ export function CameraDirector({ hikerPosRef }: { hikerPosRef: { current: THREE.
     );
 
     camera.position.lerp(camTarget, lookAtDelay);
-    camera.lookAt(target);
+    // Look slightly below the hiker so it sits in upper-40% of screen
+    const lookAtTarget = new THREE.Vector3(target.x, target.y - 0.6, target.z);
+    camera.lookAt(lookAtTarget);
 
     // FOV
     const perspCam = camera as THREE.PerspectiveCamera;

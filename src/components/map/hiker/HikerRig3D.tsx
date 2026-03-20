@@ -234,6 +234,9 @@ export function HikerRig3D({
     };
   }, [geos, mats]);
 
+  // ── Camping "enter tent" animation progress (0=standing, 1=inside tent) ──
+  const campProgressRef = useRef(0);
+
   // ── Prop visibility refs ──
   const mapPropRef = useRef<THREE.Mesh>(null);
   const bottlePropRef = useRef<THREE.Mesh>(null);

@@ -56,6 +56,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Signal blink for log terminal */
+@keyframes signal-blink {
+  0%, 90% { opacity: 1; }
+  91%, 100% { opacity: 0.3; }
+}
+
 /* Scene alert animations */
 @keyframes pulse-alert {
   0%, 100% { opacity: 0.7; }
