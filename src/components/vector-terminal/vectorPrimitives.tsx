@@ -87,11 +87,12 @@ export function LinePrimitive({
     return geo;
   }, [points]);
 
-  return (
-    <line geometry={geometry}>
-      <lineBasicMaterial color={color} transparent opacity={opacity} />
-    </line>
-  );
+  const lineObj = useMemo(() => {
+    const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity });
+    return new THREE.Line(geometry, mat);
+  }, [geometry, color, opacity]);
+
+  return <primitive object={lineObj} />;
 }
 
 // ── Wireframe mesh (cone, box, sphere, etc.) ──

@@ -51,7 +51,7 @@ export function WeatherParticles3D() {
     const geo = new THREE.BufferGeometry();
     const positions = new Float32Array(MAX_POINTS * 3);
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geo.getAttribute('position').setUsage(THREE.DynamicDrawUsage);
+    (geo.getAttribute('position') as THREE.BufferAttribute).setUsage(THREE.DynamicDrawUsage);
     return geo;
   }, []);
 
@@ -72,7 +72,7 @@ export function WeatherParticles3D() {
     const geo = new THREE.BufferGeometry();
     const positions = new Float32Array(MAX_SEGMENTS * 2 * 3); // 2 vertices per segment
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geo.getAttribute('position').setUsage(THREE.DynamicDrawUsage);
+    (geo.getAttribute('position') as THREE.BufferAttribute).setUsage(THREE.DynamicDrawUsage);
     return geo;
   }, []);
 

@@ -90,26 +90,22 @@ export function PostFXController() {
         blendFunction={BlendFunction.NORMAL}
       />
       {/* eslint-disable react-hooks/refs -- R3F effect props need ref access */}
-      {isLost && dofBokeh > 0 && (
-        <DepthOfField
-          focusDistance={focusDistance.current / 50}
-          focalLength={0.05}
-          bokehScale={dofBokeh}
-        />
-      )}
+      <DepthOfField
+        focusDistance={(isLost && dofBokeh > 0) ? focusDistance.current / 50 : 0}
+        focalLength={0.05}
+        bokehScale={(isLost && dofBokeh > 0) ? dofBokeh : 0}
+      />
       <ChromaticAberration
         offset={chromaOffsetRef.current}
         radialModulation={false}
         modulationOffset={0}
       />
       {/* eslint-enable react-hooks/refs */}
-      {noiseOpacity > 0 && (
-        <Noise
-          premultiply
-          blendFunction={BlendFunction.ADD}
-          opacity={noiseOpacity}
-        />
-      )}
+      <Noise
+        premultiply
+        blendFunction={BlendFunction.ADD}
+        opacity={noiseOpacity}
+      />
     </EffectComposer>
   );
 }

@@ -1,131 +1,114 @@
 # Ao Tai Cyber-Hike | 鳌太线
 
-A turn-based survival simulation of the dangerous Ao Tai Line (鳌太线) — an 80km high-altitude ridge traverse in China's Qinling Mountains, from Tangkou (1,740m) to Baxian Platform (3,767m).
+A turn-based survival simulation of China's most dangerous ridge traverse — the Ao Tai Line (鳌太线), 80km through the Qinling Mountains from Tangkou (1,740m) to Baxian Platform (3,767m). Officially banned since 2018 due to numerous fatalities.
 
-## Status
-
-**v2.6 — Ghost in the Machine (AI Intent + Resource Economy + 15% Summit Rate)**
+Built with React 19, Three.js, TypeScript, Zustand, and Ollama (Gemma4 27B).
 
 ## Features
 
-- **Turn-based survival** — Manage energy, hydration, body temperature, O2 saturation, and morale
-- **Real Ao Tai route** — 13 waypoints based on the actual trail (officially banned since 2018)
-- **Full-bleed 3D tactical map** — Three.js wireframe terrain with drag/zoom, dynamic sky, fog, weather particles, lightning, and postprocessing effects (bloom, depth-of-field blur when lost, chromatic aberration on falls)
-- **Animated 3D hiker** — 11-joint skeleton with 9 poses, CRT glitch transitions, trail afterimages, and health-driven visual degradation
-- **AI Auto-Play** — Watch Ollama hike the Ao Tai Line, with heuristic fallback when offline
-- **AI Intent Visualization** — Selection glow on buttons, 3-phase thought ticker, formatted AI log entries
-- **Resource drain economy** — Camp costs food, rest costs water; food caches and water resupply at key waypoints
-- **Balance tuning** — Difficulty calibrated from 220+ automated Ollama playtest games (11 rounds)
-- **Two endings** — Ending 1: Escape (descend back to Tangkou alive), Ending 2: Summit (reach Baxian Platform)
-- **Hardcore survival** — ~15% AI summit rate; rest is minor recovery, camp is essential for overnight survival
-- **Getting lost system** — Navigation accuracy with 6% base chance per push, modified by terrain, weather, night, and map-checking
-- **Fall/drop system** — Terrain-based falls with 50% vital damage; fatal at avg health <=25%
-- **Smart camp duration** — 4h during day, automatically sleeps until dawn at night
-- **Starvation/dehydration cascade** — Running out of food or water triggers rapid vital decay
-- **Resource-dependent recovery** — Camping without food/water gives drastically reduced recovery
-- **Passive altitude drains** — Energy and O2 drain continuously above 3000m
-- **Morale isolation** — Loneliness drains morale every action (Death Stranding inspired)
-- **25 critical events** — Hypothermia, altitude sickness, whiteout, pulmonary edema, frostbite, gear failure, trail collapse, and more
-- **Weather escalation** — Markov chain weather system with Day 4+ shift toward snow, blizzard, and wind
-- **Weather force multiplier** — Blizzard/wind/snow amplify all vital drain rates
-- **Risk engine** — Risk % calculated from altitude, weather, vitals, terrain, time of day
-- **Dynamic vignette overlay** — Tunnel vision effect as vitals drop, with blue/red tinting (readable even at critical health)
-- **"Dying breath" death display** — 2-second death cause overlay before SIGNAL LOST screen
-- **Background music** — Looping MP3 with fade-in, plus procedural Web Audio API sounds
-- **Procedural audio** — Web Audio API sound synthesis for footsteps, weather, UI, and ambient loops
-- **Fog-of-war vitals** — Vitals display jitters when morale drops below 40%
-- **AI narration** — Ollama (llama3.1:8b) generates atmospheric descriptions; offline fallback included
-- **Tactical GPS aesthetic** — Dark mode, neon green/amber accents, scanlines, weather particles, typewriter text
-- **Boot-up title screen** — Simulated terminal boot sequence with ASCII mountain art
-- **Game over/victory screens** — Enhanced with static noise (defeat) and glow effects (victory)
-
-## Tech Stack
-
-- React 19 + TypeScript + Vite 7
-- Zustand 5 (state management with selector subscriptions)
-- Ollama llama3.1:8b (local AI narration, async non-blocking)
-- Pure CSS/Canvas visual effects (scanlines, particles, screen shake, typewriter)
-- Pure TS game engine (zero React deps, testable independently)
+- **13 real waypoints** along the actual Ao Tai route with authentic terrain and elevations
+- **Full 3D tactical map** — Wireframe terrain with drag/zoom, dynamic weather, fog, lightning, and post-processing
+- **Animated 3D hiker** — 11-joint skeleton, 9 poses, CRT glitch transitions
+- **CRT vector art monitor** — Location-specific wireframe scenes on arrival, event illustrations
+- **AI narration** — Local Ollama generates atmospheric descriptions; works fully offline with fallback narratives
+- **AI auto-play** — Watch the AI attempt the traverse with strategic decision-making
+- **Hardcore survival** — Manage energy, hydration, body temperature, O2 saturation, and morale
+- **25 critical events** — Hypothermia, altitude sickness, whiteout, frostbite, trail collapse, and more
+- **Two endings** — Escape (retreat to Tangkou) or Summit (reach Baxian Platform at 3,767m)
+- **~15% AI summit rate** — Calibrated from 220+ automated playtest games
+- **Procedural audio** — All sounds synthesized via Web Audio API, no audio files required
 
 ## Quick Start
 
 ```bash
-# Install dependencies
 npm install
-
-# Start dev server
 npm run dev
-
-# Or double-click on Windows
-start.bat
 ```
 
-### Ollama Setup (optional, for AI narration)
+Opens at [http://localhost:3100](http://localhost:3100).
+
+### Windows
+
+Double-click `start.bat`.
+
+### Ollama Setup (optional)
+
+AI narration requires [Ollama](https://ollama.com) running locally:
 
 ```bash
-# Install Ollama: https://ollama.com
-ollama pull llama3.1:8b
-
-# If CORS issues in browser, set:
-# Windows: set OLLAMA_ORIGINS=*
-# Linux/Mac: OLLAMA_ORIGINS=* ollama serve
+ollama pull gemma4:27b
+ollama serve
 ```
 
-The game works fully without Ollama — fallback narratives are built in. The header shows a green/red dot indicating Ollama connection status.
+If you see CORS errors, set `OLLAMA_ORIGINS=*` before running `ollama serve`.
 
-## Route: 鳌太线 (Ao Tai Line)
+The game works fully without Ollama — the header dot shows green (connected) or red (offline).
 
-Standard west-to-east traverse:
+## How to Play
+
+You are hiking the Ao Tai Line. Each turn you choose an action:
+
+| Action | What it does | Time |
+|--------|-------------|------|
+| **Push Forward** | Advance to next waypoint (may get lost) | 3-5h |
+| **Set Camp** | Major recovery, costs 1 food. Sleeps until dawn at night | 4-13h |
+| **Descend** | Retreat to previous waypoint | 2h |
+| **Check Map** | Reduces chance of getting lost | 1h |
+| **Rest** | Minor recovery, costs 0.3L water | 2h |
+| **Eat Ration** | Energy +50, Morale +8 | 0.5h |
+| **Drink Water** | Hydration +40, Morale +3 | 0.5h |
+| **Use Medicine** | Heals O2 or treats fall injury | 0.5h |
+
+### Survival Tips
+
+- **Eat and drink early** — starvation and dehydration trigger rapid cascading vital loss
+- **Camp at shelters** — free food caches at 2900 Camp, Water Pit Camp, and 2800 Camp
+- **Check your map** before pushing through fog or at night — getting lost can be fatal
+- **Watch the weather** — blizzard and wind amplify all vital drain rates
+- **Past waypoint 10 (South Heaven Gate), there is no retreat**
+
+## The Route
 
 ```
-塘口 (1740m) -> 西花沟 -> 2900营地 -> 盆景园 -> 导航架 (鳌山顶)
--> 药王庙 -> 麦秸梁 -> 水窝子 -> 飞机梁 -> 2800营地
--> 南天门 -> 太白梁 -> 拔仙台 (3767m)
+塘口 Tangkou        1740m ── Start
+西花沟 West Flower   2400m
+2900营地 2900 Camp   2900m ── Shelter, food cache
+盆景园 Bonsai Garden 3276m
+导航架 Nav Tower     3431m ── Ridge begins
+药王庙 Medicine King 3327m ── Stone sea
+麦秸岭 Wheat Straw   3528m ── Exposed ridge
+水窝子 Water Pit     3235m ── Shelter, water, food
+飞机梁 Airplane Ridge 3400m ── Scree
+2800营地 2800 Camp   2800m ── Shelter, food cache
+南天门 South Heaven  3300m ── No retreat beyond
+太白梁 Taibai Ridge  3523m
+拔仙台 Baxian Tai    3767m ── Summit (goal)
 ```
 
-Total: ~80km, 5-6 days, crossing multiple peaks above 3,400m.
+## Tech Stack
 
-## Controls
+- **Frontend**: React 19 + TypeScript + Vite 7
+- **3D**: Three.js via React Three Fiber + drei + postprocessing
+- **State**: Zustand 5
+- **AI**: Ollama (Gemma4 27B) — local, async, non-blocking
+- **Audio**: Web Audio API procedural synthesis
+- **Engine**: Pure TypeScript game logic (zero React dependencies)
 
-| Action | Effect | Time Cost |
-|--------|--------|-----------|
-| Push Forward | Advance to next waypoint (or wander if lost) | 3-5h |
-| Set Camp | Major recovery, costs 1 food (sleep until dawn at night) | 4h-13h |
-| Descend | Retreat to previous waypoint | 2h |
-| Check Map | Navigation aid — reduces getting lost chance | 1h |
-| Rest | Minor recovery, costs 0.3L water | 2h |
-| Eat Ration | Energy +50, Morale +8, consumes 1 food | 0.5h |
-| Drink Water | Hydration +40, Morale +3, consumes 0.5L | 0.5h |
-| Use Medicine | O2 +15, temp normalize, or treat fall injury | 0.5h |
+## Deploy to Vercel
 
-## Project Structure
-
-```
-src/
-  engine/           # Pure TS game logic (types, gameEngine, risk, weather, vitals, dayNight, navigation, fall)
-  data/             # Waypoint data, events, weather transitions
-  store/            # Zustand store (gameStore.ts)
-  services/         # Ollama client, fallback narrator, SoundManager
-  components/
-    effects/        # Scanlines, ParticleCanvas, Vignette
-    game/           # StatusDashboard, NavigationConsole, LogWindow, etc.
-    map/            # TacticalMap, HumanMarker
-    screens/        # TitleScreen
-  hooks/            # useTypewriter
-  utils/            # Seeded PRNG (random.ts)
-DOC/                # README, TASKS, CLAUDE_INSTRUCTIONS
-scripts/            # Playtest bots (playtest-ollama.ts)
-docs/plans/         # Design docs and balance plans
-start.bat           # Windows launcher
+```bash
+npm run build    # outputs to dist/
 ```
 
-## Architecture
+The project is a static Vite SPA — deploy the `dist/` folder to any static host. For Vercel:
 
-- **Game Engine** — Pure TypeScript, no React imports. 12-step turn pipeline: validate -> time cost -> clock -> weather -> movement -> vitals -> risk -> events -> win check -> defeat check -> narrative -> log entry.
-- **Store** — Zustand with selector-based subscriptions. Synchronous engine updates, async Ollama narration.
-- **Visual Effects** — CSS scanlines overlay, HTML5 Canvas weather particles (snow/rain/fog/wind), CSS screen shake on critical events, typewriter hook for narrative text.
-- **Ollama** — Async POST to localhost:11434/api/generate. Non-blocking: game never waits for AI. Falls back to template-based narratives on timeout/error.
+1. Connect the GitHub repo to [vercel.com](https://vercel.com)
+2. Framework preset: **Vite**
+3. Build command: `npm run build`
+4. Output directory: `dist`
+
+Note: Ollama narration requires a local server and won't work in a hosted deployment. The game falls back to built-in template narratives automatically.
 
 ## Historical Note
 
-The 鳌太线 (Ao Tai Line) has been officially banned since 2018 due to numerous fatalities. This game is an educational simulation honoring the route's history and the challenge it represents. 拔仙台 (Baxian Platform, 3,767m) is the summit of Mount Taibai and the highest point of the entire Qinling range.
+The 鳌太线 (Ao Tai Line) has been officially banned since 2018 due to numerous fatalities. This game is an educational simulation honoring the route's history and the extreme challenge it represents. 拔仙台 (Baxian Platform, 3,767m) is the highest point of the Qinling range.

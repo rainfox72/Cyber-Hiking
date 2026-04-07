@@ -25,7 +25,7 @@ function toMapY(elev: number): number {
 }
 
 /** Generate contour ellipses for a waypoint based on its prominence. */
-function generateContours(x: number, y: number, elevation: number) {
+function generateContours(_x: number, _y: number, elevation: number) {
   const prominence = (elevation - MIN_ELEV) / (MAX_ELEV - MIN_ELEV);
   const rings = prominence > 0.6 ? 4 : prominence > 0.3 ? 3 : 2;
   const baseRx = 18 - prominence * 8; // tighter for higher peaks

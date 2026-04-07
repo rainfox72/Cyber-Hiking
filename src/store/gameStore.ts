@@ -76,7 +76,7 @@ interface GameStore {
   clearPopup: () => void;
 }
 
-function stateFromGameState(gs: GameState): Partial<GameStore> {
+function stateFromGameState(gs: GameState): Pick<GameStore, 'player' | 'weather' | 'time' | 'turnNumber' | 'log' | 'gamePhase' | 'defeatCause' | 'dyingCause' | 'endingType' | 'mapRevealed'> {
   return {
     player: gs.player,
     weather: gs.weather,

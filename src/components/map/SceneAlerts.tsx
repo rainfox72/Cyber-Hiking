@@ -11,6 +11,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
+import type { Vector3 } from 'three';
 import { useGameStore } from '../../store/gameStore.ts';
 import { useVisualState } from './VisualStateBridge.tsx';
 
@@ -24,7 +25,7 @@ interface Alert {
 
 let alertIdCounter = 0;
 
-export function SceneAlerts({ hikerPosRef }: { hikerPosRef: { current: THREE.Vector3 } }) {
+export function SceneAlerts({ hikerPosRef }: { hikerPosRef: { current: Vector3 } }) {
   const isLost = useGameStore((s) => s.player.isLost);
   const lastAction = useGameStore((s) => s.lastAction);
   const lastVisualEvent = useGameStore((s) => s.lastVisualEvent);

@@ -655,6 +655,7 @@ export function TerrainLandmarks({
             // Exhaustive check — TypeScript will error if a new type is added without handling it
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const _exhaustive: never = lm.type;
+            void _exhaustive;
             return null;
           }
         }

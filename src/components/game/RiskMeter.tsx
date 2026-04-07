@@ -17,7 +17,7 @@ export function RiskMeter() {
   const defeatCause = useGameStore((s) => s.defeatCause);
 
   const risk = useMemo(() => {
-    const state = { player, weather, time, turnNumber, log: [], gamePhase, defeatCause, mapRevealed };
+    const state = { player, weather, time, turnNumber, log: [] as never[], gamePhase, defeatCause, dyingCause: null, endingType: null, mapRevealed };
     return calculateRisk(state, WAYPOINTS);
   }, [player, weather, time, turnNumber, gamePhase, defeatCause, mapRevealed]);
 
