@@ -19,6 +19,7 @@ export function GameOverlay() {
 
   useEffect(() => {
     if (gamePhase === "playing" || gamePhase === "title") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowContent(false);
       return;
     }

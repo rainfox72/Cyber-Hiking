@@ -5,7 +5,8 @@
 
 import { useRef, useMemo, useState, useEffect, Component } from "react";
 import type { ReactNode } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import { useGameStore } from "../../store/gameStore.ts";
 import { WAYPOINTS } from "../../data/waypoints.ts";
@@ -256,11 +257,66 @@ function WaypointMarkers() {
         if (i < currentIndex) color = "#00ff41";
         if (i === currentIndex) color = "#ffb000";
         const scale = i === currentIndex ? 0.12 : 0.08;
+        const wp = WAYPOINTS[i];
+
+        // Show labels for nearby waypoints (within ±3 of current)
+        const distance = Math.abs(i - currentIndex);
+        const showLabel = distance <= 3;
+        const labelOpacity = i === currentIndex ? 1.0
+          : distance <= 1 ? 0.7
+          : distance <= 2 ? 0.5
+          : 0.3;
+
         return (
-          <mesh key={i} position={pos} scale={[scale, scale * 1.5, scale]}>
-            <octahedronGeometry args={[1, 0]} />
-            <meshBasicMaterial color={color} transparent opacity={i === currentIndex ? 1 : 0.7} />
-          </mesh>
+          <group key={i}>
+            <mesh position={pos} scale={[scale, scale * 1.5, scale]}>
+              <octahedronGeometry args={[1, 0]} />
+              <meshBasicMaterial color={color} transparent opacity={i === currentIndex ? 1 : 0.7} />
+            </mesh>
+            {showLabel && (
+              <Html
+                position={[pos.x, pos.y + 0.25, pos.z]}
+                center
+                style={{
+                  pointerEvents: "none",
+                  userSelect: "none",
+                  whiteSpace: "nowrap",
+                  opacity: labelOpacity,
+                  transition: "opacity 0.5s",
+                }}
+              >
+                <div style={{
+                  fontFamily: "var(--font-mono, monospace)",
+                  textAlign: "center",
+                  textShadow: `0 0 8px ${color}88`,
+                  lineHeight: 1.2,
+                }}>
+                  <div style={{
+                    fontSize: i === currentIndex ? "13px" : "10px",
+                    fontWeight: i === currentIndex ? "bold" : "normal",
+                    color: color,
+                    letterSpacing: "1px",
+                  }}>
+                    {wp.nameCN}
+                  </div>
+                  <div style={{
+                    fontSize: i === currentIndex ? "10px" : "8px",
+                    color: color,
+                    opacity: 0.8,
+                  }}>
+                    {wp.name}
+                  </div>
+                  <div style={{
+                    fontSize: "8px",
+                    color: color,
+                    opacity: 0.6,
+                  }}>
+                    {wp.elevation}m
+                  </div>
+                </div>
+              </Html>
+            )}
+          </group>
         );
       })}
     </>
@@ -364,7 +420,7 @@ function HikerMarker() {
     facingAngleRef.current = Math.atan2(dx, dz);
   }, [currentIndex, lastAction, meshData]);
 
-  useFrame(({ clock }, delta) => {
+  useFrame((_state, delta) => {
     const anim = animRef.current;
     const d = driftRef.current;
 
@@ -439,6 +495,7 @@ function HikerMarker() {
           turnNumber={turnNumber}
           currentWaypointIndex={currentIndex}
           isMoving={isMoving}
+          // eslint-disable-next-line react-hooks/refs
           movementDuration={animRef.current.duration}
           isLost={isLost}
           weather={weather}

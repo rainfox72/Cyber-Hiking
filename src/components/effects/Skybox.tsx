@@ -114,6 +114,7 @@ export function Skybox() {
     const modified = getWeatherModifiedGradient(base, weather, intensity);
     const bg = `linear-gradient(180deg, ${modified.top} 0%, ${modified.bottom} 100%)`;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setState((prev) => {
       const newActive = prev.activeLayer === 0 ? 1 : 0;
       const gradients: [string, string] = [prev.gradients[0], prev.gradients[1]];

@@ -17,6 +17,7 @@ const VisualStateContext = createContext<React.MutableRefObject<VisualState>>(
   { current: defaultState } as React.MutableRefObject<VisualState>
 );
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useVisualState(): React.MutableRefObject<VisualState> {
   return useContext(VisualStateContext);
 }

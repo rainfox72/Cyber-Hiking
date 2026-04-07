@@ -69,13 +69,14 @@ export function TerrainAtmosphere() {
     if (waypointIndex === prevIndexRef.current) return;
     prevIndexRef.current = waypointIndex;
 
-    let effect = { ...TERRAIN_EFFECTS[wp.terrain] };
+    const effect = { ...TERRAIN_EFFECTS[wp.terrain] };
 
     if (wp.elevation > HIGH_ALTITUDE_THRESHOLD) {
       const factor = Math.min((wp.elevation - HIGH_ALTITUDE_THRESHOLD) / 600, 1);
       effect.terrainTint = `rgba(40, 50, 70, ${0.02 + factor * 0.03})`;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setState((prev) => {
       const newActive = prev.activeLayer === 0 ? 1 : 0;
       const effects: [TerrainEffect, TerrainEffect] = [prev.effects[0], prev.effects[1]];

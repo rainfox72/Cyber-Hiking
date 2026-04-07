@@ -15,6 +15,8 @@ import type {
   CriticalEvent,
   VisualEvent,
 } from "../engine/types.ts";
+import type { PopupRequest } from "../components/vector-terminal/types.ts";
+import { getEventSceneIds } from "../components/vector-terminal/sceneDefinitions.ts";
 import {
   createInitialState,
   processAction,
@@ -57,6 +59,9 @@ interface GameStore {
   lastAIAction: GameAction | null;
   aiStatusPhase: string;
 
+  // Vector Terminal popups
+  activePopup: PopupRequest | null;
+
   // RNG
   rng: RNG;
 
@@ -68,6 +73,7 @@ interface GameStore {
   setOllamaConnected: (connected: boolean) => void;
   toggleAutoPlay: () => void;
   stopAutoPlay: () => void;
+  clearPopup: () => void;
 }
 
 function stateFromGameState(gs: GameState): Partial<GameStore> {
@@ -120,6 +126,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   isAIThinking: false,
   lastAIAction: null,
   aiStatusPhase: "",
+  activePopup: null,
 
   // RNG with random seed
   rng: createRNG(Date.now()),
@@ -139,12 +146,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
       isAIThinking: false,
       lastAIAction: null,
       aiStatusPhase: "",
+      activePopup: null,
       rng: createRNG(Date.now()),
     });
   },
 
   initGame: () => {
     get().startGame();
+  },
+
+  clearPopup: () => {
+    set({ activePopup: null });
   },
 
   performAction: (action: GameAction) => {
@@ -239,6 +251,54 @@ export const useGameStore = create<GameStore>((set, get) => ({
       // Clear shake after animation
       if (hasEvents) {
         setTimeout(() => set({ isShaking: false }), 600);
+      }
+
+      // ── Vector Terminal popup dispatch ──
+      // Priority: location arrival > critical/major event
+      const oldWpIndex = currentState.player.currentWaypointIndex;
+      const newWpIndex = result.newState.player.currentWaypointIndex;
+      const wpChanged = newWpIndex !== oldWpIndex;
+
+      if (wpChanged) {
+        const wp = WAYPOINTS[newWpIndex];
+        set({
+          activePopup: {
+            type: "location",
+            id: wp.id,
+            title: wp.name.toUpperCase(),
+            titleCN: wp.nameCN,
+            subtitle: `ALT: ${wp.elevation}M | TERRAIN: ${wp.terrain.replace("_", " ").toUpperCase()}`,
+            timestamp: Date.now(),
+          },
+        });
+      } else if (!hadFallInjury && hasFallInjury) {
+        // Fall event — triggered by engine, not events data
+        set({
+          activePopup: {
+            type: "event",
+            id: "fall_drop",
+            title: "FALL DETECTED",
+            subtitle: "UNCONTROLLED DESCENT — INJURY SUSTAINED",
+            timestamp: Date.now(),
+          },
+        });
+      } else if (result.events.length > 0) {
+        // Show popup for the highest-severity event that has a scene definition
+        const eventSceneIds = getEventSceneIds();
+        const matchedEvent = result.events.find(
+          (e) => (e.severity === "critical" || e.severity === "major") && eventSceneIds.includes(e.id)
+        );
+        if (matchedEvent) {
+          set({
+            activePopup: {
+              type: "event",
+              id: matchedEvent.id,
+              title: matchedEvent.name.toUpperCase(),
+              subtitle: matchedEvent.description.slice(0, 60),
+              timestamp: Date.now(),
+            },
+          });
+        }
       }
 
       // Auto-transition dying → defeat after 2 seconds

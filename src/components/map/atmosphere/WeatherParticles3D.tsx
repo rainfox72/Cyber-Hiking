@@ -214,6 +214,7 @@ export function WeatherParticles3D() {
       linesGeo.setDrawRange(0, 0);
 
       // Set material properties
+      // eslint-disable-next-line react-hooks/immutability
       pointsMat.size = config.sizeOrLength * 0.015;
       pointsMat.opacity = vs.weather === 'blizzard' ? 0.8 : 0.7;
     } else {
@@ -252,6 +253,7 @@ export function WeatherParticles3D() {
       // Set line color/opacity per weather
       if (vs.weather === 'rain') {
         linesMat.color.set('#96c8ff');
+        // eslint-disable-next-line react-hooks/immutability
         linesMat.opacity = 0.4;
       } else {
         linesMat.color.set('#b4b496');

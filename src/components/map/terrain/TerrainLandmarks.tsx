@@ -80,6 +80,7 @@ function TrailheadGate({
       groupRef.current.position.z = landmark.position.z;
     }
 
+    // eslint-disable-next-line react-hooks/immutability
     mat.opacity = Math.max(0, Math.min(1, opacity));
   });
 
@@ -175,7 +176,9 @@ function ShelterMarker({
       groupRef.current.position.z = landmark.position.z;
     }
 
+    // eslint-disable-next-line react-hooks/immutability
     tentMat.opacity = Math.max(0, Math.min(1, tentOpacity));
+    // eslint-disable-next-line react-hooks/immutability
     fireMat.opacity = Math.max(0, Math.min(1, fireOpacity));
   });
 
@@ -254,6 +257,7 @@ function Shrine({
       groupRef.current.position.z = landmark.position.z;
     }
 
+    // eslint-disable-next-line react-hooks/immutability
     mat.opacity = Math.max(0, Math.min(1, opacity));
   });
 
@@ -321,6 +325,7 @@ function Cairn({
     if (weather === "blizzard") {
       // Blizzard jitter
       const baseOpacity = 0.3 + Math.random() * 0.4;
+      // eslint-disable-next-line react-hooks/immutability
       mat.opacity = Math.max(0, Math.min(1, baseOpacity));
       groupRef.current.position.x =
         landmark.position.x + (Math.random() - 0.5) * 0.006;
@@ -416,6 +421,7 @@ function WarningSign({
     // Color flash between #ff4400 and #ff0000
     const isFlashOn = Math.sin(elapsed * Math.PI * 2 * 8) > 0;
     mat.color.set(isFlashOn ? "#ff4400" : "#ff0000");
+    // eslint-disable-next-line react-hooks/immutability
     mat.opacity = Math.max(0, Math.min(1, opacity));
   });
 
@@ -510,8 +516,11 @@ function SummitBeacon({
         landmark.position.x + (Math.random() - 0.5) * 0.006;
       groupRef.current.position.z =
         landmark.position.z + (Math.random() - 0.5) * 0.006;
+      // eslint-disable-next-line react-hooks/immutability
       sphereMat.opacity = Math.max(0, Math.min(1, baseOpacity));
+      // eslint-disable-next-line react-hooks/immutability
       poleMat.opacity = Math.max(0, Math.min(1, baseOpacity * 0.8));
+      // eslint-disable-next-line react-hooks/immutability
       ringMat.opacity = Math.max(0, Math.min(1, baseOpacity * 0.7));
     } else {
       groupRef.current.position.x = landmark.position.x;
@@ -578,6 +587,7 @@ export function TerrainLandmarks({
   details,
   timeOfDay,
   weather,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   currentIndex: _currentIndex,
 }: Props) {
   const { landmarks } = details;
@@ -643,6 +653,7 @@ export function TerrainLandmarks({
             );
           default: {
             // Exhaustive check — TypeScript will error if a new type is added without handling it
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const _exhaustive: never = lm.type;
             return null;
           }

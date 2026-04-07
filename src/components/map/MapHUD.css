@@ -1,0 +1,107 @@
+/**
+ * MapHUD — 2D overlay for tactical map metadata.
+ * Compass rose, scan metadata, directional arrow.
+ * Sits above the Canvas (z-index 1) but below game panels.
+ */
+
+.map-hud {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  color: var(--neon-green, #00ff41);
+}
+
+/* ── Compass rose (bottom-left) ── */
+
+.map-hud__compass {
+  position: absolute;
+  bottom: 220px;
+  left: 16px;
+  width: 56px;
+  height: 56px;
+  opacity: 0.7;
+}
+
+.map-hud__compass svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 4px rgba(0, 255, 65, 0.4));
+}
+
+.map-hud__compass-label {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--neon-green, #00ff41);
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.5);
+  opacity: 0.6;
+}
+
+/* ── Scan metadata (bottom-left, below compass) ── */
+
+.map-hud__metadata {
+  position: absolute;
+  bottom: 100px;
+  left: 16px;
+  font-size: 10px;
+  line-height: 1.6;
+  letter-spacing: 1.5px;
+  color: var(--neon-green, #00ff41);
+  text-shadow: 0 0 4px rgba(0, 255, 65, 0.3);
+  opacity: 0.5;
+}
+
+.map-hud__metadata span {
+  display: block;
+}
+
+/* ── Directional arrow (top-right area) ── */
+
+.map-hud__direction {
+  position: absolute;
+  top: 60px;
+  right: 240px;
+  text-align: right;
+  opacity: 0.6;
+  animation: direction-pulse 3s ease-in-out infinite;
+}
+
+.map-hud__direction-arrow {
+  font-size: 20px;
+  color: var(--neon-green, #00ff41);
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.5);
+}
+
+.map-hud__direction-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--neon-green, #00ff41);
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.4);
+  display: block;
+  margin-top: 2px;
+}
+
+@keyframes direction-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+/* ── Trail name label (bottom-center) ── */
+
+.map-hud__trail-name {
+  position: absolute;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: var(--neon-green, #00ff41);
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.3);
+  opacity: 0.35;
+  white-space: nowrap;
+}

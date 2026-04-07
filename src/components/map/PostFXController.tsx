@@ -6,7 +6,7 @@
  */
 
 import { useRef } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import {
   EffectComposer,
   Bloom,
@@ -41,7 +41,6 @@ export function PostFXController() {
   const dofBokeh = isLost ? Math.min(4 + lostTurns * 0.5, 6) : 0;
 
   // ── ChromaticAberration for fall events ──
-  const chromaRef = useRef<typeof ChromaticAberration>(null);
   const chromaOffsetRef = useRef(new THREE.Vector2(0, 0));
   const chromaDecayRef = useRef(0);
   const prevEventTimestamp = useRef(0);
@@ -49,13 +48,15 @@ export function PostFXController() {
   // ── Noise for critical vitals ──
   const noiseOpacity = worstVital < 15 ? 0.08 : 0;
 
-  // Detect fall events
+  // Detect fall events — intentional ref access during render for R3F effect props
+  /* eslint-disable react-hooks/refs */
   if (lastVisualEvent &&
       lastVisualEvent.timestamp !== prevEventTimestamp.current &&
       (lastVisualEvent.type === 'fall' || lastVisualEvent.type === 'lost_start')) {
     prevEventTimestamp.current = lastVisualEvent.timestamp;
     chromaDecayRef.current = 1.0;
   }
+  /* eslint-enable react-hooks/refs */
 
   useFrame((_, delta) => {
     // Decay chromatic aberration
@@ -69,7 +70,6 @@ export function PostFXController() {
   });
 
   // DOF focus distance — approximate from camera
-  const { camera } = useThree();
   const focusDistance = useRef(3);
   useFrame(() => {
     // Simple approximation: orbit radius
@@ -89,6 +89,7 @@ export function PostFXController() {
         offset={0.3}
         blendFunction={BlendFunction.NORMAL}
       />
+      {/* eslint-disable react-hooks/refs -- R3F effect props need ref access */}
       {isLost && dofBokeh > 0 && (
         <DepthOfField
           focusDistance={focusDistance.current / 50}
@@ -101,6 +102,7 @@ export function PostFXController() {
         radialModulation={false}
         modulationOffset={0}
       />
+      {/* eslint-enable react-hooks/refs */}
       {noiseOpacity > 0 && (
         <Noise
           premultiply

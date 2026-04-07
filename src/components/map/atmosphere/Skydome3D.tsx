@@ -137,6 +137,7 @@ export function Skydome3D() {
     const isNight = vs.timeOfDay === 'night' || vs.timeOfDay === 'dusk';
     const targetStarOpacity = isNight ? 0.6 : 0;
     starOpacityRef.current += (targetStarOpacity - starOpacityRef.current) * lerpSpeed;
+    // eslint-disable-next-line react-hooks/immutability
     starMat.opacity = starOpacityRef.current;
 
     // Star twinkle: modulate individual star sizes

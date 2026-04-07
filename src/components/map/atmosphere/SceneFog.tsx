@@ -19,6 +19,7 @@ export function SceneFog() {
   // Initialize fog on mount
   useEffect(() => {
     const fog = new THREE.FogExp2('#0a0a0a', 0.02);
+    // eslint-disable-next-line react-hooks/immutability
     scene.fog = fog;
     fogRef.current = fog;
     return () => { scene.fog = null; };

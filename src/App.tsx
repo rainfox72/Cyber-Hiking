@@ -26,6 +26,8 @@ import { GameOverlay } from "./components/game/GameOverlay.tsx";
 import { OllamaPoller } from "./components/game/OllamaPoller.tsx";
 import { SceneContent, TacticalMap3D } from "./components/map/TacticalMap3D.tsx";
 import { VisualStateBridge } from "./components/map/VisualStateBridge.tsx";
+import { MapHUD } from "./components/map/MapHUD.tsx";
+import { VectorTerminal } from "./components/vector-terminal/VectorTerminal.tsx";
 import { soundManager } from "./services/soundManager.ts";
 import { WAYPOINTS } from "./data/waypoints.ts";
 
@@ -122,6 +124,9 @@ function App() {
         </Canvas>
       </FullBleedErrorBoundary>
 
+      {/* Map HUD overlay */}
+      <MapHUD />
+
       {/* Floating DOM panels */}
       <Scanlines />
       <DangerOverlay />
@@ -159,6 +164,7 @@ function App() {
         </div>
       </div>
       <GameOverlay />
+      <VectorTerminal />
     </>
   );
 }

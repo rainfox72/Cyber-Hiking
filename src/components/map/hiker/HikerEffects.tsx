@@ -32,7 +32,7 @@ interface HikerEffectsProps {
 // ---------------------------------------------------------------------------
 
 const NUM_GHOSTS = 4;
-const NUM_JOINTS = 11;
+// const NUM_JOINTS = 11; // currently unused but kept for reference
 const GHOST_INTERVAL = 0.3;   // seconds between ghost captures
 const GHOST_LIFETIME = 0.6;   // seconds for full fade-out
 const GHOST_FADE_OUT = 0.3;   // fade-out on movement end
@@ -235,6 +235,7 @@ export function HikerEffects({
       }
 
       grp.visible = visible;
+      // eslint-disable-next-line react-hooks/immutability
       ghostMats[g].opacity = opacity;
 
       if (visible) {
@@ -263,6 +264,7 @@ export function HikerEffects({
         pingMesh.scale.setScalar(scale < 0.01 ? 0.01 : scale);
 
         // Opacity: 0.4 → 0
+        // eslint-disable-next-line react-hooks/immutability
         pingMat.opacity = 0.4 * (1 - progress);
 
         // Y sine displacement

@@ -4,12 +4,12 @@
  * Non-blocking: game never waits for the LLM. Falls back gracefully.
  */
 
-import type { TurnResult, Waypoint } from "../engine/types.ts";
+import type { TurnResult } from "../engine/types.ts";
 import { WAYPOINTS } from "../data/waypoints.ts";
 
 const OLLAMA_URL = "http://localhost:11434/api/generate";
 const OLLAMA_TAGS_URL = "http://localhost:11434/api/tags";
-const MODEL = "llama3.1:8b";
+const MODEL = "gemma4:27b";
 const TIMEOUT_MS = 15000;
 
 /**

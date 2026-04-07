@@ -5,6 +5,7 @@
 import { useGameStore } from "../../store/gameStore.ts";
 import type { WeatherCondition } from "../../engine/types.ts";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const WEATHER_ICONS: Record<WeatherCondition, string> = {
   clear: "\u2600",
   cloudy: "\u2601",

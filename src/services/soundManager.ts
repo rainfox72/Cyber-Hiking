@@ -15,8 +15,6 @@ class SoundManager {
   // Active ambient nodes
   private windNode: AudioNode | null = null;
   private windGain: GainNode | null = null;
-  private rainNode: AudioBufferSourceNode | null = null;
-  private rainGain: GainNode | null = null;
   private humNode: OscillatorNode | null = null;
   private humGain: GainNode | null = null;
   private musicElement: HTMLAudioElement | null = null;

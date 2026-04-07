@@ -38,7 +38,6 @@ const MAX_PITCH = 80 * (Math.PI / 180);
 const DRAG_SENSITIVITY = 0.005;
 const ZOOM_SENSITIVITY = 0.3;
 const AUTO_RETURN_DELAY = 4000; // ms
-const AUTO_RETURN_SPEED = 0.8; // lerp factor per second
 
 export function CameraDirector({ hikerPosRef }: { hikerPosRef: { current: THREE.Vector3 } }) {
   const { camera, gl } = useThree();
@@ -304,6 +303,7 @@ export function CameraDirector({ hikerPosRef }: { hikerPosRef: { current: THREE.
 
     // FOV
     const perspCam = camera as THREE.PerspectiveCamera;
+    // eslint-disable-next-line react-hooks/immutability
     perspCam.fov += (fovTarget - perspCam.fov) * delta * 2;
     perspCam.updateProjectionMatrix();
   });

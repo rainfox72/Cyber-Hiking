@@ -73,6 +73,7 @@ export function FogPlanes() {
       });
       // Distribute at different depths and heights
       const offset = new THREE.Vector3(
+        // eslint-disable-next-line react-hooks/purity
         (Math.random() - 0.5) * 2,
         -0.5 + i * 0.3,
         -2 - i * 1.5,
@@ -109,6 +110,7 @@ export function FogPlanes() {
       if (!mesh) continue;
 
       // Update shader uniforms
+      // eslint-disable-next-line react-hooks/immutability
       p.mat.uniforms.uTime.value = clock.elapsedTime + i * 100;
 
       // Lerp opacity

@@ -3,10 +3,12 @@
  * Also exports clamp() and vitalColor() utilities used by other components.
  */
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function clamp(v: number, min: number, max: number) {
   return Math.min(Math.max(v, min), max);
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function vitalColor(value: number): string {
   if (value > 60) return "var(--neon-green)";
   if (value > 30) return "var(--amber)";

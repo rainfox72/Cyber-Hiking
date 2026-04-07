@@ -1,6 +1,6 @@
 # Ao Tai Cyber-Hike
 
-Turn-based survival simulation of the 鳌太线 (Ao Tai Line): Vite 7 + React 19 + TypeScript + Zustand 5 + Ollama llama3.1:8b
+Turn-based survival simulation of the 鳌太线 (Ao Tai Line): Vite 7 + React 19 + TypeScript + Zustand 5 + Ollama Gemma4 27B
 
 ## Commands
 
@@ -35,6 +35,14 @@ npx tsc --noEmit     # Type check (zero errors policy)
   - `map/atmosphere/WeatherParticles3D.tsx` — 3D weather: Points (snow/blizzard) + LineSegments (rain/wind)
   - `map/atmosphere/FogPlanes.tsx` — Rolling fog bank noise planes for fog/blizzard
   - `map/atmosphere/LightningController.tsx` — Event-driven storm lightning flashes
+- `src/components/vector-terminal/` — CRT vector art popup system
+  - `VectorTerminal.tsx` — Overlay component (lifecycle: boot → scene → fadeout, auto-dismiss ~4s)
+  - `VectorTerminal.css` — CRT bezel frame, scanlines, fade animations
+  - `VectorScene.tsx` — R3F renderer for scene definitions (orthographic camera, bloom postFX)
+  - `sceneDefinitions.ts` — 13 location scenes + 12 event scenes (pure data)
+  - `vectorPrimitives.tsx` — Reusable geometry: terrain, wireframe meshes, hiker, motion ghosts, rings
+  - `types.ts` — VectorSceneDef, VectorElement, PopupRequest interfaces
+- `src/components/map/MapHUD.tsx` — 2D tactical overlay (compass rose, scan metadata, direction arrow)
 - `src/hooks/` — useTypewriter (character-by-character text reveal)
 - `src/utils/random.ts` — Seeded PRNG (mulberry32)
 - `scripts/` — Playtest bots (Ollama AI + heuristic)
@@ -56,6 +64,9 @@ npx tsc --noEmit     # Type check (zero errors policy)
 - **Map drag/zoom** — Left-click drag rotates orbit, scroll/pinch zooms (1.5-10x radius). Pure pointer math, no drei OrbitControls (known crash). Auto-orbit resumes from user's position after 4s inactivity. Action impulses layer on top. Camera lookAt offset (-0.6 Y) keeps hiker in upper viewport above log terminal.
 - **Hiker orientation** — Hiker faces travel direction (toward next waypoint when idle, toward destination during movement). Walking animation (walkingA/walkingB) plays during waypoint transitions via React state `isMoving`.
 - **CRT log terminal** — LogWindow wrapped in `.crt-monitor` bezel frame with scanline overlay, phosphor glow, SIGNAL RECV header, amber signal bars. Physical CRT monitor aesthetic.
+- **Vector Terminal monitor** — Small CRT bezel monitor (320x240) in upper-right corner with secondary R3F Canvas (orthographic, bloom). Triggers on waypoint arrival (13 location scenes) and critical/major events (12 event scenes). Non-blocking — game continues while monitor shows. Lifecycle: boot text (500ms) → vector art scene (5s) → fade out (600ms). Click to dismiss early. Scene definitions are pure data (heightmaps, wireframe meshes, lines, points, hiker poses, rings). Store dispatches `activePopup` with timestamp-based dedup.
+- **Map HUD overlay** — DOM overlay (z-index 1) with compass rose SVG, scan metadata (SCAN: 60Hz / RES / MODE / ALT), directional arrow (TOWARD PEAK), trail name label. All pointer-events: none.
+- **3D waypoint labels** — drei `<Html>` labels at each waypoint showing Chinese name, English name, elevation. Nearby ±3 waypoints visible, current waypoint brighter/larger.
 
 ## Internal Docs
 

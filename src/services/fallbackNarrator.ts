@@ -141,12 +141,6 @@ function pick(arr: string[], rng: RNG): string {
  * Generate a fallback narrative from templates.
  */
 export function generateFallbackNarrative(result: TurnResult, rng: RNG): string {
-  const wp = result.newState.player.currentWaypointIndex;
-  const terrain = result.newState.player.currentWaypointIndex >= 0
-    ? (result.newState as { player: { currentWaypointIndex: number } }).player.currentWaypointIndex.toString()
-    : "forest";
-
-  // Import waypoint data inline to get terrain
   const parts: string[] = [];
 
   // Terrain fragment

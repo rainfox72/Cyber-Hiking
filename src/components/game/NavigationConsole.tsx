@@ -7,6 +7,7 @@ import { ActionButton } from "./ActionButton.tsx";
 import { useGameStore } from "../../store/gameStore.ts";
 import type { GameAction } from "../../engine/types.ts";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const ACTION_CONFIG: { action: GameAction; label: string; cost: string }[] = [
   { action: "push_forward", label: "PUSH FORWARD", cost: "3-5h | Advance (or wander if lost)" },
   { action: "set_camp", label: "SET CAMP", cost: "4h day / sleep til dawn | -1 Food, Major recovery" },

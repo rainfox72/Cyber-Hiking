@@ -232,7 +232,7 @@ export class HikerAnimator {
   // State entry helpers
   // ---------------------------------------------------------------------------
 
-  private _enterGlitch(_nextState: AnimatorState): void {
+  private _enterGlitch(): void {
     this._state = "glitch";
     this.stateTimer = 0;
     this.glitchActive = true;

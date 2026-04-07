@@ -9,7 +9,7 @@ import { WAYPOINTS } from "../data/waypoints.ts";
 import { calculateRisk } from "../engine/riskCalculator.ts";
 
 const OLLAMA_URL = "http://localhost:11434/api/generate";
-const MODEL = "llama3.1:8b";
+const MODEL = "gemma4:27b";
 const TIMEOUT_MS = 15000;
 
 /** Result of an AI or heuristic decision. */

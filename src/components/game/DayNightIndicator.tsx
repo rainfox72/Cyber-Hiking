@@ -5,6 +5,7 @@
 import { useGameStore } from "../../store/gameStore.ts";
 import type { TimeOfDay } from "../../engine/types.ts";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const TIME_ICONS: Record<TimeOfDay, string> = {
   dawn: "\uD83C\uDF05",
   morning: "\u2600\uFE0F",
