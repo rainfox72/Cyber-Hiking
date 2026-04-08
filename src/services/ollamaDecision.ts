@@ -223,10 +223,12 @@ export function heuristicDecision(
 
   // Lost: check map ONCE to boost find-back odds, then push forward to actually move
   // check_map only increases probability of finding way back on next push_forward
+  // NOTE: The auto-play loop in gameStore also enforces this at store level,
+  // but the heuristic should do it correctly too for non-auto-play usage.
   if (player.isLost) {
-    // Check if we already checked the map recently (last action was check_map)
-    const lastWasMapCheck = state.log.length > 0 &&
-      state.log[state.log.length - 1].text.includes("Check Map");
+    // Find the last actual game action (not narrative) from the log
+    const lastActionEntry = [...state.log].reverse().find(e => e.type === "action");
+    const lastWasMapCheck = lastActionEntry?.text.includes("Check Map") ?? false;
     if (!lastWasMapCheck && can("check_map")) {
       return { action: "check_map", reasoning: "lost — checking map to improve odds of finding trail" };
     }

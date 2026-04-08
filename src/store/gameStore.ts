@@ -398,6 +398,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
           break;
         }
 
+        // ── Lost override: enforce check_map/push_forward alternation ──
+        // check_map only boosts find-back probability, push_forward actually searches.
+        // Use store.lastAction (set by performAction) — reliable, not log-dependent.
+        if (currentState.player.isLost && validActions.includes("push_forward")) {
+          const prevAction = current.lastAction; // the actual last game action taken
+          const lastWasMapCheck = prevAction === "check_map";
+
+          if (decision.action === "check_map" && lastWasMapCheck) {
+            // Already checked map last turn — force push_forward
+            decision = { action: "push_forward", reasoning: "lost — searching for trail (map already checked)" };
+          } else if (decision.action !== "check_map" && decision.action !== "push_forward" &&
+                     decision.action !== "eat" && decision.action !== "drink" &&
+                     decision.action !== "use_medicine") {
+            // When lost, only allow: check_map, push_forward, eat, drink, medicine
+            decision = lastWasMapCheck
+              ? { action: "push_forward", reasoning: "lost — searching for trail" }
+              : { action: "check_map", reasoning: "lost — checking map first" };
+          }
+        }
+
         // Phase 3: DECISION
         const actionLabel = decision.action.replace("_", " ").toUpperCase();
         set({ aiStatusPhase: `DECISION: ${actionLabel}`, lastAIAction: decision.action });

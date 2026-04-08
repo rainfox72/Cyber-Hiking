@@ -9,12 +9,22 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import "./VectorTerminal.css";
 import { useGameStore } from "../../store/gameStore.ts";
 import type { PopupRequest } from "./types.ts";
 import { VectorScene } from "./VectorScene.tsx";
 import { getSceneDef } from "./sceneDefinitions.ts";
+
+/** Ensures the camera lookAt is set correctly inside the Canvas */
+function CameraSetup({ lookAt }: { lookAt: [number, number, number] }) {
+  const { camera } = useThree();
+  useEffect(() => {
+    camera.lookAt(...lookAt);
+    camera.updateProjectionMatrix();
+  }, [camera, lookAt]);
+  return null;
+}
 
 const BOOT_DURATION = 500;    // ms for boot text
 const SCENE_DURATION = 5000;  // ms for scene display (longer since non-blocking)
@@ -126,11 +136,9 @@ export function VectorTerminal() {
                   far: 50,
                 }}
                 gl={{ alpha: false, antialias: true }}
-                onCreated={({ camera }) => {
-                  camera.lookAt(...sceneDef.camera.lookAt);
-                }}
                 style={{ background: "#020504" }}
               >
+                <CameraSetup lookAt={sceneDef.camera.lookAt} />
                 <VectorScene scene={sceneDef} />
               </Canvas>
             </div>

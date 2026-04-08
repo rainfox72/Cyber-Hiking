@@ -64,7 +64,6 @@ const locationScenes: Record<string, VectorSceneDef> = {
       // Valley terrain
       { type: "terrain", heightmap: generateHeightmap(16, 24, valleyProfile), scale: [5, 3, 3] },
       // Ground grid
-      { type: "grid", size: 4, divisions: 16, opacity: 0.08 },
       // Trailhead gate (two posts + crossbar)
       { type: "wireframe-mesh", geometry: "cylinder", position: [-0.4, 0.4, 0.3], scale: [0.06, 0.8, 0.06] },
       { type: "wireframe-mesh", geometry: "cylinder", position: [0.4, 0.4, 0.3], scale: [0.06, 0.8, 0.06] },
@@ -94,7 +93,6 @@ const locationScenes: Record<string, VectorSceneDef> = {
     animateRotation: 0.06,
     elements: [
       { type: "terrain", heightmap: generateHeightmap(16, 24, valleyProfile), scale: [5, 3.5, 3] },
-      { type: "grid", size: 4, divisions: 16, opacity: 0.1 },
       // Dense forest
       { type: "wireframe-mesh", geometry: "cone", position: [-1.5, 0.3, -0.3], scale: [0.3, 0.7, 0.3], color: "#00cc33" },
       { type: "wireframe-mesh", geometry: "cone", position: [-1.0, 0.25, -0.6], scale: [0.25, 0.6, 0.25], color: "#00cc33" },
@@ -126,7 +124,6 @@ const locationScenes: Record<string, VectorSceneDef> = {
     animateRotation: 0.05,
     elements: [
       { type: "terrain", heightmap: generateHeightmap(12, 20, (x, z) => meadowProfile(x, z) + 0.1), scale: [4, 3, 2.5] },
-      { type: "grid", size: 3, divisions: 12, opacity: 0.1 },
       // Tents
       { type: "wireframe-mesh", geometry: "cone", position: [-0.3, 0.22, 0.2], scale: [0.25, 0.2, 0.2], color: "#00ff41" },
       { type: "wireframe-mesh", geometry: "cone", position: [0.3, 0.22, 0.15], scale: [0.22, 0.18, 0.18], color: "#00ff41" },
@@ -156,7 +153,6 @@ const locationScenes: Record<string, VectorSceneDef> = {
     animateRotation: 0.07,
     elements: [
       { type: "terrain", heightmap: generateHeightmap(16, 24, meadowProfile), scale: [5, 3.5, 3] },
-      { type: "grid", size: 4, divisions: 16, opacity: 0.1 },
       // Twisted bonsai trees (bent shapes)
       { type: "wireframe-mesh", geometry: "cylinder", position: [-0.6, 0.2, 0.1], scale: [0.04, 0.35, 0.04], rotation: [0, 0, 0.3] },
       { type: "wireframe-mesh", geometry: "sphere", position: [-0.5, 0.45, 0.15], scale: [0.15, 0.12, 0.15], color: "#00cc33" },
@@ -186,7 +182,6 @@ const locationScenes: Record<string, VectorSceneDef> = {
     animateRotation: 0.06,
     elements: [
       { type: "terrain", heightmap: generateHeightmap(16, 24, (x, z) => ridgeProfile(x, z, 0.15)), scale: [5, 2.5, 3] },
-      { type: "grid", size: 4, divisions: 16, opacity: 0.08 },
       // Navigation tower structure
       { type: "wireframe-mesh", geometry: "cylinder", position: [0, 0.6, 0], scale: [0.08, 0.8, 0.08] },
       { type: "wireframe-mesh", geometry: "octahedron", position: [0, 1.1, 0], scale: [0.15, 0.15, 0.15], color: "#ffaa00" },
@@ -211,7 +206,6 @@ const locationScenes: Record<string, VectorSceneDef> = {
     animateRotation: 0.05,
     elements: [
       { type: "terrain", heightmap: generateHeightmap(16, 24, (x, z) => ridgeProfile(x, z, 0.3) * 0.8), scale: [5, 2, 3] },
-      { type: "grid", size: 4, divisions: 16, opacity: 0.1 },
       // Temple structure
       { type: "wireframe-mesh", geometry: "box", position: [0, 0.35, 0], scale: [0.5, 0.3, 0.35] },
       { type: "wireframe-mesh", geometry: "cone", position: [0, 0.58, 0], scale: [0.35, 0.2, 0.25], rotation: [0, 0.4, 0] },
@@ -239,7 +233,6 @@ const locationScenes: Record<string, VectorSceneDef> = {
     elements: [
       // Knife-edge ridge terrain
       { type: "terrain", heightmap: generateHeightmap(16, 24, (x, z) => ridgeProfile(x, z, 0.1)), scale: [6, 3, 3] },
-      { type: "grid", size: 5, divisions: 20, opacity: 0.06 },
       // Wind streak lines
       { type: "line", points: [[-2.5, 0.9, 0.2], [-1, 0.95, 0.1], [0.5, 1.0, 0], [2, 1.05, -0.1]], opacity: 0.3 },
       { type: "line", points: [[-2, 0.8, -0.1], [-0.5, 0.85, -0.15], [1, 0.9, -0.2]], opacity: 0.25 },
@@ -262,7 +255,6 @@ const locationScenes: Record<string, VectorSceneDef> = {
     animateRotation: 0.06,
     elements: [
       { type: "terrain", heightmap: generateHeightmap(14, 20, meadowProfile), scale: [4.5, 3, 2.5] },
-      { type: "grid", size: 3.5, divisions: 14, opacity: 0.1 },
       // Tents
       { type: "wireframe-mesh", geometry: "cone", position: [-0.4, 0.18, 0.15], scale: [0.22, 0.18, 0.18] },
       { type: "wireframe-mesh", geometry: "cone", position: [0.2, 0.19, 0.2], scale: [0.2, 0.16, 0.16] },
@@ -288,7 +280,6 @@ const locationScenes: Record<string, VectorSceneDef> = {
     animateRotation: 0.05,
     elements: [
       { type: "terrain", heightmap: generateHeightmap(16, 24, (x, z) => ridgeProfile(x, z, 0.2) * 0.9 + 0.1), scale: [5, 2.5, 3] },
-      { type: "grid", size: 4, divisions: 16, opacity: 0.08 },
       // Scattered scree rocks
       { type: "wireframe-mesh", geometry: "dodecahedron", position: [-0.5, 0.3, 0.2], scale: [0.08, 0.06, 0.07] },
       { type: "wireframe-mesh", geometry: "dodecahedron", position: [0.3, 0.32, -0.1], scale: [0.1, 0.07, 0.09] },
@@ -313,7 +304,6 @@ const locationScenes: Record<string, VectorSceneDef> = {
     animateRotation: 0.05,
     elements: [
       { type: "terrain", heightmap: generateHeightmap(14, 20, (x, z) => meadowProfile(x, z) * 0.8), scale: [4.5, 3, 2.5] },
-      { type: "grid", size: 3.5, divisions: 14, opacity: 0.1 },
       // Tents
       { type: "wireframe-mesh", geometry: "cone", position: [-0.3, 0.14, 0.15], scale: [0.2, 0.16, 0.16] },
       { type: "wireframe-mesh", geometry: "cone", position: [0.25, 0.15, 0.2], scale: [0.18, 0.14, 0.14] },
@@ -338,7 +328,6 @@ const locationScenes: Record<string, VectorSceneDef> = {
     animateRotation: 0.06,
     elements: [
       { type: "terrain", heightmap: generateHeightmap(16, 24, (x, z) => ridgeProfile(x, z, 0.12)), scale: [5, 2.5, 3] },
-      { type: "grid", size: 4, divisions: 16, opacity: 0.08 },
       // Two tall rock pillars forming gate
       { type: "wireframe-mesh", geometry: "box", position: [-0.35, 0.6, 0.1], scale: [0.15, 0.8, 0.12] },
       { type: "wireframe-mesh", geometry: "box", position: [0.35, 0.55, 0.1], scale: [0.15, 0.7, 0.12] },
@@ -361,7 +350,6 @@ const locationScenes: Record<string, VectorSceneDef> = {
     animateRotation: 0.04,
     elements: [
       { type: "terrain", heightmap: generateHeightmap(16, 24, (x, z) => ridgeProfile(x, z, 0.12) * 1.1), scale: [6, 3, 3] },
-      { type: "grid", size: 5, divisions: 20, opacity: 0.06 },
       // Wind streaks
       { type: "line", points: [[-2.5, 1.1, 0.2], [-1, 1.15, 0.1], [1, 1.2, 0]], opacity: 0.25 },
       { type: "line", points: [[-2, 1.0, -0.2], [0, 1.05, -0.25], [2, 1.1, -0.3]], opacity: 0.2 },
@@ -392,7 +380,6 @@ const locationScenes: Record<string, VectorSceneDef> = {
         const ridge = ridgeProfile(x, z, 0.15);
         return Math.max(peak, ridge) + 0.1;
       }), scale: [6, 3.5, 3.5] },
-      { type: "grid", size: 5, divisions: 20, opacity: 0.06 },
       // Summit beacon
       { type: "wireframe-mesh", geometry: "cylinder", position: [0.8, 1.2, 0], scale: [0.05, 1.0, 0.05] },
       { type: "wireframe-mesh", geometry: "sphere", position: [0.8, 1.8, 0], scale: [0.12, 0.12, 0.12], color: "#ffaa00" },
@@ -424,7 +411,6 @@ const eventScenes: Record<string, VectorSceneDef> = {
     elements: [
       // Slope terrain
       { type: "terrain", heightmap: generateHeightmap(12, 16, (x, z) => x * 0.6 + Math.sin(z * 4) * 0.05), scale: [4, 2, 2] },
-      { type: "grid", size: 3, divisions: 12, opacity: 0.1 },
       // Motion ghosts tumbling down slope
       { type: "motion-ghosts", path: [
         [0.8, 1.0, 0], [0.4, 0.7, 0.1], [0, 0.4, 0.15], [-0.4, 0.2, 0.1], [-0.8, 0.05, 0],
@@ -444,7 +430,6 @@ const eventScenes: Record<string, VectorSceneDef> = {
     camera: { position: [1, 1.5, 2], lookAt: [0, 0.5, 0], zoom: 85 },
     accentColor: "#ffaa00",
     elements: [
-      { type: "grid", size: 2, divisions: 8, opacity: 0.1 },
       { type: "hiker", position: [0, 0, 0], pose: "hunched", scale: 0.5 },
       // Dizziness rings around head
       { type: "ring", position: [0, 1.0, 0], radius: 0.2, color: "#ffaa00", pulse: true },
@@ -463,7 +448,6 @@ const eventScenes: Record<string, VectorSceneDef> = {
     camera: { position: [1, 1.5, 2], lookAt: [0, 0.3, 0], zoom: 85 },
     accentColor: "#4488ff",
     elements: [
-      { type: "grid", size: 2, divisions: 8, opacity: 0.1 },
       { type: "hiker", position: [0, 0, 0], pose: "curled", scale: 0.5 },
       // Ice crystal points
       { type: "points", positions: [
@@ -485,7 +469,6 @@ const eventScenes: Record<string, VectorSceneDef> = {
     camera: { position: [1.5, 1.5, 2], lookAt: [0, 0.3, 0], zoom: 80 },
     accentColor: "#ff4400",
     elements: [
-      { type: "grid", size: 2.5, divisions: 10, opacity: 0.1 },
       // Scattered gear wireframes
       { type: "wireframe-mesh", geometry: "box", position: [-0.4, 0.1, 0.2], scale: [0.2, 0.15, 0.12], rotation: [0.3, 0.5, 0.2] },
       { type: "wireframe-mesh", geometry: "cylinder", position: [0.3, 0.08, -0.1], scale: [0.08, 0.25, 0.08], rotation: [0.8, 0, 0.3] },
@@ -507,7 +490,6 @@ const eventScenes: Record<string, VectorSceneDef> = {
     id: "lost_in_fog",
     camera: { position: [1, 1.5, 2], lookAt: [0, 0.4, 0], zoom: 80 },
     elements: [
-      { type: "grid", size: 2.5, divisions: 10, opacity: 0.06 },
       { type: "hiker", position: [0, 0, 0], pose: "standing", scale: 0.45 },
       // Fog layers (horizontal lines at different depths)
       { type: "line", points: [[-1.5, 0.3, 0.5], [-0.5, 0.35, 0.6], [0.5, 0.3, 0.5], [1.5, 0.35, 0.55]], opacity: 0.2 },
@@ -529,7 +511,6 @@ const eventScenes: Record<string, VectorSceneDef> = {
     camera: { position: [0.5, 1, 2], lookAt: [0, 0.3, 0], zoom: 100 },
     accentColor: "#ff6600",
     elements: [
-      { type: "grid", size: 1.5, divisions: 6, opacity: 0.08 },
       // Foot/hand wireframe outlines
       // Simplified foot shape
       { type: "line", points: [[-0.2, 0.05, 0], [-0.15, 0.12, 0], [-0.1, 0.18, 0], [0, 0.2, 0], [0.1, 0.18, 0], [0.15, 0.15, 0], [0.2, 0.08, 0], [0.2, 0.03, 0], [-0.2, 0.03, 0], [-0.2, 0.05, 0]], opacity: 0.7 },
@@ -581,7 +562,6 @@ const eventScenes: Record<string, VectorSceneDef> = {
     camera: { position: [0.5, 1, 2], lookAt: [0, 0.4, 0], zoom: 90 },
     accentColor: "#ff4400",
     elements: [
-      { type: "grid", size: 1.5, divisions: 6, opacity: 0.08 },
       // Torso wireframe (cross-section view)
       { type: "line", points: [[-0.3, 0.1, 0], [-0.35, 0.3, 0], [-0.3, 0.5, 0], [-0.2, 0.65, 0], [0, 0.7, 0], [0.2, 0.65, 0], [0.3, 0.5, 0], [0.35, 0.3, 0], [0.3, 0.1, 0], [-0.3, 0.1, 0]], opacity: 0.6 },
       // Lung outlines (left)
@@ -623,7 +603,6 @@ const eventScenes: Record<string, VectorSceneDef> = {
     id: "found_water",
     camera: { position: [1, 1.5, 2], lookAt: [0, 0.2, 0], zoom: 85 },
     elements: [
-      { type: "grid", size: 2, divisions: 8, opacity: 0.1 },
       // Stream lines
       { type: "line", points: [[-1, 0.02, 0.3], [-0.3, 0.01, 0.25], [0.3, 0.01, 0.3], [1, 0.02, 0.28]], color: "#00aaff", opacity: 0.7 },
       { type: "line", points: [[-0.8, 0.01, 0.35], [0, 0.005, 0.32], [0.8, 0.01, 0.34]], color: "#0088dd", opacity: 0.5 },
@@ -649,7 +628,6 @@ const eventScenes: Record<string, VectorSceneDef> = {
     camera: { position: [0.5, 1, 2], lookAt: [0, 0.35, 0], zoom: 95 },
     accentColor: "#ff6600",
     elements: [
-      { type: "grid", size: 1.5, divisions: 6, opacity: 0.08 },
       // Leg wireframe (side view)
       // Thigh
       { type: "line", points: [[0, 0.7, 0], [0, 0.45, 0.02]], opacity: 0.7 },
@@ -674,7 +652,6 @@ const eventScenes: Record<string, VectorSceneDef> = {
     camera: { position: [1.5, 2, 2.5], lookAt: [0, 0.3, 0], zoom: 70 },
     accentColor: "#ff4400",
     elements: [
-      { type: "grid", size: 3, divisions: 12, opacity: 0.08 },
       // Fractured ground (broken grid lines)
       { type: "line", points: [[-1, 0.15, 0.2], [-0.3, 0.12, 0.18], [-0.1, 0.05, 0.2]], opacity: 0.6 },
       { type: "line", points: [[0.1, 0.08, 0.15], [0.5, 0.02, 0.2], [1, -0.05, 0.18]], opacity: 0.5, color: "#ff4400" },
