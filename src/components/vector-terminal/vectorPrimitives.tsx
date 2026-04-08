@@ -21,7 +21,7 @@ import type {
 
 const GREEN = "#00ff41";
 
-// ── Wireframe terrain from heightmap ──
+// ── Wireframe terrain from heightmap (grid-line edges only, no diagonals) ──
 
 export function TerrainPrimitive({
   heightmap,
@@ -29,42 +29,53 @@ export function TerrainPrimitive({
   scale = [4, 1, 2],
   color = GREEN,
 }: VectorTerrain) {
-  const geometry = useMemo(() => {
+  const lineObj = useMemo(() => {
     const rows = heightmap.length;
     const cols = heightmap[0].length;
-    const positions: number[] = [];
-    const indices: number[] = [];
 
+    // Build vertex grid
+    const verts: [number, number, number][] = [];
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         const x = (c / (cols - 1)) - 0.5;
         const y = heightmap[r][c];
         const z = (r / (rows - 1)) - 0.5;
-        positions.push(x, y, z);
+        verts.push([x, y, z]);
       }
     }
 
-    for (let r = 0; r < rows - 1; r++) {
-      for (let c = 0; c < cols - 1; c++) {
-        const tl = r * cols + c;
-        const tr = tl + 1;
-        const bl = (r + 1) * cols + c;
-        const br = bl + 1;
-        indices.push(tl, tr, bl);
-        indices.push(tr, br, bl);
+    // Build edge pairs (horizontal + vertical lines only — no diagonals)
+    const edgePositions: number[] = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const idx = r * cols + c;
+        // Horizontal edge (to right neighbor)
+        if (c < cols - 1) {
+          const right = idx + 1;
+          edgePositions.push(...verts[idx], ...verts[right]);
+        }
+        // Vertical edge (to bottom neighbor)
+        if (r < rows - 1) {
+          const below = idx + cols;
+          edgePositions.push(...verts[idx], ...verts[below]);
+        }
       }
     }
 
     const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    geo.setIndex(indices);
-    return geo;
-  }, [heightmap]);
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(edgePositions, 3));
+
+    const mat = new THREE.LineBasicMaterial({
+      color,
+      transparent: true,
+      opacity: 0.6,
+    });
+
+    return new THREE.LineSegments(geo, mat);
+  }, [heightmap, color]);
 
   return (
-    <mesh geometry={geometry} position={position} scale={scale}>
-      <meshBasicMaterial color={color} wireframe transparent opacity={0.7} />
-    </mesh>
+    <primitive object={lineObj} position={position} scale={scale} />
   );
 }
 

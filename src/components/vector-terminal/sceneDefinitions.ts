@@ -25,24 +25,29 @@ function generateHeightmap(
   return map;
 }
 
-// Simple noise-like function for terrain variation
+// Terrain profile functions — return heights in 0-1 range
+// These are scaled by the terrain element's Y scale factor
+
 function ridgeProfile(x: number, z: number, sharpness: number): number {
   const center = Math.exp(-((z - 0.5) ** 2) / (2 * sharpness * sharpness));
-  const noise = Math.sin(x * 12) * 0.03 + Math.sin(x * 7 + 1) * 0.02 + Math.sin(z * 9) * 0.02;
-  return center * (0.3 + x * 0.4) + noise;
+  const noise = Math.sin(x * 12) * 0.04 + Math.sin(x * 7 + 1) * 0.03 + Math.sin(z * 9) * 0.03;
+  return center * (0.3 + x * 0.5) + noise;
 }
 
 function valleyProfile(x: number, z: number): number {
   const sides = Math.abs(z - 0.5) * 2;
-  const valley = sides * sides * 0.5;
-  const noise = Math.sin(x * 8) * 0.02 + Math.sin(z * 6 + 2) * 0.015;
-  return valley * 0.4 + noise + 0.05;
+  const walls = sides * sides * 0.6;
+  const streamBed = Math.exp(-((z - 0.5) ** 2) / 0.02) * -0.05; // dip at center
+  const slope = x * 0.2; // rises along X
+  const noise = Math.sin(x * 8) * 0.03 + Math.sin(z * 6 + 2) * 0.02;
+  return walls + slope + streamBed + noise + 0.05;
 }
 
 function meadowProfile(x: number, z: number): number {
-  const gentle = Math.sin(x * 3) * 0.05 + Math.sin(z * 4) * 0.04;
-  const base = 0.15 + x * 0.1;
-  return base + gentle;
+  const gentle = Math.sin(x * 3) * 0.08 + Math.sin(z * 4) * 0.06;
+  const rolling = Math.sin(x * 1.5 + z * 2) * 0.05;
+  const base = 0.15 + x * 0.15;
+  return base + gentle + rolling;
 }
 
 // ═══════════════════════════════════════════════
@@ -57,9 +62,9 @@ const locationScenes: Record<string, VectorSceneDef> = {
     animateRotation: 0.08,
     elements: [
       // Valley terrain
-      { type: "terrain", heightmap: generateHeightmap(16, 24, valleyProfile), scale: [5, 1.5, 3] },
+      { type: "terrain", heightmap: generateHeightmap(16, 24, valleyProfile), scale: [5, 3, 3] },
       // Ground grid
-      { type: "grid", size: 4, divisions: 16, opacity: 0.1 },
+      { type: "grid", size: 4, divisions: 16, opacity: 0.08 },
       // Trailhead gate (two posts + crossbar)
       { type: "wireframe-mesh", geometry: "cylinder", position: [-0.4, 0.4, 0.3], scale: [0.06, 0.8, 0.06] },
       { type: "wireframe-mesh", geometry: "cylinder", position: [0.4, 0.4, 0.3], scale: [0.06, 0.8, 0.06] },
@@ -88,7 +93,7 @@ const locationScenes: Record<string, VectorSceneDef> = {
     camera: { position: [2, 2, 3], lookAt: [0, 0.2, 0], zoom: 70 },
     animateRotation: 0.06,
     elements: [
-      { type: "terrain", heightmap: generateHeightmap(16, 24, valleyProfile), scale: [5, 2, 3] },
+      { type: "terrain", heightmap: generateHeightmap(16, 24, valleyProfile), scale: [5, 3.5, 3] },
       { type: "grid", size: 4, divisions: 16, opacity: 0.1 },
       // Dense forest
       { type: "wireframe-mesh", geometry: "cone", position: [-1.5, 0.3, -0.3], scale: [0.3, 0.7, 0.3], color: "#00cc33" },
@@ -120,7 +125,7 @@ const locationScenes: Record<string, VectorSceneDef> = {
     camera: { position: [2, 2, 2.5], lookAt: [0, 0.2, 0], zoom: 75 },
     animateRotation: 0.05,
     elements: [
-      { type: "terrain", heightmap: generateHeightmap(12, 20, (x, z) => meadowProfile(x, z) + 0.1), scale: [4, 1.5, 2.5] },
+      { type: "terrain", heightmap: generateHeightmap(12, 20, (x, z) => meadowProfile(x, z) + 0.1), scale: [4, 3, 2.5] },
       { type: "grid", size: 3, divisions: 12, opacity: 0.1 },
       // Tents
       { type: "wireframe-mesh", geometry: "cone", position: [-0.3, 0.22, 0.2], scale: [0.25, 0.2, 0.2], color: "#00ff41" },
@@ -147,10 +152,10 @@ const locationScenes: Record<string, VectorSceneDef> = {
   // ── 3: Bonsai Garden ──
   penjingyuan: {
     id: "penjingyuan",
-    camera: { position: [2.5, 2, 2.5], lookAt: [0, 0.3, 0], zoom: 70 },
+    camera: { position: [2, 2.5, 2.5], lookAt: [0, 0.5, 0], zoom: 60 },
     animateRotation: 0.07,
     elements: [
-      { type: "terrain", heightmap: generateHeightmap(16, 24, meadowProfile), scale: [5, 2, 3] },
+      { type: "terrain", heightmap: generateHeightmap(16, 24, meadowProfile), scale: [5, 3.5, 3] },
       { type: "grid", size: 4, divisions: 16, opacity: 0.1 },
       // Twisted bonsai trees (bent shapes)
       { type: "wireframe-mesh", geometry: "cylinder", position: [-0.6, 0.2, 0.1], scale: [0.04, 0.35, 0.04], rotation: [0, 0, 0.3] },
@@ -256,7 +261,7 @@ const locationScenes: Record<string, VectorSceneDef> = {
     camera: { position: [2, 2, 2.5], lookAt: [0, 0.2, 0], zoom: 72 },
     animateRotation: 0.06,
     elements: [
-      { type: "terrain", heightmap: generateHeightmap(14, 20, meadowProfile), scale: [4.5, 1.5, 2.5] },
+      { type: "terrain", heightmap: generateHeightmap(14, 20, meadowProfile), scale: [4.5, 3, 2.5] },
       { type: "grid", size: 3.5, divisions: 14, opacity: 0.1 },
       // Tents
       { type: "wireframe-mesh", geometry: "cone", position: [-0.4, 0.18, 0.15], scale: [0.22, 0.18, 0.18] },
@@ -307,7 +312,7 @@ const locationScenes: Record<string, VectorSceneDef> = {
     camera: { position: [2, 2, 2.5], lookAt: [0, 0.2, 0], zoom: 72 },
     animateRotation: 0.05,
     elements: [
-      { type: "terrain", heightmap: generateHeightmap(14, 20, (x, z) => meadowProfile(x, z) * 0.8), scale: [4.5, 1.5, 2.5] },
+      { type: "terrain", heightmap: generateHeightmap(14, 20, (x, z) => meadowProfile(x, z) * 0.8), scale: [4.5, 3, 2.5] },
       { type: "grid", size: 3.5, divisions: 14, opacity: 0.1 },
       // Tents
       { type: "wireframe-mesh", geometry: "cone", position: [-0.3, 0.14, 0.15], scale: [0.2, 0.16, 0.16] },

@@ -60,7 +60,7 @@ CURRENT STATE:
 - Body Temp: ${Math.round(player.bodyTemp)}%, O2: ${Math.round(player.o2Saturation)}%
 - Morale: ${Math.round(player.morale)}%
 - Food: ${player.food} meals, Water: ${player.water.toFixed(1)}L, Gear: ${player.gear}%, Medicine: ${player.medicine}
-- Lost: ${player.isLost ? "YES — check_map to find way back" : "no"}
+- Lost: ${player.isLost ? "YES — must push_forward to search for trail (check_map once first to boost odds)" : "no"}
 - Turn: ${state.turnNumber}${criticalWarning}
 
 MANDATORY RULES (follow in priority order):
@@ -73,10 +73,11 @@ MANDATORY RULES (follow in priority order):
 7. CAMP FORAGING: Setting camp during DAYTIME gives +0.5 food (foraging). Night camp gives no food. So prefer daytime camp when possible to offset food cost.
 8. REST is WEAK (+8 energy, +2 bodyTemp in calm weather, 0 in wind/blizzard) — costs 0.3L water. Use camp for real recovery.
 9. EAT gives +50 energy, +8 morale, +3 bodyTemp (hot food). Eat/drink are the MOST EFFICIENT actions — always prefer them before rest/camp when vitals are low.
-10. When all vitals > 60% and conditions are acceptable: choose "push_forward" to make progress.
-11. If resources depleted and vitals declining: "descend" to survive rather than die pushing forward.
-12. Use medicine for altitude sickness (low O2) or fall injuries only. Medicine does NOT help body temp.
-13. Water resupply has 70% chance at stream valleys. Food caches have 70% chance at shelter waypoints (camp_2900, shuiwo, camp_2800).
+10. WHEN LOST: check_map ONCE (improves find-back probability), then push_forward to actually search for the trail. Do NOT keep checking map repeatedly — you must move to find the way back. Pattern: check_map → push_forward → check_map → push_forward.
+11. When all vitals > 60% and conditions are acceptable: choose "push_forward" to make progress.
+12. If resources depleted and vitals declining: "descend" to survive rather than die pushing forward.
+13. Use medicine for altitude sickness (low O2) or fall injuries only. Medicine does NOT help body temp.
+14. Water resupply has 70% chance at stream valleys. Food caches have 70% chance at shelter waypoints (camp_2900, shuiwo, camp_2800).
 
 VALID ACTIONS: ${validActions.join(", ")}
 
@@ -220,9 +221,18 @@ export function heuristicDecision(
     return { action: "rest", reasoning: "energy low, resting to recover" };
   }
 
-  // Lost: check map
-  if (player.isLost && can("check_map")) {
-    return { action: "check_map", reasoning: "lost on the trail, checking map to reorient" };
+  // Lost: check map ONCE to boost find-back odds, then push forward to actually move
+  // check_map only increases probability of finding way back on next push_forward
+  if (player.isLost) {
+    // Check if we already checked the map recently (last action was check_map)
+    const lastWasMapCheck = state.log.length > 0 &&
+      state.log[state.log.length - 1].text.includes("Check Map");
+    if (!lastWasMapCheck && can("check_map")) {
+      return { action: "check_map", reasoning: "lost — checking map to improve odds of finding trail" };
+    }
+    if (can("push_forward")) {
+      return { action: "push_forward", reasoning: "lost — moving to search for the trail (map checked)" };
+    }
   }
 
   // Night time + can camp + have food: camp for the night
